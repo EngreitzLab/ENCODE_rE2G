@@ -1,10 +1,17 @@
 from snakemake.utils import min_version
 min_version("7.0")
 
-configfile: "config/config.yaml"
+configfile: "config/config.yml"
 conda: "mamba"
 
 RESULTS_DIR = config["results_dir"]
+
+rule all:
+	input: 
+		enhancer_list = config['enhancer_list'],
+		gene_TSS500 = config['gene_TSS500'],
+		abc_predictions = config['abc_predictions'],
+
 rule gen_new_features: 
 	input:
 		enhancer_list = config['enhancer_list'],
