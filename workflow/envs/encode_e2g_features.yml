@@ -1,0 +1,13 @@
+name: encode_e2g_features
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - anaconda
+dependencies:
+  - bedtools=2.26.0
+  - click
+  - numpy
+  - pandas
+  - python>=3.6
+  - snakemake>=7.0

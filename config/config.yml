@@ -1,0 +1,8 @@
+# INPUT
+gene_TSS500: "resources/hg38/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed"
+abc_predictions: "/oak/stanford/groups/akundaje/kmualim/02212022_hg38Preds_QNORM-hic/{}/Predictions/EnhancerPredictionsAllPutative.txt.gz"
+enhancer_list: "/oak/stanford/groups/akundaje/kmualim/{}/{}/Neighborhoods/EnhancerList.txt"
+
+# OUTPUT
+results_dir: "results/"
+

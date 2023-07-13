@@ -1,0 +1,29 @@
+from snakemake.utils import min_version
+min_version("7.0")
+
+configfile: "config/config.yaml"
+conda: "mamba"
+
+RESULTS_DIR = config["results_dir"]
+rule gen_new_features: 
+	input:
+		enhancer_list = config['enhancer_list'],
+		gene_TSS500 = config['gene_TSS500'],
+		abc_predictions = config['abc_predictions'],
+	conda:
+		"envs/encode_e2g_features.yml"
+	output: 
+		os.path.join(RESULTS_DIR, "NumCandidateEnhGene.txt"),
+		os.path.join(RESULTS_DIR, "NumTSSEnhGene.txt"),
+		os.path.join(RESULTS_DIR, "NumEnhancersEG5kb.txt"),
+		os.path.join(RESULTS_DIR, "SumEnhancersEG5kb.txt"),
+		os.path.join(RESULTS_DIR, "NumEnhancersEG10kb.txt"),
+		os.path.join(RESULTS_DIR, "SumEnhancersEG10kb.txt"),
+	shell: 
+		""" 
+		python workflow/scripts/gen_new_features.py \
+			--enhancer_list {input.enhancer_list} \
+			--ref_gene_tss {input.geneTSS500} \
+			--abc_predictions {input.abc_predictions} \
+			--results_dir {RESULTS_DIR}
+		"""
