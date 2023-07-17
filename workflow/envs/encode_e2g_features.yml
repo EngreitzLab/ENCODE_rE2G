@@ -4,10 +4,21 @@ channels:
   - conda-forge
   - defaults
   - anaconda
+  - r
 dependencies:
-  - bedtools=2.26.0
+  - bedtools=2.29.2
   - click
+  - csvtk
   - numpy
   - pandas
   - python>=3.6
+  - pigz
   - snakemake>=7.0
+  - wget
+  - r-base
+  - r-r.utils
+  - r-data.table
+  - r-tidyverse
+  - r-ggpubr
+  - r-ggcorrplot
+  - bioconductor-genomicranges

@@ -1,7 +1,15 @@
 # INPUT
+
+# gen_new_features
 gene_TSS500: "resources/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed"
 abc_predictions: "resources/EnhancerPredictionsAllPutative.txt.gz"
 enhancer_list: "resources/EnhancerList.txt"
+chr_sizes: "resources/hg38.chr_sizes"
+
+# Andreas
+ubiq_expr_genes: "resources/for_classifier_use_ubiquitous_expression_RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.txt"
+feature_config: "config/feature_config.tsv"
+crispr_dataset: "resources/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz"
 
 # OUTPUT
 results_dir: "results/"

@@ -1,9 +1,9 @@
 import os
+import sys
 
 import click
 import numpy as np
 import pandas as pd
-
 
 def create_intermediate_dir(results_dir):
     intermediate_dir = os.path.join(results_dir, "intermediate_files")
@@ -14,14 +14,15 @@ def create_intermediate_dir(results_dir):
 
 @click.command()
 @click.option("--enhancer_list")
-@click.option("--ref_gene_tss")
 @click.option("--abc_predictions")
+@click.option("--ref_gene_tss")
+@click.option("--chr_sizes")
 @click.option("--results_dir")
-def main(enhancer_list, ref_gene_tss, abc_predictions, results_dir):
+def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
     intermediate_dir = create_intermediate_dir(results_dir)
     # Read in input prediction file
     subset = pd.read_csv(
-        enhancer_list, sep="\t", usecols=["chr", "start", "end", "name"]
+        abc_predictions, sep="\t"
     )
     ##### columns in input prediction file: chr	start	end	name	class	activity_base	TargetGene	TargetGeneTSS	TargetGeneExpression	TargetGenePromoterActivityQuantile	TargetGeneIsExpressed	distance	isSelfPromoter	powerlaw_contact	powerlaw_contact_reference	hic_contact	hic_contact_pl_scaled	hic_pseudocount	hic_contact_pl_scaled_adj	ABC.Score.Numerator	ABC.Score	powerlaw.Score.Numerator	powerlaw.Score	CellType
     #### subsetting data to just columns required
@@ -59,7 +60,7 @@ def main(enhancer_list, ref_gene_tss, abc_predictions, results_dir):
             intermediate_dir, "EnhancerRegions_extended_RefSeq.intersected.txt.gz"
         )
         os.system(
-            "sed '1d' {} | bedtools intersect -a stdin -b {} -wa -wb | cut -f4,5 | gzip > {}".format(
+            "sed '1d' {} | bedtools intersect -a stdin -b {} -wa -wb | cut -f4,5 | pigz > {}".format(
                 extended_enhregions, ref_gene_tss, filename
             )
         )
@@ -79,7 +80,7 @@ def main(enhancer_list, ref_gene_tss, abc_predictions, results_dir):
             intermediate_dir, "EnhancerRegions_extended_CandidateReg.txt.gz"
         )
         os.system(
-            "sed '1d' {} | bedtools intersect -a stdin -b {} -wa -wb | cut -f4,5 | gzip > {}".format(
+            "sed '1d' {} | bedtools intersect -a stdin -b {} -wa -wb | cut -f4,5 | pigz > {}".format(
                 extended_enhregions, candidate_enhancersfile, filename_enh
             )
         )
@@ -110,6 +111,10 @@ def main(enhancer_list, ref_gene_tss, abc_predictions, results_dir):
         )
         print("Saved num TSS between enh and gene")
 
+        subset = pd.read_csv(enhancer_list, sep="\t", usecols=['chr', 'start', 'end', 'name'])
+        subset['midpoint'] = subset['start']+0.5*(subset['end']-subset['start'])
+        subset['midpoint'] = subset['midpoint'].astype('int')
+
         ############ Generate Num/Sum Enhancers within 5kb/10kb ############
         ##### Make the end be midpoint of enhancer + distance (This gives you the end coordinate of distance range)
         enh_list_midpoint_file = os.path.join(
@@ -123,33 +128,33 @@ def main(enhancer_list, ref_gene_tss, abc_predictions, results_dir):
         )
         slop_5kb_file = os.path.join(intermediate_dir, "EnhancerRegions.slop_5kb.bed")
         os.system(
-            "bedtools slop -b 5000 -i {} -g /oak/stanford/groups/akundaje/kmualim/ABC-Enhancer-Gene-Prediction/sherlock_scripts/hg38.chrom.sizes > {}".format(
-                enh_list_midpoint_file, slop_5kb_file
+            "bedtools slop -b 5000 -i {} -g {} > {}".format(
+                enh_list_midpoint_file, chr_sizes, slop_5kb_file
             )
         )
         slop_10kb_file = os.path.join(intermediate_dir, "EnhancerRegions.slop_10kb.bed")
         os.system(
-            "bedtools slop -b 10000 -i {} -g /oak/stanford/groups/akundaje/kmualim/ABC-Enhancer-Gene-Prediction/sherlock_scripts/hg38.chrom.sizes > {}".format(
-                enh_list_midpoint_file, slop_10kb_file
+            "bedtools slop -b 10000 -i {} -g {} > {}".format(
+                enh_list_midpoint_file, chr_sizes, slop_10kb_file
             )
         )
         prediction_slim_file = os.path.join(
             intermediate_dir, "EnhancerPredictionsAllPutative.slim.bed"
         )
         os.system(
-            "zcat {} | cut -f1,2,3,4,6 | sed '1d' > {}".format(
+            "zcat {} | csvtk cut -t -f chr,start,end,name,activity_base | sed '1d' > {}".format(
                 abc_predictions, prediction_slim_file
             )
         )
         os.system(
-            "bedtools intersect -a {} -b {} -wa -wb > {}".format(
+            "bedtools intersect -a {} -b {} -wa -wb > {} | sort -u ".format(
                 slop_5kb_file,
                 prediction_slim_file,
                 os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
             )
         )
         os.system(
-            "bedtools intersect -a {} -b {} -wa -wb > {}".format(
+            "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
                 slop_10kb_file,
                 prediction_slim_file,
                 os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
