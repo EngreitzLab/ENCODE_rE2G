@@ -20,7 +20,10 @@ rule all:
 		NUM_TSS_ENH_GENE,
 		NUM_ENHANCERS_EG_5KB,
 		SUM_ENHANCERS_EG_5KB,
-		os.path.join(RESULTS_DIR, "feature_tables/DNaseOnly_features.tsv.gz")
+		os.path.join(RESULTS_DIR, "feature_tables/DNaseOnly_features.tsv.gz"),
+		expand(
+			os.path.join(RESULTS_DIR, "EPCrisprBenchmark_ensemble_data_GRCh38.K562_DNaseOnly_features_NAfilled.tsv.gz"), nafill = ["withNA", "NAfilled"]
+		)
 
 # create DNase-only feature table
 rule dnase_only_features:
@@ -47,7 +50,7 @@ rule overlap_dnase_only_features_crispr:
 		config = config['feature_config'],
 		tss = config['gene_TSS500']
 	output: 
-		os.path.join(RESULTS_DIR, "EPCrisprBenchmark_ensemble_data_GRCh38.K562_DNaseOnly_features_NAfilled.tsv.gz")
+		os.path.join(RESULTS_DIR, "EPCrisprBenchmark_ensemble_data_GRCh38.K562_DNaseOnly_features_{nafill}.tsv.gz")
 	params:
 		filter_genes = "none"
 	conda:
