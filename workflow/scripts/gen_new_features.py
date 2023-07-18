@@ -4,13 +4,17 @@ import sys
 import click
 import numpy as np
 import pandas as pd
+import time
 
 def create_intermediate_dir(results_dir):
     intermediate_dir = os.path.join(results_dir, "intermediate_files")
     if not os.path.exists(intermediate_dir):
         os.makedirs(intermediate_dir)
     return intermediate_dir
+start_time = time.time()
 
+def print_time(msg):
+    print(f"{int(time.time() - start_time)} sec elapsed. {msg}")
 
 @click.command()
 @click.option("--enhancer_list")
@@ -21,9 +25,11 @@ def create_intermediate_dir(results_dir):
 def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
     intermediate_dir = create_intermediate_dir(results_dir)
     # Read in input prediction file
+    print_time('start')
     subset = pd.read_csv(
         abc_predictions, sep="\t"
     )
+    print_time('loaded csv')
     ##### columns in input prediction file: chr	start	end	name	class	activity_base	TargetGene	TargetGeneTSS	TargetGeneExpression	TargetGenePromoterActivityQuantile	TargetGeneIsExpressed	distance	isSelfPromoter	powerlaw_contact	powerlaw_contact_reference	hic_contact	hic_contact_pl_scaled	hic_pseudocount	hic_contact_pl_scaled_adj	ABC.Score.Numerator	ABC.Score	powerlaw.Score.Numerator	powerlaw.Score	CellType
     #### subsetting data to just columns required
     # subset = data[['chr', 'start', 'end', 'name', 'class', 'activity_base', 'TargetGene', 'TargetGeneTSS', 'TargetGeneExpression', 'TargetGenePromoterActivityQuantile', 'TargetGeneIsExpressed', 'distance', 'hic_contact', 'powerlaw_contact', 'hic_contact_pl_scaled', 'ABC.Score.Numerator', 'ABC.Score', 'CellType']]
@@ -53,6 +59,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
         subset[["chr", "start", "end1", "name", "TargetGene"]].to_csv(
             extended_enhregions, sep="\t", index=False
         )
+        print_time('wrote extended_enhregions to disk')
 
         ## Intersect midpoint of enhancer to target gene regions with GeneTSS
         ## This will include overlaps with the TargetGene
@@ -64,6 +71,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
                 extended_enhregions, ref_gene_tss, filename
             )
         )
+        print_time("intersected extended region and GeneTSS")
         ##
         candidate_enhancers = pd.read_csv(enhancer_list, sep="\t")
         candidate_enhancers = candidate_enhancers.loc[
@@ -75,6 +83,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
         candidate_enhancers[["chr", "start", "end"]].to_csv(
             candidate_enhancersfile, sep="\t", index=False
         )
+        print_time("Create enhancer list without promoters")
         #### How many candidate enhancer regions are located between the enhancer and the promoter?
         filename_enh = os.path.join(
             intermediate_dir, "EnhancerRegions_extended_CandidateReg.txt.gz"
@@ -84,11 +93,13 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
                 extended_enhregions, candidate_enhancersfile, filename_enh
             )
         )
+        print_time("Intersected extended region and candidate enhancers")
         print("Reading in {}".format(filename_enh))
         predictions_can = pd.read_csv(filename_enh, sep="\t", names=["class", "gene"])
         num_candidate_enhancers = (
             predictions_can.groupby(["class", "gene"]).size().reset_index()
         )
+        print_time("Computed counts for NumCandidateEnhGene.txt")
 
         num_candidate_enhancers.to_csv(
             os.path.join(results_dir, "NumCandidateEnhGene.txt"),
@@ -110,6 +121,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
             index=False,
         )
         print("Saved num TSS between enh and gene")
+        print_time("Wrote NumTssEnhGene.txt")
 
         subset = pd.read_csv(enhancer_list, sep="\t", usecols=['chr', 'start', 'end', 'name'])
         subset['midpoint'] = subset['start']+0.5*(subset['end']-subset['start'])
@@ -138,6 +150,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
                 enh_list_midpoint_file, chr_sizes, slop_10kb_file
             )
         )
+        print_time("Computed bedtools slop")
         prediction_slim_file = os.path.join(
             intermediate_dir, "EnhancerPredictionsAllPutative.slim.bed"
         )
@@ -153,6 +166,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
                 os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
             )
         )
+        print_time("Wrote NumEnhancers5kb")
         os.system(
             "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
                 slop_10kb_file,
@@ -160,6 +174,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
                 os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
             )
         )
+        print_time("Wrote NumEnhancers10kb")
         data = pd.read_csv(
             os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
             sep="\t",
@@ -180,6 +195,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
             header=False,
             index=False,
         )
+        print_time("Wrote Num/Sum Enhancers5kb")
         data = pd.read_csv(
             os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
             sep="\t",
@@ -200,6 +216,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
             header=False,
             index=False,
         )
+        print_time("Wrote Num/Sum Enhancers10kb again")
 
 
 if __name__ == "__main__":
