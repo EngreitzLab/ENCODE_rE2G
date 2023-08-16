@@ -3,7 +3,7 @@ Generate [Encode E2G](https://github.com/karbalayghareh/ENCODE-E2G) input featur
 
 ## Usage
 
-Modify `config/config.yml` to point to your ABC prediction file (EnhancerPredictionsAllPutative.txt.gz)
+Modify `config/config.yml` to point to your ABC prediction file (EnhancerPredictionsAllPutative.txt.gz) and EnhancerList file 
 
 ```
 mamba env create -f workflow/envs/encode_e2g_features.yml
