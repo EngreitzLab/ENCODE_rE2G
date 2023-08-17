@@ -2,7 +2,7 @@ from snakemake.utils import min_version
 min_version("7.0")
 
 configfile: "config/config.yml"
-conda: "mamba"
+conda: "mamba"	
 
 RESULTS_DIR = config["results_dir"]
 
@@ -39,6 +39,8 @@ rule dnase_only_features:
 		dnase_feature_tsv = os.path.join(RESULTS_DIR, "feature_tables/DNaseOnly_features.tsv.gz")
 	conda:
 		"envs/encode_e2g_features.yml"
+	resources:
+		mem = "32G"
 	script:
 		"scripts/dnase_only_features.R"
 
@@ -55,6 +57,8 @@ rule overlap_dnase_only_features_crispr:
 		filter_genes = "none"
 	conda:
 		"envs/encode_e2g_features.yml" 
+	resources:
+		mem = "32G"
 	script:
 		"scripts/overlap_features_with_crispr_data.R"
 
@@ -76,7 +80,7 @@ rule gen_new_features:
 		NUM_ENHANCERS_EG_10KB,
 		SUM_ENHANCERS_EG_10KB,
 	resources:
-		mem_mb = 32*1000 # 32 GB
+		mem = "32G"
 	shell: 
 		""" 
 		python workflow/scripts/gen_new_features.py \
