@@ -1,5 +1,5 @@
 import os
-
+import copy
 import click
 import pandas as pd
 
@@ -30,51 +30,49 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
     if len(pred_df) == 0:
         raise Exception("Did not find any enhancers in the Predictions file")
     add_midpoint(pred_df)
+
     determine_num_candidate_enh_gene(pred_df, results_dir)
-
     determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir)
-
     generate_num_sum_enhancers(
         abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir
     )
 
-
-def populate_enhancer_count_from_tss(df, enhancers, is_downstream):
-    enhancers = enhancers.sort_values(by=["midpoint"], ascending=is_downstream)
+def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
+    enh_indexes = enhancers.index
+    if is_upstream:
+        # start counting from the enhancer closest to TSS
+        enh_indexes = reversed(enh_indexes)
+    
     count_from_tss = 0
-    for enh_idx in enhancers.index:
+    for enh_idx in enh_indexes:
         count_from_tss += 1
         df.loc[enh_idx, "NumCandidateEnhGene"] = count_from_tss
 
 
 def determine_num_candidate_enh_gene(pred_df, results_dir):
-    gene_groups = pred_df.groupby(["TargetGene", "TargetGeneTSS"])
+    # Need df to be sorted by midpoint for each chromosome
+    df = pred_df.sort_values(by=['chr', 'midpoint'], ascending=True).reset_index(drop=True)
+
+    gene_groups = df.groupby(["TargetGene", "TargetGeneTSS"])
     for (gene, tss), indexes in gene_groups.groups.items():
-        enhancers = pred_df.loc[indexes]
-        # can i just do
-        # upstream_enh = enhancers[enhancers["midpoint"] < tss]
-        upstream_enh = enhancers["midpoint"] < tss
-        downstream_enh = enhancers["midpoint"] > tss
-        populate_enhancer_count_from_tss(
-            pred_df, enhancers[upstream_enh], is_downstream=False
-        )
-        populate_enhancer_count_from_tss(
-            pred_df, enhancers[downstream_enh], is_downstream=True
-        )
+        enhancers = df.loc[indexes]
+        upstream_enh = enhancers[enhancers["midpoint"] < tss]
+        downstream_enh = enhancers[enhancers["midpoint"] > tss]
+        _populate_enhancer_count_from_tss(df, upstream_enh, is_upstream=True)
+        _populate_enhancer_count_from_tss(df, downstream_enh, is_upstream=False)
 
-    # num_candidate_enhancers = pred_df.groupby(["class", "gene"]).size().reset_index()
-
-    # num_candidate_enhancers.to_csv(
-    #     os.path.join(results_dir, "NumCandidateEnhGene.txt"),
-    #     sep="\t",
-    #     index=False,
-    # )
-    # print("Saved num candidate enhancers")
+    df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
+    df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
+        os.path.join(results_dir, "NumCandidateEnhGene.tsv"),
+        sep="\t",
+        index=False,
+    )
+    print("Saved num candidate enhancers")
 
 
 def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir):
     ##### Make the end be midpoint of enhancer + distance (This gives you the end coordinate of distance range)
-    pred_df["new_end"] = pred_df["midpoint"] + pred_df["distance"]
+    pred_df["new_end"] = (pred_df["midpoint"] + pred_df["distance"]).astype("int")
 
     ## If gene is located upstream of enhancer, modify the start to be the beginning of the TargetGeneTSS and the end be the midpoint of the enhancer
     downstream_enh = pred_df[pred_df["TargetGeneTSS"] < pred_df["midpoint"]]
@@ -109,7 +107,7 @@ def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_
         predictions.groupby(["class", "gene"]).size().reset_index()
     )
     num_tss_between_enh_and_gene.to_csv(
-        os.path.join(results_dir, "NumTSSEnhGene.txt"),
+        os.path.join(results_dir, "NumTSSEnhGene.tsv"),
         sep="\t",
         index=False,
     )

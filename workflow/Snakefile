@@ -75,6 +75,8 @@ rule gen_new_features:
 		SUM_ENHANCERS_EG_5KB,
 		NUM_ENHANCERS_EG_10KB,
 		SUM_ENHANCERS_EG_10KB,
+	resources:
+		mem_mb = 32*1000 # 32 GB
 	shell: 
 		""" 
 		python workflow/scripts/gen_new_features.py \
