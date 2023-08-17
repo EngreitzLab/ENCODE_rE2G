@@ -6,8 +6,8 @@ conda: "mamba"
 
 RESULTS_DIR = config["results_dir"]
 
-NUM_CANDIDATE_ENH_GENE = os.path.join(RESULTS_DIR, "NumCandidateEnhGene.txt")
-NUM_TSS_ENH_GENE = os.path.join(RESULTS_DIR, "NumTSSEnhGene.txt")
+NUM_CANDIDATE_ENH_GENE = os.path.join(RESULTS_DIR, "NumCandidateEnhGene.tsv")
+NUM_TSS_ENH_GENE = os.path.join(RESULTS_DIR, "NumTSSEnhGene.tsv")
 NUM_ENHANCERS_EG_5KB = os.path.join(RESULTS_DIR, "NumEnhancersEG5kb.txt")
 SUM_ENHANCERS_EG_5KB = os.path.join(RESULTS_DIR, "SumEnhancersEG5kb.txt")
 NUM_ENHANCERS_EG_10KB = os.path.join(RESULTS_DIR, "NumEnhancersEG10kb.txt")
