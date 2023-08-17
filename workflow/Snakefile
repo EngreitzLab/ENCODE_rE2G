@@ -1,17 +1,23 @@
 from snakemake.utils import min_version
 min_version("7.0")
 
+import pandas as pd
+
+
 configfile: "config/config.yml"
 conda: "mamba"
 
+dataset_config_file = config["dataset_config"]
+dataset_config = pd.read_table(dataset_config_file, na_values="").fillna("None").set_index("dataset", drop=False)
+
 RESULTS_DIR = config["results_dir"]
 
-NUM_CANDIDATE_ENH_GENE = os.path.join(RESULTS_DIR, "NumCandidateEnhGene.txt")
-NUM_TSS_ENH_GENE = os.path.join(RESULTS_DIR, "NumTSSEnhGene.txt")
-NUM_ENHANCERS_EG_5KB = os.path.join(RESULTS_DIR, "NumEnhancersEG5kb.txt")
-SUM_ENHANCERS_EG_5KB = os.path.join(RESULTS_DIR, "SumEnhancersEG5kb.txt")
-NUM_ENHANCERS_EG_10KB = os.path.join(RESULTS_DIR, "NumEnhancersEG10kb.txt")
-SUM_ENHANCERS_EG_10KB = os.path.join(RESULTS_DIR, "SumEnhancersEG10kb.txt")
+NUM_CANDIDATE_ENH_GENE = expand(os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"), dataset=dataset_config['dataset'])
+NUM_TSS_ENH_GENE = expand(os.path.join(RESULTS_DIR, "{dataset}",  "NumTSSEnhGene.txt"), dataset=dataset_config['dataset'])
+NUM_ENHANCERS_EG_5KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"), dataset=dataset_config['dataset'])
+SUM_ENHANCERS_EG_5KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"), dataset=dataset_config['dataset'])
+NUM_ENHANCERS_EG_10KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG10kb.txt"), dataset=dataset_config['dataset'])
+SUM_ENHANCERS_EG_10KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG10kb.txt"), dataset=dataset_config['dataset'])
 
 
 rule all:
@@ -20,23 +26,24 @@ rule all:
 		NUM_TSS_ENH_GENE,
 		NUM_ENHANCERS_EG_5KB,
 		SUM_ENHANCERS_EG_5KB,
-		os.path.join(RESULTS_DIR, "feature_tables/DNaseOnly_features.tsv.gz"),
+		expand(os.path.join(RESULTS_DIR, "{dataset}", "/DNaseOnly_features.tsv.gz"), dataset=dataset_config['dataset']),
 		expand(
-			os.path.join(RESULTS_DIR, "EPCrisprBenchmark_ensemble_data_GRCh38.K562_DNaseOnly_features_NAfilled.tsv.gz"), nafill = ["withNA", "NAfilled"]
+			os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_DNaseOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
 		)
 
 # create DNase-only feature table
 rule dnase_only_features:
 	input:
 		feature_config = "config/feature_config.tsv",
-		abc = config['abc_predictions'],
-		NumCandidateEnhGene = NUM_CANDIDATE_ENH_GENE,
-		NumTSSEnhGene = NUM_TSS_ENH_GENE,
-		NumEnhancersEG5kb = NUM_ENHANCERS_EG_5KB,
-		SumEnhancersEG5kb = SUM_ENHANCERS_EG_5KB,
+		#abc = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
+		abc = dataset_config.loc["{dataset}", "EnhancerPredictionsAllPutative"],
+		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"),
+		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.txt"),
+		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
+		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"),
 		ubiqExprGenes = config["ubiq_expr_genes"]
 	output: 
-		dnase_feature_tsv = os.path.join(RESULTS_DIR, "feature_tables/DNaseOnly_features.tsv.gz")
+		dnase_feature_tsv = os.path.join(RESULTS_DIR, "{dataset}", "/DNaseOnly_features.tsv.gz")
 	conda:
 		"envs/encode_e2g_features.yml"
 	script:
@@ -61,20 +68,20 @@ rule overlap_dnase_only_features_crispr:
 
 rule gen_new_features: 
 	input:
-		abc_predictions = config['abc_predictions'],
-		enhancer_list = config['enhancer_list'],
+		abc_predictions = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
+		enhancer_list = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerList"]
 	params:
 		gene_TSS500 = config['gene_TSS500'],
 		chr_sizes = config['chr_sizes']
 	conda:
 		"envs/encode_e2g_features.yml"
 	output: 
-		NUM_CANDIDATE_ENH_GENE,
-		NUM_TSS_ENH_GENE,
-		NUM_ENHANCERS_EG_5KB,
-		SUM_ENHANCERS_EG_5KB,
-		NUM_ENHANCERS_EG_10KB,
-		SUM_ENHANCERS_EG_10KB,
+		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"),
+		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.txt"),
+		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
+		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"),
+		NumEnhancersEG10kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG10kb.txt"),
+		SumEnhancersEG10kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG10kb.txt"),
 	shell: 
 		""" 
 		python workflow/scripts/gen_new_features.py \
