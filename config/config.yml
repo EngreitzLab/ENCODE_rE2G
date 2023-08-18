@@ -5,6 +5,8 @@ gene_TSS500: "resources/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500
 dataset_config: "config/dataset_config_test.tsv"
 #abc_predictions: "resources/EnhancerPredictionsAllPutative.txt.gz"
 #enhancer_list: "resources/EnhancerList.txt"
+abc_predictions: "resources/EnhancerPredictionsAllPutative.tsv.gz"
+enhancer_list: "resources/EnhancerList.txt"
 chr_sizes: "resources/GRCh38_EBV.no_alt.chrom.sizes.tsv"
 
 # Andreas

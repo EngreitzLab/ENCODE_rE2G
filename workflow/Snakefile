@@ -35,8 +35,7 @@ rule all:
 rule dnase_only_features:
 	input:
 		feature_config = "config/feature_config.tsv",
-		#abc = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
-		abc = dataset_config.loc["{dataset}", "EnhancerPredictionsAllPutative"],
+		abc = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.txt"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
