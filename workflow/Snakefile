@@ -12,20 +12,12 @@ dataset_config = pd.read_table(dataset_config_file, na_values="").fillna("None")
 
 RESULTS_DIR = config["results_dir"]
 
-NUM_CANDIDATE_ENH_GENE = expand(os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"), dataset=dataset_config['dataset'])
-NUM_TSS_ENH_GENE = expand(os.path.join(RESULTS_DIR, "{dataset}",  "NumTSSEnhGene.txt"), dataset=dataset_config['dataset'])
-NUM_ENHANCERS_EG_5KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"), dataset=dataset_config['dataset'])
-SUM_ENHANCERS_EG_5KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"), dataset=dataset_config['dataset'])
-NUM_ENHANCERS_EG_10KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG10kb.txt"), dataset=dataset_config['dataset'])
-SUM_ENHANCERS_EG_10KB = expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG10kb.txt"), dataset=dataset_config['dataset'])
-ACTIVITY_ONLY_FEATURES = expand(os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz"), dataset=dataset_config['dataset'])
-
 rule all:
 	input: 
-		NUM_CANDIDATE_ENH_GENE,
-		NUM_TSS_ENH_GENE,
-		NUM_ENHANCERS_EG_5KB,
-		SUM_ENHANCERS_EG_5KB,
+		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"), dataset=dataset_config['dataset']),
+		expand(os.path.join(RESULTS_DIR, "{dataset}",  "NumTSSEnhGene.txt"), dataset=dataset_config['dataset']),
+		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"), dataset=dataset_config['dataset']),
+		expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"), dataset=dataset_config['dataset']),
 		expand(os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz"), dataset=dataset_config['dataset']),
 		expand(
 			os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
@@ -91,6 +83,5 @@ rule gen_new_features:
 			--abc_predictions {input.abc_predictions} \
 			--ref_gene_tss {params.gene_TSS500} \
 			--chr_sizes {params.chr_sizes} \
-			--results_dir {RESULTS_DIR} \
-			--dataset {wildcards.dataset}
+			--results_dir {RESULTS_DIR}/{wildcards.dataset}
 		"""

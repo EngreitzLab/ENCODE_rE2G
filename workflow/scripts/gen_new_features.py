@@ -3,8 +3,8 @@ import click
 import pandas as pd
 
 
-def create_intermediate_dir(results_dir, dataset):
-    intermediate_dir = os.path.join(results_dir, dataset, "intermediate_files")
+def create_intermediate_dir(results_dir):
+    intermediate_dir = os.path.join(results_dir, "intermediate_files")
     if not os.path.exists(intermediate_dir):
         os.makedirs(intermediate_dir)
     return intermediate_dir
@@ -20,10 +20,9 @@ def add_midpoint(df):
 @click.option("--ref_gene_tss")
 @click.option("--chr_sizes")
 @click.option("--results_dir")
-@click.option("--dataset")
 
-def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir, dataset):
-    intermediate_dir = create_intermediate_dir(results_dir, dataset)
+def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
+    intermediate_dir = create_intermediate_dir(results_dir)
 
     ##
     pred_df = pd.read_csv(abc_predictions, sep="\t")
@@ -34,7 +33,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir, d
 
     determine_num_candidate_enh_gene(pred_df, results_dir, dataset)
     determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir, dataset)
-    generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir, dataset)
+    generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir)
 
 def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
     enh_indexes = enhancers.index
@@ -69,7 +68,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir, dataset):
     print("Saved num candidate enhancers")
 
 
-def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir, dataset):
+def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir):
     ##### Make the end be midpoint of enhancer + distance (This gives you the end coordinate of distance range)
     pred_df["new_end"] = (pred_df["midpoint"] + pred_df["distance"]).astype("int")
 
@@ -114,7 +113,7 @@ def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_
 
 
 def generate_num_sum_enhancers(
-    pred_file, enhancer_list, chr_sizes, results_dir, intermediate_dir, dataset
+    pred_file, enhancer_list, chr_sizes, results_dir, intermediate_dir
 ):
     enh_list_df = pd.read_csv(
         enhancer_list, sep="\t", usecols=["chr", "start", "end", "name"]

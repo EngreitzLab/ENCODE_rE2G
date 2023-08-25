@@ -2,9 +2,7 @@
 
 # gen_new_features
 gene_TSS500: "resources/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed"
-dataset_config: "config/dataset_config.tsv"
-#abc_predictions: "resources/EnhancerPredictionsAllPutative.txt.gz"
-#enhancer_list: "resources/EnhancerList.txt"
+dataset_config: "config/dataset_config_test.tsv"
 abc_predictions: "resources/EnhancerPredictionsAllPutative.tsv.gz"
 enhancer_list: "resources/EnhancerList.txt"
 chr_sizes: "resources/GRCh38_EBV.no_alt.chrom.sizes.tsv"
@@ -15,5 +13,5 @@ feature_config: "config/feature_config.tsv"
 crispr_dataset: "resources/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz"
 
 # OUTPUT
-results_dir: "2023_0818_results/"
+results_dir: "results/"
 
