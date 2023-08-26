@@ -31,8 +31,8 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
         raise Exception("Did not find any enhancers in the Predictions file")
     add_midpoint(pred_df)
 
-    determine_num_candidate_enh_gene(pred_df, results_dir, dataset)
-    determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir, dataset)
+    determine_num_candidate_enh_gene(pred_df, results_dir)
+    determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir)
     generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir)
 
 def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
@@ -47,7 +47,7 @@ def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
         df.loc[enh_idx, "NumCandidateEnhGene"] = count_from_tss
 
 
-def determine_num_candidate_enh_gene(pred_df, results_dir, dataset):
+def determine_num_candidate_enh_gene(pred_df, results_dir):
     # Need df to be sorted by midpoint for each chromosome
     df = pred_df.sort_values(by=['chr', 'midpoint'], ascending=True).reset_index(drop=True)
 
@@ -61,7 +61,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir, dataset):
 
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
-        os.path.join(results_dir, dataset, "NumCandidateEnhGene.txt"),
+        os.path.join(results_dir, "NumCandidateEnhGene.txt"),
         sep="\t",
         index=False,
     )
@@ -105,7 +105,7 @@ def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_
         predictions.groupby(["class", "gene"]).size().reset_index()
     )
     num_tss_between_enh_and_gene.to_csv(
-        os.path.join(results_dir, dataset, "NumTSSEnhGene.txt"),
+        os.path.join(results_dir, "NumTSSEnhGene.txt"),
         sep="\t",
         index=False,
     )
@@ -172,13 +172,13 @@ def generate_num_sum_enhancers(
     data2 = data1.groupby([3]).size().reset_index(name="count")
     data3 = data1.groupby([3])[8].sum().reset_index(name="sum")
     data2.to_csv(
-        os.path.join(results_dir, dataset, "NumEnhancersEG5kb.txt"),
+        os.path.join(results_dir, "NumEnhancersEG5kb.txt"),
         sep="\t",
         header=False,
         index=False,
     )
     data3.to_csv(
-        os.path.join(results_dir, dataset, "SumEnhancersEG5kb.txt"),
+        os.path.join(results_dir, "SumEnhancersEG5kb.txt"),
         sep="\t",
         header=False,
         index=False,
@@ -192,13 +192,13 @@ def generate_num_sum_enhancers(
     data2 = data1.groupby([3]).size().reset_index(name="count")
     data3 = data1.groupby([3])[8].sum().reset_index(name="sum")
     data2.to_csv(
-        os.path.join(results_dir, dataset, "NumEnhancersEG10kb.txt"),
+        os.path.join(results_dir, "NumEnhancersEG10kb.txt"),
         sep="\t",
         header=False,
         index=False,
     )
     data3.to_csv(
-        os.path.join(results_dir, dataset, "SumEnhancersEG10kb.txt"),
+        os.path.join(results_dir, "SumEnhancersEG10kb.txt"),
         sep="\t",
         header=False,
         index=False,

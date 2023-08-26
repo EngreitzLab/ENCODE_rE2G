@@ -83,5 +83,5 @@ rule gen_new_features:
 			--abc_predictions {input.abc_predictions} \
 			--ref_gene_tss {params.gene_TSS500} \
 			--chr_sizes {params.chr_sizes} \
-			--results_dir {RESULTS_DIR}/{wildcards.dataset}
+			--results_dir {RESULTS_DIR}{wildcards.dataset}
 		"""
