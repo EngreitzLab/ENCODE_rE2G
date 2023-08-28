@@ -1,7 +1,4 @@
-## Create DNase-only feature table for an ABC sample
-
-# save.image("dnase_features.rda")
-# stop()
+## Create Activity-only feature table for an ABC sample
 
 # required packages and functions
 suppressPackageStartupMessages({
@@ -44,17 +41,19 @@ abc <- abc %>%
     activity_base_squared = activity_base^2
   )
 
-# extract DNase-only feature columns and output names as vector
-if (snakemake@params$activity == "DNase") {
-  dnase_feat_cols <- config %>%
+# extract Activity-only feature columns and output names as vector
+if (snakemake@params$activity == "DHS") {
+  activity_feat_cols <- config %>%
     filter(dnase_only == TRUE) %>%
     select(output_col, feature_col) %>%
     deframe()
-} else if (snakemake@params$activity == "ATAC"){
-  dnase_feat_cols <- config %>%
+} else if (snakemake@params$activity == "ATAC") {
+  activity_feat_cols <- config %>%
     filter(atac_only == TRUE) %>%
     select(output_col, feature_col) %>%
     deframe()
+} else {
+  stop("Only DHS or ATAC activity param supported")
 }
 
 
@@ -71,32 +70,32 @@ output <- select(abc, all_of(core_cols))
 
 # add features from ABC table
 output <- abc %>%
-  select(name, TargetGene, any_of(dnase_feat_cols)) %>%
+  select(name, TargetGene, any_of(activity_feat_cols)) %>%
   left_join(output, ., by = c("name", "TargetGene"))
 
 # add number of candidate enhancers between enhancers and genes
 output <- NumCandidateEnhGene %>%
-  select(name, TargetGene, any_of(dnase_feat_cols)) %>%
+  select(name, TargetGene, any_of(activity_feat_cols)) %>%
   left_join(output, ., by = c("name", "TargetGene"))
 
 # add number of protein-coding TSSs between enhancer and target
 output <- NumTSSEnhGene %>%
-  select(name, TargetGene, any_of(dnase_feat_cols)) %>%
+  select(name, TargetGene, any_of(activity_feat_cols)) %>%
   left_join(output, ., by = c("name", "TargetGene"))
 
 # add number of nearby enhancers
 output <- NumEnhancersEG5kb %>%
-  select(name, any_of(dnase_feat_cols)) %>%
+  select(name, any_of(activity_feat_cols)) %>%
   left_join(output, ., by = "name")
 
 # add sum of activities of nearby enhancers
 output <- SumEnhancersEG5kb %>%
-  select(name, any_of(dnase_feat_cols)) %>%
+  select(name, any_of(activity_feat_cols)) %>%
   left_join(output, ., by = "name")
 
 # add ubiquitously expressed gene info
 output <- ubiqExprGenes %>%
-  select(TargetGene = GeneSymbol, any_of(dnase_feat_cols)) %>%
+  select(TargetGene = GeneSymbol, any_of(activity_feat_cols)) %>%
   left_join(output, ., by = "TargetGene")
 
 # fill in NAs and write to output ------------------------------------------------------------------
@@ -109,7 +108,7 @@ fill_values <- get_fill_values(output, config = config)
 output <- replace_na(output, replace = fill_values)
 
 # reorder columns for output
-output <- select(output, all_of(core_cols), all_of(names(dnase_feat_cols)))
+output <- select(output, all_of(core_cols), all_of(names(activity_feat_cols)))
 
 # save output to file
 fwrite(output, file = snakemake@output[[1]], sep = "\t", na = "NA")
