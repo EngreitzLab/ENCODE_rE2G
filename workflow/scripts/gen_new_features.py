@@ -1,4 +1,5 @@
 import os
+
 import click
 import pandas as pd
 
@@ -61,7 +62,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir):
 
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
-        os.path.join(results_dir, "NumCandidateEnhGene.txt"),
+        os.path.join(results_dir, "NumCandidateEnhGene.tsv"),
         sep="\t",
         index=False,
     )
@@ -105,7 +106,7 @@ def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_
         predictions.groupby(["class", "gene"]).size().reset_index()
     )
     num_tss_between_enh_and_gene.to_csv(
-        os.path.join(results_dir, "NumTSSEnhGene.txt"),
+        os.path.join(results_dir, "NumTSSEnhGene.tsv"),
         sep="\t",
         index=False,
     )

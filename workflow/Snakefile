@@ -14,8 +14,8 @@ RESULTS_DIR = config["results_dir"]
 
 rule all:
 	input: 
-		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"), dataset=dataset_config['dataset']),
-		expand(os.path.join(RESULTS_DIR, "{dataset}",  "NumTSSEnhGene.txt"), dataset=dataset_config['dataset']),
+		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"), dataset=dataset_config['dataset']),
+		expand(os.path.join(RESULTS_DIR, "{dataset}",  "NumTSSEnhGene.tsv"), dataset=dataset_config['dataset']),
 		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"), dataset=dataset_config['dataset']),
 		expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"), dataset=dataset_config['dataset']),
 		expand(os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz"), dataset=dataset_config['dataset']),
@@ -28,8 +28,8 @@ rule activity_only_features:
 	input:
 		feature_config = "config/feature_config.tsv",
 		abc = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
-		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"),
-		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.txt"),
+		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"),
+		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.tsv"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
 		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"),
 		ubiqExprGenes = config["ubiq_expr_genes"]
@@ -70,8 +70,8 @@ rule gen_new_features:
 	conda:
 		"envs/encode_e2g_features.yml"
 	output: 
-		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.txt"),
-		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.txt"),
+		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"),
+		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.tsv"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
 		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"),
 		NumEnhancersEG10kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG10kb.txt"),
