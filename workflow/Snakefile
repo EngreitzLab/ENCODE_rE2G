@@ -23,7 +23,7 @@ rule all:
 			os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
 		)
 
-# create DNase-only feature table
+# create activity-only feature table
 rule activity_only_features:
 	input:
 		feature_config = "config/feature_config.tsv",
@@ -40,9 +40,9 @@ rule activity_only_features:
 	conda:
 		"envs/encode_e2g_features.yml"
 	script:
-		"scripts/dnase_only_features.R"
+		"scripts/activity_only_features.R"
 
-# overlap DNase-only feature table table with K562 CRISPR data
+# overlap activity-only feature table table with K562 CRISPR data
 rule overlap_activity_only_features_crispr:
 	input:
 		features = os.path.join(RESULTS_DIR, "{dataset}/ActivityOnly_features.tsv.gz"),
