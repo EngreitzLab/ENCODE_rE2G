@@ -45,10 +45,18 @@ abc <- abc %>%
   )
 
 # extract DNase-only feature columns and output names as vector
-dnase_feat_cols <- config %>%
-  filter(dnase_only == TRUE) %>%
-  select(output_col, feature_col) %>%
-  deframe()
+if (snakemake@params$activity == "DNase") {
+  dnase_feat_cols <- config %>%
+    filter(dnase_only == TRUE) %>%
+    select(output_col, feature_col) %>%
+    deframe()
+} else if (snakemake@params$activity == "ATAC"){
+  dnase_feat_cols <- config %>%
+    filter(atac_only == TRUE) %>%
+    select(output_col, feature_col) %>%
+    deframe()
+}
+
 
 # core columns from ABC for output
 core_cols <- c(

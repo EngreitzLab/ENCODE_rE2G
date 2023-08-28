@@ -20,6 +20,7 @@ def add_midpoint(df):
 @click.option("--ref_gene_tss")
 @click.option("--chr_sizes")
 @click.option("--results_dir")
+
 def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
     intermediate_dir = create_intermediate_dir(results_dir)
 
@@ -32,9 +33,7 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
 
     determine_num_candidate_enh_gene(pred_df, results_dir)
     determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir)
-    generate_num_sum_enhancers(
-        abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir
-    )
+    generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir)
 
 def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
     enh_indexes = enhancers.index
@@ -62,7 +61,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir):
 
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
-        os.path.join(results_dir, "NumCandidateEnhGene.tsv"),
+        os.path.join(results_dir, "NumCandidateEnhGene.txt"),
         sep="\t",
         index=False,
     )
@@ -106,7 +105,7 @@ def determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_
         predictions.groupby(["class", "gene"]).size().reset_index()
     )
     num_tss_between_enh_and_gene.to_csv(
-        os.path.join(results_dir, "NumTSSEnhGene.tsv"),
+        os.path.join(results_dir, "NumTSSEnhGene.txt"),
         sep="\t",
         index=False,
     )
