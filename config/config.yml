@@ -10,6 +10,12 @@ ubiq_expr_genes: "resources/for_classifier_use_ubiquitous_expression_RefSeqCurat
 feature_config: "config/feature_config.tsv"
 crispr_dataset: "resources/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz"
 
+
+# ENCODE E2G
+feature_table: "/oak/stanford/groups/engreitz/Users/sheth/ENCODE-E2G_v2/data/feature_table/model_scATAC_IGVF.tsv"
+epsilon: .01
+models_dir: "/oak/stanford/groups/engreitz/Users/sheth/ENCODE-E2G_v2/models_scATAC_IGVF_filt/K562_cellranger_1/"
+
 # OUTPUT
 results_dir: "results/"
 

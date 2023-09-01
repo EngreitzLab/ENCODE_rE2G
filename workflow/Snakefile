@@ -14,51 +14,13 @@ RESULTS_DIR = config["results_dir"]
 
 rule all:
 	input: 
-		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"), dataset=dataset_config['dataset']),
-		expand(os.path.join(RESULTS_DIR, "{dataset}",  "NumTSSEnhGene.tsv"), dataset=dataset_config['dataset']),
-		expand(os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"), dataset=dataset_config['dataset']),
-		expand(os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"), dataset=dataset_config['dataset']),
-		expand(os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz"), dataset=dataset_config['dataset']),
+		expand(
+			os.path.join(RESULTS_DIR, "{dataset}", "encode_e2g_predictions.tsv.gz"), dataset=dataset_config['dataset']
+		),
 		expand(
 			os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
 		)
-
-# create activity-only feature table
-rule activity_only_features:
-	input:
-		feature_config = "config/feature_config.tsv",
-		abc = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
-		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"),
-		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.tsv"),
-		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
-		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"),
-		ubiqExprGenes = config["ubiq_expr_genes"]
-	params:
-		activity = lambda wildcards: dataset_config.loc[wildcards.dataset, "activity"]
-	output: 
-		dnase_feature_tsv = os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz")
-	conda:
-		"envs/encode_e2g_features.yml"
-	script:
-		"scripts/activity_only_features.R"
-
-# overlap activity-only feature table table with K562 CRISPR data
-rule overlap_activity_only_features_crispr:
-	input:
-		features = os.path.join(RESULTS_DIR, "{dataset}/ActivityOnly_features.tsv.gz"),
-		crispr = config['crispr_dataset'],
-		config = config['feature_config'],
-		tss = config['gene_TSS500']
-	output: 
-		os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz")
-	params:
-		filter_genes = "none",
-		activity = lambda wildcards: dataset_config.loc[wildcards.dataset, "activity"]
-	conda:
-		"envs/encode_e2g_features.yml" 
-	script:
-		"scripts/overlap_features_with_crispr_data.R"
-
+	
 
 rule gen_new_features: 
 	input:
@@ -84,4 +46,64 @@ rule gen_new_features:
 			--ref_gene_tss {params.gene_TSS500} \
 			--chr_sizes {params.chr_sizes} \
 			--results_dir {RESULTS_DIR}/{wildcards.dataset}
+		"""
+
+
+# create activity-only feature table
+rule activity_only_features:
+	input:
+		feature_config = "config/feature_config.tsv",
+		abc = lambda wildcards: dataset_config.loc[wildcards.dataset, "EnhancerPredictionsAllPutative"],
+		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"),
+		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.tsv"),
+		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
+		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "SumEnhancersEG5kb.txt"),
+		ubiqExprGenes = config["ubiq_expr_genes"]
+	params:
+		activity = lambda wildcards: dataset_config.loc[wildcards.dataset, "activity"]
+	output: 
+		predictions_extended = os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz")
+	conda:
+		"envs/encode_e2g_features.yml"
+	script:
+		"scripts/activity_only_features.R"
+
+# overlap activity-only feature table table with K562 CRISPR data
+rule overlap_activity_only_features_crispr:
+	input:
+		features = os.path.join(RESULTS_DIR, "{dataset}/ActivityOnly_features.tsv.gz"),
+		crispr = config['crispr_dataset'],
+		config = config['feature_config'],
+		tss = config['gene_TSS500']
+	output: 
+		os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz")
+	params:
+		filter_genes = "none",
+		activity = lambda wildcards: dataset_config.loc[wildcards.dataset, "activity"]
+	conda:
+		"envs/encode_e2g_features.yml" 
+	script:
+		"scripts/overlap_features_with_crispr_data.R"
+
+
+rule generate_e2g_predictions:
+	input:
+		predictions_extended = os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz")
+		feature_table_file = config["feature_table"],
+	params:
+		epsilon = config["epsilon"],
+		models_dir = config["models_dir"],
+		output_dir = RESULTS_DIR
+	conda:
+		"envs/encode_e2g_features.yml"
+	output: 
+		prediction_file = os.path.join(RESULTS_DIR, "{dataset}", "encode_e2g_predictions.tsv.gz")
+	shell: 
+		""" 
+		python run_e2g.py \
+			--predictions {input.predictions_extended} \
+			--feature_table_file {input.feature_table_file} \
+			--epsilon {params.epsilon} \
+			--models_dir {params.models_dir} \
+			--output_dir {params.output_dir}
 		"""
