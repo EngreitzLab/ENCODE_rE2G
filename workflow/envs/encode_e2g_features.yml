@@ -14,6 +14,8 @@ dependencies:
   - python>=3.6
   - pigz
   - snakemake>=7.0
+  - scikit-learn=1.2.1
+  - scipy
   - wget
   - r-base
   - r-r.utils

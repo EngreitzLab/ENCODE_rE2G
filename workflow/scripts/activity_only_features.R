@@ -111,4 +111,4 @@ output <- replace_na(output, replace = fill_values)
 output <- select(output, all_of(core_cols), all_of(names(activity_feat_cols)))
 
 # save output to file
-fwrite(output, file = snakemake@output[[1]], sep = "\t", na = "NA")
+fwrite(output, file = snakemake@output[[1]], sep = "\t", na = "NA", quote = FALSE)

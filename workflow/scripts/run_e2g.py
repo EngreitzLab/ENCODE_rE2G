@@ -13,7 +13,7 @@ def make_e2g_predictions(df_enhancers, feature_list, models_dir, epsilon):
     X = df_enhancers.loc[:, feature_list]
     X.columns = feature_list
     X = np.log(np.abs(X) + epsilon)
-    chr_list = np.unique(df_enhancers["chrom"])
+    chr_list = np.unique(df_enhancers["chr"])
 
     for chr in chr_list:
         idx_test = df_enhancers[df_enhancers["chr"] == chr].index.values
