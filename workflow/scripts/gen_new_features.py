@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import click
 import pandas as pd
@@ -9,6 +10,9 @@ def create_intermediate_dir(results_dir):
     if not os.path.exists(intermediate_dir):
         os.makedirs(intermediate_dir)
     return intermediate_dir
+
+def delete_intermediate_dir(intermediate_dir):
+    shutil.rmtree(intermediate_dir)
 
 
 def add_midpoint(df):
@@ -35,6 +39,9 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
     determine_num_candidate_enh_gene(pred_df, results_dir)
     determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir)
     generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir)
+
+    # Intermediate directory takes up a lot of space. Delete after usage
+    delete_intermediate_dir(intermediate_dir)
 
 def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
     enh_indexes = enhancers.index
