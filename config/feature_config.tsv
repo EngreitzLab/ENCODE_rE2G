@@ -8,13 +8,13 @@ starrseq_abc	TargetGene	wgstarrLogFC.Score	STARRseqScore	sum	0	FALSE	FALSE	FALSE
 NumTSSEnhGene	TargetGene	numTSSEnhGene	numTSSEnhGene	max	0	TRUE	TRUE	TRUE	TRUE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	distance	distanceToTSS	min	NA	TRUE	TRUE	TRUE	TRUE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	normalized_dhs	normalizedDNase_enh	mean	0	TRUE	FALSE	TRUE	TRUE	FALSE
-EnhancerPredictionsAllPutative	TargetGene	normalized_dhs_b	normalizedDNase_prom	mean	0	TRUE	FALSE	TRUE	TRUE	FALSE
+EnhancerPredictionsAllPutative	TargetGene	DHS.RPKM	DHS.RPKM	max	0	TRUE	FALSE	TRUE	TRUE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	normalized_atac	normalizedATAC_enh	mean	0	FALSE	TRUE	FALSE	FALSE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	normalized_atac_b	normalizedATAC_prom	mean	0	FALSE	TRUE	FALSE	FALSE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	normalized_h3K27ac	normalizedH3K27ac_enh	mean	0	TRUE	FALSE	FALSE	FALSE	FALSE
+EnhancerPredictionsAllPutative	TargetGene	H3K27ac.RPKM	H3K27ac.RPKM	max	0	TRUE	FALSE	FALSE	FALSE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	normalized_h3k27ac	normalizedH3K27ac_prom	mean	0	TRUE	FALSE	FALSE	FALSE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	activity_base	activity_enh	mean	0	TRUE	FALSE	FALSE	FALSE	FALSE
-EnhancerPredictionsAllPutative	TargetGene	hic_contact	3DContact	mean	0	TRUE	FALSE	FALSE	FALSE	TRUE
 EnhancerPredictionsAllPutative	TargetGene	activity_base_squared	activity_enh_squared	mean	0	TRUE	FALSE	FALSE	FALSE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	hic_contact_squared	3DContact_squared	mean	0	TRUE	FALSE	FALSE	FALSE	FALSE
 EnhancerPredictionsAllPutative	TargetGene	TargetGenePromoterActivityQuantile	activity_prom	mean	0	TRUE	FALSE	FALSE	FALSE	FALSE

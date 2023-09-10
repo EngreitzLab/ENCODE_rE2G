@@ -15,7 +15,7 @@ RESULTS_DIR = config["results_dir"]
 rule all:
 	input: 
 		expand(
-			os.path.join(RESULTS_DIR, "{dataset}", "encode_e2g_predictions.tsv.gz"), dataset=dataset_config['dataset']
+			os.path.join(RESULTS_DIR, "{dataset}", "ActivityOnly_features.tsv.gz"), dataset=dataset_config['dataset']
 		),
 		expand(
 			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}.tsv.gz"), dataset=dataset_config['dataset']
@@ -23,9 +23,9 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), dataset=dataset_config['dataset']
 		),
-		# expand(
-		# 	os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
-		# )
+		expand(
+			os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
+		)
 	
 
 rule gen_new_features: 
