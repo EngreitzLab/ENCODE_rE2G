@@ -60,7 +60,8 @@ if (snakemake@params$activity == "DHS") {
 # core columns from ABC for output
 core_cols <- c(
   "chr", "start", "end", "name", "class", "TargetGene", "TargetGeneTSS",
-  "isSelfPromoter", "CellType", "distance"
+  "TargetGeneIsExpressed", "TargetGeneEnsembl_ID", "isSelfPromoter",
+  "CellType", "distance"
 )
 
 # select all core columns from ABC table for output
