@@ -20,6 +20,9 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}.tsv.gz"), dataset=dataset_config['dataset']
 		),
+		expand(
+			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), dataset=dataset_config['dataset']
+		),
 		# expand(
 		# 	os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
 		# )
@@ -132,4 +135,18 @@ rule filter_e2g_predictions:
 	shell:
 		"""
 		zcat {input.prediction_file} | awk -F'\t' '$NF >= {params.threshold}' | gzip > {output.thresholded}
+		"""
+
+rule get_stats:
+	input:
+		thresholded = os.path.join(RESULTS_DIR, "{dataset}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+	conda:
+		"envs/encode_e2g_features.yml"
+	resources:
+		mem_mb=4*1000
+	output:
+		stats = os.path.join(RESULTS_DIR, "{dataset}", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
+	shell:
+		"""
+		python workflow/scripts/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
 		"""

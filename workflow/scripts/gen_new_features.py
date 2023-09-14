@@ -25,7 +25,6 @@ def add_midpoint(df):
 @click.option("--ref_gene_tss")
 @click.option("--chr_sizes")
 @click.option("--results_dir")
-
 def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
     intermediate_dir = create_intermediate_dir(results_dir)
 
