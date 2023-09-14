@@ -23,4 +23,5 @@ dependencies:
   - r-tidyverse
   - r-ggpubr
   - r-ggcorrplot
-  - bioconductor-genomicranges
+  - seaborn
+  - matplotlib
