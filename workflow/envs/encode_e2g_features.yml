@@ -25,3 +25,5 @@ dependencies:
   - r-ggcorrplot
   - seaborn
   - matplotlib
+  - pip:
+    - scanpy
