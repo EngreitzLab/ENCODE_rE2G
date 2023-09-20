@@ -5,9 +5,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.metrics import auc, precision_recall_curve
 from sklearn.kernel_approximation import RBFSampler
+import warnings
+warnings.filterwarnings("ignore")
+
 
 
 CRISPR_DATA_FILE = "/oak/stanford/groups/engreitz/Users/atan5133/encode_e2g_features/results/K562_dnase_no_qnorm/EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_NAfilled.tsv.gz"
+TPM_FILE = "/oak/stanford/groups/engreitz/Users/atan5133/encode_e2g_features/rna_tpm.tsv"
 FEATURES = ["DHS.RPKM", "3DContactAvgHicTrack2"]
 E2G_FEATURES = [
     "numTSSEnhGene",
@@ -18,7 +22,8 @@ E2G_FEATURES = [
     "ubiquitousExpressedGene",
     "numCandidateEnhGene",
     "3DContactAvgHicTrack2",
-    "ABC.Score"
+    "ABC.Score",
+    "TPM"
 ]
 FEATURES_TO_LOG = [
     # "numTSSEnhGene",
@@ -107,6 +112,10 @@ def compute_AUPRC(data_df, score_column):
 
 def main():
     data_df = pd.read_csv(CRISPR_DATA_FILE, sep="\t")
+    tpm_df = pd.read_csv(TPM_FILE, sep="\t", index_col=0)
+    # merge DF based on measuredGeneSymbol and index
+    data_df = data_df.merge(tpm_df, how='left', left_on='measuredGeneSymbol', right_index=True)
+    data_df["TPM"].fillna(0, inplace=True)
     held_out_chromosome_prediction(data_df)
     compute_AUPRC(data_df, SCORE_COL)
 
