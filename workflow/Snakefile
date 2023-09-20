@@ -20,9 +20,7 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}.tsv.gz"), dataset=dataset_config['dataset']
 		),
-		expand(
-			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), dataset=dataset_config['dataset']
-		),
+		os.path.join(RESULTS_DIR, f"qc_plots_threshold{config['threshold']}.pdf")
 		# expand(
 		# 	os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], dataset=dataset_config['dataset']
 		# )
@@ -149,4 +147,23 @@ rule get_stats:
 	shell:
 		"""
 		python workflow/scripts/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
+		"""
+
+rule generate_plots:
+	input:
+		expand(
+			os.path.join(RESULTS_DIR, "{dataset}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), dataset=dataset_config['dataset']
+		)
+	conda:
+		"envs/encode_e2g_features.yml"
+	resources:
+		mem_mb=4*1000
+	output:
+		plots = os.path.join(RESULTS_DIR, "qc_plots_threshold{threshold}.pdf")
+	shell:
+		"""
+		python workflow/scripts/generate_plots.py \
+			--results_dir {RESULTS_DIR} \
+			--output_file {output.plots} \
+			# --y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
 		"""
