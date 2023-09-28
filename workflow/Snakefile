@@ -165,5 +165,5 @@ rule generate_plots:
 		python workflow/scripts/generate_plots.py \
 			--results_dir {RESULTS_DIR} \
 			--output_file {output.plots} \
-			# --y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
+			--y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
 		"""

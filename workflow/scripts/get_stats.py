@@ -24,6 +24,11 @@ def get_mean_num_enh_per_gene(df):
     genes = df.groupby(["TargetGene"]).size()
     return genes.mean()
 
+def get_mean_num_enh_per_gene_no_prom(df):
+    df = df[df["class"] != "promoter"]
+    genes = df.groupby(["TargetGene"]).size()
+    return genes.mean()
+
 def get_mean_log_dist_to_tss(df):
     log_dist = df["distanceToTSS"].apply(np.log10)
     log_dist = log_dist.replace(-np.inf, 0)
@@ -49,6 +54,7 @@ def main(predictions, output_file):
         ("num_genes_with_1_enh_min", get_num_genes_with_1_enh_min(df)),
         ("mean_num_genes_per_enh", get_mean_num_genes_per_enh(df)),
         ("mean_num_enh_per_gene", get_mean_num_enh_per_gene(df)),
+        ("mean_num_enh_per_gene_no_prom", get_mean_num_enh_per_gene_no_prom(df)),
         ("mean_log10_dist_to_tss", get_mean_log_dist_to_tss(df)),
         ("mean_enh_region_size", get_mean_enh_region_size(df)),
     ]
