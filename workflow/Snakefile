@@ -120,10 +120,10 @@ rule overlap_activity_only_features_crispr:
 rule generate_e2g_predictions:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
-		feature_table_file = config["feature_table"],
 	params:
+		feature_table_file = lambda wildcards: config["feature_table"][BIOSAMPLE_ACTIVITES[wildcards.biosample]],
 		epsilon = config["epsilon"],
-		models_dir = config["models_dir"],
+		models_dir = lambda wildcards: config["models_dir"][BIOSAMPLE_ACTIVITES[wildcards.biosample]]
 	conda:
 		"envs/encode_e2g_features.yml"
 	resources:
@@ -134,7 +134,7 @@ rule generate_e2g_predictions:
 		""" 
 		python workflow/scripts/run_e2g.py \
 			--predictions {input.predictions_extended} \
-			--feature_table_file {input.feature_table_file} \
+			--feature_table_file {params.feature_table_file} \
 			--epsilon {params.epsilon} \
 			--models_dir {params.models_dir} \
 			--output_file {output.prediction_file}
@@ -186,5 +186,5 @@ rule generate_plots:
 		python workflow/scripts/generate_plots.py \
 			--results_dir {RESULTS_DIR} \
 			--output_file {output.plots} \
-			--y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
+			# --y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
 		"""
