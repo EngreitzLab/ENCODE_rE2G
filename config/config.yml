@@ -5,16 +5,15 @@ ABC_BIOSAMPLES: "config/config_biosamples.tsv"
 ### OUTPUT
 results_dir: "results/"
 
-
 ### PARAMS
 ABC_DIR_PATH: "ABC"
 
-# gen_new_features
+### Reference Files
 gene_TSS500: "resources/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed"
 chr_sizes: "resources/GRCh38_EBV.no_alt.chrom.sizes.tsv"
+ubiq_expr_genes: "resources/for_classifier_use_ubiquitous_expression_RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.txt"
 
 # Filling new features into prediction file
-ubiq_expr_genes: "resources/for_classifier_use_ubiquitous_expression_RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.txt"
 feature_config: "config/feature_config.tsv"
 crispr_dataset: "resources/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz"
 

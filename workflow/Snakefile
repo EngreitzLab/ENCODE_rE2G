@@ -42,10 +42,10 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{config['threshold']}.tsv.gz"), biosample=BIOSAMPLES
 		),
-		os.path.join(RESULTS_DIR, f"qc_plots_threshold{config['threshold']}.pdf")
-		# expand(
-		# 	os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], biosample=BIOSAMPLES
-		# )
+		os.path.join(RESULTS_DIR, f"qc_plots_threshold{config['threshold']}.pdf"),
+		expand(
+			os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], biosample=BIOSAMPLES
+		)
 	
 
 rule gen_new_features: 
