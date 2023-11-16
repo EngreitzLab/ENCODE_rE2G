@@ -1,0 +1,14 @@
+feature	input_col	square_source_col	aggregate_function	fill_value
+numTSSEnhGene	numTSSEnhGene	NA	max	0
+distanceToTSS	distance	NA	min	NA
+normalizedDNase_enh	normalized_dhs	NA	mean	0
+normalizedDNase_prom	normalized_dhs_b	NA	mean	0
+numNearbyEnhancers	numNearbyEnhancers	NA	max	0
+sumNearbyEnhancers	sumNearbyEnhancers	NA	max	0
+ubiquitousExpressedGene	is_ubiqutious_uniform	NA	max	0
+numCandidateEnhGene	numCandidateEnhGene	NA	max	0
+3DContact	hic_contact_pl_scaled_adj	NA	mean	0
+3DContact_squared	hic_contact_pl_scaled_adj_squared	hic_contact_pl_scaled_adj	mean	0
+normalizedDNase_enh_squared	normalized_dhs_squared	normalized_dhs	mean	0
+TargetGenePromoterActivityQuantile	TargetGenePromoterActivityQuantile	NA	mean	0
+ABC.Score	ABC.Score	NA	sum	0

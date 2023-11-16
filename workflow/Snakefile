@@ -9,49 +9,62 @@ import yaml
 configfile: "config/config.yml"
 conda: "mamba"
 
+## Process config file ["run_ABC", "features_CRISPR", "predict_genomewide"]
+# run_ABC requires ABC parameters and produces ABC directory
+# features_CRISPR requires ABC directory & feature table and produces new features on top of ABC and merged to CRISPR data
+# predict_genomewide requires ABC directory, feature table, and pretrained model and produces new features on top of ABC & E2G predictions
+
+STEPS = config["steps"]
 RESULTS_DIR = config["results_dir"]
+DATASET_DF = pd.read_csv(config["dataset_config"], sep="\t").set_index("dataset", drop=False)
+SAMPLES = list(DATASET_DF.index.values)
 
-def get_abc_config(config):
-	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
-	with open(abc_config_file, 'r') as stream:
-		abc_config = yaml.safe_load(stream)
-	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
-	abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
-	return abc_config
+# always calculate genome-wide feature tables
+OUTPUT_FILES = []
+OUTPUT_FILES.extend(expand(os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"), biosample=SAMPLES))
 
+if ("run_ABC" in STEPS):
+	##  ABC module
+	def get_abc_config(config):
+		abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
+		with open(abc_config_file, 'r') as stream:
+			abc_config = yaml.safe_load(stream)
+		abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
+		abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
+		return abc_config
 
-module ABC:
-    snakefile:
-        "../ABC/workflow/Snakefile"
-    config: get_abc_config(config)
+	module ABC:
+		snakefile:
+			"../ABC/workflow/Snakefile"
+		config: get_abc_config(config)
 
-use rule * from ABC exclude all as abc_*
+	use rule * from ABC exclude all as abc_*
 
-BIOSAMPLE_DF = pd.read_csv(config["ABC_BIOSAMPLES"], sep="\t")
-BIOSAMPLES = BIOSAMPLE_DF["biosample"].to_list()
-BIOSAMPLE_ACTIVITES = {
-	biosample: activity for _, (biosample, activity) in 
-	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
-}
+	# set/reset ABC_directory column
+	DATASET_DF['ABC_directory'] = RESULTS_DIR + DATASET_DF['biosample']
+	OUTPUT_FILES.extend(expand(os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"), biosample=SAMPLES))
+
+	# set biosample column to be compatible with ABC?
+	DATASET_DF['biosample'] = DATASET_DF['dataset']
+
+if ("features_CRISPR" in STEPS):
+	OUTPUT_FILES.extend(expand(os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), biosample=SAMPLES, nafill=["NAfilled", "withNA"]))
+
+if ("predict_genomewide" in STEPS): 
+	OUTPUT_FILES.extend(expand(os.path.join(RESULTS_DIR, "{biosample}", "encode_e2g_predictions.tsv.gz"), biosample=SAMPLES))
+	OUTPUT_FILES.extend(expand(os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{threshold}.tsv.gz"), zip, biosample=SAMPLES, threshold=DATASET_DF['threshold'])) 
+	# these qc plots seem specific to the IGVF analysis and filename/script needs to be updated to take new config with threshold per dataset
+	# OUTPUT_FILES.extend(os.path.join(RESULTS_DIR, f"qc_plots_threshold{threshold}.pdf"))
 
 rule all:
 	input: 
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
-		),
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{config['threshold']}.tsv.gz"), biosample=BIOSAMPLES
-		),
-		os.path.join(RESULTS_DIR, f"qc_plots_threshold{config['threshold']}.pdf"),
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], biosample=BIOSAMPLES
-		)
+		OUTPUT_FILES
 	
-
+## Generate features
 rule gen_new_features: 
 	input:
-		abc_predictions = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
-		enhancer_list = os.path.join(RESULTS_DIR, "{biosample}", "Neighborhoods", "EnhancerList.txt"),
+		abc_predictions = lambda wildcards: os.path.join(DATASET_DF.loc[wildcards.biosample, 'ABC_directory'], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
+		enhancer_list = lambda wildcards: os.path.join(DATASET_DF.loc[wildcards.biosample, 'ABC_directory'], "Neighborhoods", "EnhancerList.txt"),
 	params:
 		gene_TSS500 = config['gene_TSS500'],
 		chr_sizes = config['chr_sizes']
@@ -79,15 +92,13 @@ rule gen_new_features:
 # create activity-only feature table
 rule activity_only_features:
 	input:
-		feature_config = "config/feature_config.tsv",
-		abc = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
+		feature_config = lambda wildcards: DATASET_DF.loc[wildcards.biosample, 'feature_table'],
+		abc = lambda wildcards: os.path.join(DATASET_DF.loc[wildcards.biosample, 'ABC_directory'], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumCandidateEnhGene.tsv"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "NumEnhancersEG5kb.txt"),
 		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "SumEnhancersEG5kb.txt"),
 		ubiqExprGenes = config["ubiq_expr_genes"]
-	params:
-		activity = lambda wildcards: BIOSAMPLE_ACTIVITES[wildcards.biosample]
 	output: 
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz")
 	conda:
@@ -102,13 +113,12 @@ rule overlap_activity_only_features_crispr:
 	input:
 		features = os.path.join(RESULTS_DIR, "{biosample}/ActivityOnly_features.tsv.gz"),
 		crispr = config['crispr_dataset'],
-		config = config['feature_config'],
+		config = lambda wildcards: DATASET_DF.loc[wildcards.biosample, 'feature_table'],
 		tss = config['gene_TSS500']
 	output: 
 		os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz")
 	params:
 		filter_genes = "none",
-		activity = lambda wildcards: BIOSAMPLE_ACTIVITES[wildcards.biosample]
 	conda:
 		"envs/encode_e2g_features.yml" 
 	resources:
@@ -116,14 +126,14 @@ rule overlap_activity_only_features_crispr:
 	script:
 		"scripts/overlap_features_with_crispr_data.R"
 
-
+## Generate E2G predictions
 rule generate_e2g_predictions:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
+		trained_model = lambda wildcards: DATASET_DF.loc[wildcards.biosample, 'trained_model']
 	params:
-		feature_table_file = lambda wildcards: config["feature_table"][BIOSAMPLE_ACTIVITES[wildcards.biosample]],
-		epsilon = config["epsilon"],
-		models_dir = lambda wildcards: config["models_dir"][BIOSAMPLE_ACTIVITES[wildcards.biosample]]
+		feature_table_file = lambda wildcards: DATASET_DF.loc[wildcards.biosample, 'feature_table'],
+		epsilon = 0.01, # this should not be changed
 	conda:
 		"envs/encode_e2g_features.yml"
 	resources:
@@ -136,7 +146,7 @@ rule generate_e2g_predictions:
 			--predictions {input.predictions_extended} \
 			--feature_table_file {params.feature_table_file} \
 			--epsilon {params.epsilon} \
-			--models_dir {params.models_dir} \
+			--models_dir {input.trained_model} \
 			--output_file {output.prediction_file}
 		"""
 
@@ -144,7 +154,8 @@ rule filter_e2g_predictions:
 	input:
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "encode_e2g_predictions.tsv.gz")
 	params:
-		threshold = config["threshold"],
+		threshold = lambda wildcards: DATASET_DF.loc[wildcards.biosample, 'threshold'],
+		keep_self_promoters = True
 	conda:
 		"envs/encode_e2g_features.yml"
 	resources:
@@ -153,7 +164,11 @@ rule filter_e2g_predictions:
 		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	shell:
 		"""
-		zcat {input.prediction_file} | awk -F'\t' '$NF >= {params.threshold}' | gzip > {output.thresholded}
+		python workflow/scripts/threshold_e2g_predictions.py \
+			--all_predictions_file {input.prediction_file} \
+			--threshold {params.threshold} \
+			--keep_self_promoters {params.keep_self_promoters} \
+			--output_file {output.thresholded}
 		"""
 
 rule get_stats:
@@ -170,21 +185,21 @@ rule get_stats:
 		python workflow/scripts/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
 		"""
 
-rule generate_plots:
-	input:
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), biosample=BIOSAMPLES
-		)
-	conda:
-		"envs/encode_e2g_features.yml"
-	resources:
-		mem_mb=4*1000
-	output:
-		plots = os.path.join(RESULTS_DIR, "qc_plots_threshold{threshold}.pdf")
-	shell:
-		"""
-		python workflow/scripts/generate_plots.py \
-			--results_dir {RESULTS_DIR} \
-			--output_file {output.plots} \
-			# --y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
-		"""
+# rule generate_plots:
+# 	input:
+# 		expand(
+# 			os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), biosample=BIOSAMPLES
+# 		)
+# 	conda:
+# 		"envs/encode_e2g_features.yml"
+# 	resources:
+# 		mem_mb=4*1000
+# 	output:
+# 		plots = os.path.join(RESULTS_DIR, "qc_plots_threshold{threshold}.pdf")
+# 	shell:
+# 		"""
+# 		python workflow/scripts/generate_plots.py \
+# 			--results_dir {RESULTS_DIR} \
+# 			--output_file {output.plots} \
+# 			# --y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
+# 		"""

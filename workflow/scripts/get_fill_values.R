@@ -4,8 +4,8 @@ get_fill_values <- function(features, config) {
   
   # get fill values for each feature
   fill_values <- config %>% 
-    filter(output_col %in% colnames(features)) %>% 
-    select(output_col, fill_value) %>% 
+    filter(feature %in% colnames(features)) %>% 
+    select(feature, fill_value) %>% 
     distinct() %>% 
     deframe()
   

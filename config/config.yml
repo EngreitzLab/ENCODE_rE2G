@@ -1,23 +1,33 @@
 
 ### INPUT
-ABC_BIOSAMPLES: "config/config_biosamples.tsv"
+# choose a set of the following options: "run_ABC", "features_genomewide", "features_CRISPR", "predict_genomewide"
+# genomewide features are always calculated, so dataset_config always requires columns: dataset, feature_table
+#   ABC_directory also required UNLESS "run_ABC" is also selected
+# if "run_ABC" is selected: must also include config columns required by ABC and specifg ABC_DIR_PATH below 
+#   new ABC directories will replace anything specified by the user in dataset_config
+# if "features_CRISPR" is selected: no additional columns in dataset_config are required, but crispr_dataset below must be!
+# if "predict_genomewide" is selected: dataset_config also requires a columns: trained_model, threshold
+
+steps: ["features_CRISPR"] # options: "run_ABC", "features_genomewide", "features_CRISPR", "predict_genomewide"
+
+
+# TO DO: integrate input config files (keep track of which columns are necessary for which steps)
+# ABC_BIOSAMPLES: "config/config_biosamples.tsv" # if "run_ABC" 
+dataset_config: "config/dataset_config_ATAC.tsv" # dataset / ABC_directory / feature_table (when you already have ABC)
 
 ### OUTPUT
-results_dir: "results/"
+results_dir: "2023_1114_ATAC_Xu/"
 
-### PARAMS
-ABC_DIR_PATH: "ABC"
-
-### Reference Files
+### REFERENCE
 gene_TSS500: "resources/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed"
 chr_sizes: "resources/GRCh38_EBV.no_alt.chrom.sizes.tsv"
 ubiq_expr_genes: "resources/for_classifier_use_ubiquitous_expression_RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.txt"
-
-# Filling new features into prediction file
-feature_config: "config/feature_config.tsv"
 crispr_dataset: "resources/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz"
 
-# ENCODE E2G
+### PARAMS - what is this?
+ABC_DIR_PATH: "ABC"
+
+# ENCODE E2G - edit later
 feature_table: 
   ATAC: "/oak/stanford/groups/engreitz/Users/sheth/ENCODE-E2G_v2/data/feature_table/model_scATAC_IGVF.tsv"
   DHS: "/oak/stanford/groups/engreitz/Users/atan5133/ENCODE-E2G/data/feature_table/model_ablation_encode_e2g.tsv"

@@ -35,27 +35,15 @@ SumEnhancersEG5kb <- fread(snakemake@input$SumEnhancersEG5kb,
 ubiqExprGenes <- fread(snakemake@input$ubiqExprGenes)
 
 # process abc input and compute squared contact and activity measurements
-abc <- abc %>%
-  mutate(
-    hic_contact_squared = hic_contact^2,
-    activity_base_squared = activity_base^2
-  )
-
-# extract Activity-only feature columns and output names as vector
-if (snakemake@params$activity == "DHS") {
-  activity_feat_cols <- config %>%
-    filter(dnase_only == TRUE) %>%
-    select(output_col, feature_col) %>%
-    deframe()
-} else if (snakemake@params$activity == "ATAC") {
-  activity_feat_cols <- config %>%
-    filter(atac_only == TRUE) %>%
-    select(output_col, feature_col) %>%
-    deframe()
-} else {
-  stop("Only DHS or ATAC activity param supported")
+to_square = dplyr::filter(config, square_source_col!="NA")
+for (i in 1:nrow(to_square)){
+  abc[[to_square$input_col[i]]] = abc[[to_square$square_source_col[i]]] ^ 2
 }
 
+# extract Activity-only feature columns and output names as vector
+activity_feat_cols <- config %>%
+  select(feature, input_col) %>%
+  deframe()
 
 # core columns from ABC for output
 core_cols <- c(
@@ -63,6 +51,8 @@ core_cols <- c(
   "TargetGeneIsExpressed", "TargetGeneEnsembl_ID", "isSelfPromoter",
   "CellType", "distance"
 )
+# filter to existing core columns for backwards compatability 
+core_cols = core_cols[core_cols %in% colnames(abc)]
 
 # select all core columns from ABC table for output
 output <- select(abc, all_of(core_cols))
@@ -102,13 +92,17 @@ output <- ubiqExprGenes %>%
 # fill in NAs and write to output ------------------------------------------------------------------
 
 # get fill values for each feature
-config <- filter(config, output_col %in% colnames(output))
+config <- filter(config, feature %in% colnames(output))
 fill_values <- get_fill_values(output, config = config)
 
 # replace NAs with fill values
 output <- replace_na(output, replace = fill_values)
 
 # reorder columns for output
+print(colnames(output))
+print(core_cols)
+print(activity_feat_cols)
+
 output <- select(output, all_of(core_cols), all_of(names(activity_feat_cols)))
 
 # save output to file

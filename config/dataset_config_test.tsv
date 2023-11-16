@@ -1,0 +1,4 @@
+dataset	ABC_directory	feature_table	biosample	DHS	ATAC	H3K27ac	default_accessibility_feature	HiC_dir	HiC_type	HiC_resolution	HiC_gamma	HiC_scale	alt_TSS	alt_genes	trained_model	threshold
+DNase_powerlaw	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_dev_11_09_dhs_only_avg_hic	/oak/stanford/groups/engreitz/Users/sheth/encode_e2g_features/config/feature_config_DNase_powerlaw.tsv														
+DNase_avghic	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_dev_11_09_dhs_only_avg_hic	/oak/stanford/groups/engreitz/Users/sheth/encode_e2g_features/config/feature_config_DNase_hic.tsv														
+DNase_megamap	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_dev_11_10_dhs_only_megamap	/oak/stanford/groups/engreitz/Users/sheth/encode_e2g_features/config/feature_config_DNase_hic.tsv														

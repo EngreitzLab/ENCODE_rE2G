@@ -66,6 +66,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir):
         _populate_enhancer_count_from_tss(df, upstream_enh, is_upstream=True)
         _populate_enhancer_count_from_tss(df, downstream_enh, is_upstream=False)
 
+    df = df.fillna(value=0)
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
         os.path.join(results_dir, "NumCandidateEnhGene.tsv"),
