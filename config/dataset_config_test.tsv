@@ -1,2 +1,2 @@
 dataset	EnhancerPredictionsAllPutative	EnhancerList	activity
-K562_dnase_no_qnorm	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_no_qnorm_08_28_dev/Predictions/EnhancerPredictionsAllPutative.tsv.gz	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_no_qnorm_08_28_dev/Neighborhoods/EnhancerList.txt	DHS
+K562	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_dev_11_21_adjust_prom_cutoff/Predictions/EnhancerPredictionsAllPutative.tsv.gz	/oak/stanford/groups/engreitz/Users/atan5133/abc_run_comparisons/results_dev_11_21_adjust_prom_cutoff/Neighborhoods/EnhancerList.txt	DHS
