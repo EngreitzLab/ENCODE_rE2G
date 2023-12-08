@@ -1,4 +1,4 @@
-name: encode_e2g_features
+name: encode_re2g
 channels:
   - bioconda
   - conda-forge

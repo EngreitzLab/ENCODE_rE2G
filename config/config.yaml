@@ -18,7 +18,7 @@ feature_config: "config/feature_config.tsv"
 crispr_dataset: "resources/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz"
 
 # ENCODE E2G
-feature_table: 
+feature_table:
   ATAC: "/oak/stanford/groups/engreitz/Users/sheth/ENCODE-E2G_v2/data/feature_table/model_scATAC_IGVF.tsv"
   DHS: "/oak/stanford/groups/engreitz/Users/atan5133/ENCODE-E2G/data/feature_table/model_ablation_encode_e2g.tsv"
 models_dir:
@@ -27,3 +27,9 @@ models_dir:
 epsilon: .01
 threshold: .09
 
+
+### INTERNAL USE ONLY
+
+# e2g path to prepend to reference and script files
+# Only relevant when using e2g as a submodule
+E2G_DIR_PATH: ""
