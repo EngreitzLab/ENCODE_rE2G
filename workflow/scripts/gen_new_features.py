@@ -149,12 +149,12 @@ def generate_num_sum_enhancers(
             enh_list_midpoint_file, chr_sizes, slop_5kb_file
         )
     )
-    slop_10kb_file = os.path.join(intermediate_dir, "EnhancerRegions.slop_10kb.bed")
-    os.system(
-        "bedtools slop -b 10000 -i {} -g {} > {}".format(
-            enh_list_midpoint_file, chr_sizes, slop_10kb_file
-        )
-    )
+    # slop_10kb_file = os.path.join(intermediate_dir, "EnhancerRegions.slop_10kb.bed")
+    # os.system(
+    #     "bedtools slop -b 10000 -i {} -g {} > {}".format(
+    #         enh_list_midpoint_file, chr_sizes, slop_10kb_file
+    #     )
+    # )
     prediction_slim_file = os.path.join(
         intermediate_dir, "EnhancerPredictionsAllPutative.slim.bed"
     )
@@ -170,13 +170,13 @@ def generate_num_sum_enhancers(
             os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
         )
     )
-    os.system(
-        "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
-            slop_10kb_file,
-            prediction_slim_file,
-            os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
-        )
-    )
+    # os.system(
+    #     "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
+    #         slop_10kb_file,
+    #         prediction_slim_file,
+    #         os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
+    #     )
+    # )
     data = pd.read_csv(
         os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
         sep="\t",
@@ -197,26 +197,26 @@ def generate_num_sum_enhancers(
         header=False,
         index=False,
     )
-    data = pd.read_csv(
-        os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
-        sep="\t",
-        header=None,
-    )
-    data1 = data[data[3] != data[7]]
-    data2 = data1.groupby([3]).size().reset_index(name="count")
-    data3 = data1.groupby([3])[8].sum().reset_index(name="sum")
-    data2.to_csv(
-        os.path.join(results_dir, "NumEnhancersEG10kb.txt"),
-        sep="\t",
-        header=False,
-        index=False,
-    )
-    data3.to_csv(
-        os.path.join(results_dir, "SumEnhancersEG10kb.txt"),
-        sep="\t",
-        header=False,
-        index=False,
-    )
+    # data = pd.read_csv(
+    #     os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
+    #     sep="\t",
+    #     header=None,
+    # )
+    # data1 = data[data[3] != data[7]]
+    # data2 = data1.groupby([3]).size().reset_index(name="count")
+    # data3 = data1.groupby([3])[8].sum().reset_index(name="sum")
+    # data2.to_csv(
+    #     os.path.join(results_dir, "NumEnhancersEG10kb.txt"),
+    #     sep="\t",
+    #     header=False,
+    #     index=False,
+    # )
+    # data3.to_csv(
+    #     os.path.join(results_dir, "SumEnhancersEG10kb.txt"),
+    #     sep="\t",
+    #     header=False,
+    #     index=False,
+    # )
 
 
 if __name__ == "__main__":
