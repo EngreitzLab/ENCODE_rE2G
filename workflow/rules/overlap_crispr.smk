@@ -13,6 +13,6 @@ rule overlap_activity_only_features_crispr:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/overlap_features_with_crispr_data.R"

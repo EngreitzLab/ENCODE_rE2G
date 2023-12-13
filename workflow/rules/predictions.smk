@@ -9,7 +9,7 @@ rule generate_e2g_predictions:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	output: 
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz")
 	shell: 
@@ -32,7 +32,7 @@ rule filter_e2g_predictions:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	output:
 		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	shell:

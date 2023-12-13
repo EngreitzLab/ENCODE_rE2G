@@ -6,7 +6,7 @@ rule get_stats:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=4*1000
+		mem_mb=determine_mem_mb
 	output:
 		stats = os.path.join(RESULTS_DIR, "{biosample}", "Metrics", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
 	shell:
@@ -22,7 +22,7 @@ rule generate_plots:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=4*1000
+		mem_mb=determine_mem_mb
 	output:
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
 	shell:

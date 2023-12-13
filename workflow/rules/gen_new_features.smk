@@ -1,3 +1,4 @@
+from functools import partial
 
 rule gen_new_features: 
 	input:
@@ -10,7 +11,7 @@ rule gen_new_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=32*1000
+		mem_mb=partial(determine_mem_mb, min_gb=32)
 	output: 
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumCandidateEnhGene.tsv"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),
