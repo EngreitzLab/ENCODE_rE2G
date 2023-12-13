@@ -5,9 +5,9 @@ Supports running ENCODE E2G with a pre-trained model. Put the pretrained model i
 
 ## Usage
 
-Clone the repo
+Clone the repo and set it up for submdoule usage
 ```
-git clone --recurse-submodules <repository-url>
+git clone --recurse-submodules https://github.com/EngreitzLab/ENCODE_rE2G.git
 git config --global submodule.recurse true
 ```
 We use `ABC` as a submodule so this command will initialize it and sets up your git config to automatically keep the submodule up to date.
