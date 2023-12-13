@@ -6,8 +6,11 @@ Supports running ENCODE E2G with a pre-trained model. Put the pretrained model i
 ## Usage
 
 Clone the repo
-
-Load `ABC` submodule: `git submodule update --init`
+```
+git clone --recurse-submodules <repository-url>
+git config --global submodule.recurse true
+```
+We use `ABC` as a submodule so this command will initialize it and sets up your git config to automatically keep the submodule up to date.
 
 Modify `config/config.yml` with your ABC biosamples config
 
@@ -18,6 +21,9 @@ snakemake -j1 --use-conda
 ```
 
 Output will show up in the `results/` directory
+
+
+
 
 
 ## Supported Models
