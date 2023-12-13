@@ -11,6 +11,7 @@ def create_intermediate_dir(results_dir):
         os.makedirs(intermediate_dir)
     return intermediate_dir
 
+
 def delete_intermediate_dir(intermediate_dir):
     shutil.rmtree(intermediate_dir)
 
@@ -37,17 +38,20 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
 
     determine_num_candidate_enh_gene(pred_df, results_dir)
     determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir)
-    generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir)
+    generate_num_sum_enhancers(
+        abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir
+    )
 
     # Intermediate directory takes up a lot of space. Delete after usage
     delete_intermediate_dir(intermediate_dir)
+
 
 def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
     enh_indexes = enhancers.index
     if is_upstream:
         # start counting from the enhancer closest to TSS
         enh_indexes = reversed(enh_indexes)
-    
+
     count_from_tss = 0
     for enh_idx in enh_indexes:
         count_from_tss += 1
@@ -56,7 +60,9 @@ def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
 
 def determine_num_candidate_enh_gene(pred_df, results_dir):
     # Need df to be sorted by midpoint for each chromosome
-    df = pred_df.sort_values(by=['chr', 'midpoint'], ascending=True).reset_index(drop=True)
+    df = pred_df.sort_values(by=["chr", "midpoint"], ascending=True).reset_index(
+        drop=True
+    )
 
     gene_groups = df.groupby(["TargetGene", "TargetGeneTSS"])
     for (gene, tss), indexes in gene_groups.groups.items():
@@ -66,6 +72,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir):
         _populate_enhancer_count_from_tss(df, upstream_enh, is_upstream=True)
         _populate_enhancer_count_from_tss(df, downstream_enh, is_upstream=False)
 
+    df = df.fillna(value=0)
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
         os.path.join(results_dir, "NumCandidateEnhGene.tsv"),

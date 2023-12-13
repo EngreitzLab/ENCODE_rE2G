@@ -18,3 +18,15 @@ snakemake -j1 --use-conda
 ```
 
 Output will show up in the `results/` directory
+
+
+## Supported Models
+
+We have pre-trained ENCODE-rE2G on certain model types. You can find them in the `models` directory.
+Each model must have the following:
+1. model pickle file
+2. feature table file
+3. threshold file
+
+The way we choose the model depends on the biosamples input. The code for model selection is in
+the utils.smk file, under the `_get_biosample_model_dir` function.

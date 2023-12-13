@@ -3,7 +3,7 @@ rule overlap_activity_only_features_crispr:
 	input:
 		features = os.path.join(RESULTS_DIR, "{biosample}/ActivityOnly_features.tsv.gz"),
 		crispr = config['crispr_dataset'],
-		config = config['feature_config'],
+		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
 		tss = config['gene_TSS500']
 	output: 
 		os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz")

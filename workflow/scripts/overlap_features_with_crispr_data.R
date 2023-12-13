@@ -1,8 +1,5 @@
 ## Overlap an E-G features table with CRISPR data
 
-# save.image("crispr.rda")
-# stop()
-
 # required packages
 suppressPackageStartupMessages({
   library(data.table)
@@ -90,14 +87,14 @@ crispr <- fread(snakemake@input$crispr)
 crispr <- select(crispr, -c(pair_uid, merged_uid, merged_start, merged_end))
 
 # load feature config file and only retain entries for features in input data
-config <- fread(snakemake@input$config)
-config <- filter(config, output_col %in% colnames(features))
+config <- fread(snakemake@input$feature_table_file)
+config <- filter(config, feature %in% colnames(features))
 
 # load tss annotations
 tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "score", "strand"))
 
 # create vector with aggregation functions for each feature
-agg_funs <- deframe(distinct(select(config, output_col, aggregate_function)))
+agg_funs <- deframe(distinct(select(config, feature, aggregate_function)))
 
 # filter out any CRISPR E-G pairs involving genes not part of the TSS universe or feature genes
 if (snakemake@params$filter_genes == "tss_universe") {
@@ -113,7 +110,7 @@ if (snakemake@params$filter_genes == "tss_universe") {
 # overlap feature table with CRISPR data
 output <- merge_feature_to_crispr(crispr,
   feature = features,
-  feature_score_cols = unique(config$output_col),
+  feature_score_cols = unique(config$feature),
   agg_fun = agg_funs, fill_value = NA_real_
 )
 

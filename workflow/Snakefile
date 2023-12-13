@@ -53,6 +53,4 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
 		),
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{config['threshold']}.tsv.gz"), biosample=BIOSAMPLES
-		)
+		[os.path.join(RESULTS_DIR, f"{biosample}", f'encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv') for biosample in BIOSAMPLES]

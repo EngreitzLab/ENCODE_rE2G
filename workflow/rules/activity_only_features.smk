@@ -1,7 +1,7 @@
 # create activity-only feature table
 rule activity_only_features:
 	input:
-		feature_config = "config/feature_config.tsv",
+		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
 		abc = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumCandidateEnhGene.tsv"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),

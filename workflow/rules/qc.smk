@@ -16,9 +16,7 @@ rule get_stats:
 
 rule generate_plots:
 	input:
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", f"encode_e2g_predictions_threshold{config['threshold']}_stats.tsv"), biosample=BIOSAMPLES
-		)
+		[os.path.join(RESULTS_DIR, f"{biosample}", f'encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv') for biosample in BIOSAMPLES]
 	params:
 		scripts_dir = SCRIPTS_DIR
 	conda:
@@ -26,7 +24,7 @@ rule generate_plots:
 	resources:
 		mem_mb=4*1000
 	output:
-		plots = os.path.join(RESULTS_DIR, "qc_plots_threshold{threshold}.pdf")
+		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
 	shell:
 		"""
 		python {params.scripts_dir}/generate_plots.py \
