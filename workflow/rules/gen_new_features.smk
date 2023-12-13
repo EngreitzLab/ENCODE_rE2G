@@ -16,8 +16,6 @@ rule gen_new_features:
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "NumEnhancersEG5kb.txt"),
 		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "SumEnhancersEG5kb.txt"),
-		NumEnhancersEG10kb = os.path.join(RESULTS_DIR, "{biosample}", "NumEnhancersEG10kb.txt"),
-		SumEnhancersEG10kb = os.path.join(RESULTS_DIR, "{biosample}", "SumEnhancersEG10kb.txt"),
 	shell: 
 		""" 
 		python {params.scripts_dir}/gen_new_features.py \

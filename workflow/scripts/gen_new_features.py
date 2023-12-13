@@ -11,6 +11,7 @@ def create_intermediate_dir(results_dir):
         os.makedirs(intermediate_dir)
     return intermediate_dir
 
+
 def delete_intermediate_dir(intermediate_dir):
     shutil.rmtree(intermediate_dir)
 
@@ -37,17 +38,20 @@ def main(enhancer_list, abc_predictions, ref_gene_tss, chr_sizes, results_dir):
 
     determine_num_candidate_enh_gene(pred_df, results_dir)
     determine_num_tss_enh_gene(pred_df, ref_gene_tss, results_dir, intermediate_dir)
-    generate_num_sum_enhancers(abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir)
+    generate_num_sum_enhancers(
+        abc_predictions, enhancer_list, chr_sizes, results_dir, intermediate_dir
+    )
 
     # Intermediate directory takes up a lot of space. Delete after usage
     delete_intermediate_dir(intermediate_dir)
+
 
 def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
     enh_indexes = enhancers.index
     if is_upstream:
         # start counting from the enhancer closest to TSS
         enh_indexes = reversed(enh_indexes)
-    
+
     count_from_tss = 0
     for enh_idx in enh_indexes:
         count_from_tss += 1
@@ -56,7 +60,9 @@ def _populate_enhancer_count_from_tss(df, enhancers, is_upstream):
 
 def determine_num_candidate_enh_gene(pred_df, results_dir):
     # Need df to be sorted by midpoint for each chromosome
-    df = pred_df.sort_values(by=['chr', 'midpoint'], ascending=True).reset_index(drop=True)
+    df = pred_df.sort_values(by=["chr", "midpoint"], ascending=True).reset_index(
+        drop=True
+    )
 
     gene_groups = df.groupby(["TargetGene", "TargetGeneTSS"])
     for (gene, tss), indexes in gene_groups.groups.items():
@@ -66,6 +72,7 @@ def determine_num_candidate_enh_gene(pred_df, results_dir):
         _populate_enhancer_count_from_tss(df, upstream_enh, is_upstream=True)
         _populate_enhancer_count_from_tss(df, downstream_enh, is_upstream=False)
 
+    df = df.fillna(value=0)
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
         os.path.join(results_dir, "NumCandidateEnhGene.tsv"),
@@ -142,12 +149,12 @@ def generate_num_sum_enhancers(
             enh_list_midpoint_file, chr_sizes, slop_5kb_file
         )
     )
-    slop_10kb_file = os.path.join(intermediate_dir, "EnhancerRegions.slop_10kb.bed")
-    os.system(
-        "bedtools slop -b 10000 -i {} -g {} > {}".format(
-            enh_list_midpoint_file, chr_sizes, slop_10kb_file
-        )
-    )
+    # slop_10kb_file = os.path.join(intermediate_dir, "EnhancerRegions.slop_10kb.bed")
+    # os.system(
+    #     "bedtools slop -b 10000 -i {} -g {} > {}".format(
+    #         enh_list_midpoint_file, chr_sizes, slop_10kb_file
+    #     )
+    # )
     prediction_slim_file = os.path.join(
         intermediate_dir, "EnhancerPredictionsAllPutative.slim.bed"
     )
@@ -163,13 +170,13 @@ def generate_num_sum_enhancers(
             os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
         )
     )
-    os.system(
-        "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
-            slop_10kb_file,
-            prediction_slim_file,
-            os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
-        )
-    )
+    # os.system(
+    #     "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
+    #         slop_10kb_file,
+    #         prediction_slim_file,
+    #         os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
+    #     )
+    # )
     data = pd.read_csv(
         os.path.join(intermediate_dir, "NumEnhancers5kb.txt"),
         sep="\t",
@@ -190,26 +197,26 @@ def generate_num_sum_enhancers(
         header=False,
         index=False,
     )
-    data = pd.read_csv(
-        os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
-        sep="\t",
-        header=None,
-    )
-    data1 = data[data[3] != data[7]]
-    data2 = data1.groupby([3]).size().reset_index(name="count")
-    data3 = data1.groupby([3])[8].sum().reset_index(name="sum")
-    data2.to_csv(
-        os.path.join(results_dir, "NumEnhancersEG10kb.txt"),
-        sep="\t",
-        header=False,
-        index=False,
-    )
-    data3.to_csv(
-        os.path.join(results_dir, "SumEnhancersEG10kb.txt"),
-        sep="\t",
-        header=False,
-        index=False,
-    )
+    # data = pd.read_csv(
+    #     os.path.join(intermediate_dir, "NumEnhancers10kb.txt"),
+    #     sep="\t",
+    #     header=None,
+    # )
+    # data1 = data[data[3] != data[7]]
+    # data2 = data1.groupby([3]).size().reset_index(name="count")
+    # data3 = data1.groupby([3])[8].sum().reset_index(name="sum")
+    # data2.to_csv(
+    #     os.path.join(results_dir, "NumEnhancersEG10kb.txt"),
+    #     sep="\t",
+    #     header=False,
+    #     index=False,
+    # )
+    # data3.to_csv(
+    #     os.path.join(results_dir, "SumEnhancersEG10kb.txt"),
+    #     sep="\t",
+    #     header=False,
+    #     index=False,
+    # )
 
 
 if __name__ == "__main__":
