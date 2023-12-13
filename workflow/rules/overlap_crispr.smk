@@ -1,7 +1,7 @@
 # overlap activity-only feature table table with K562 CRISPR data
 rule overlap_activity_only_features_crispr:
 	input:
-		features = os.path.join(RESULTS_DIR, "{biosample}/ActivityOnly_features.tsv.gz"),
+		features = os.path.join(RESULTS_DIR, "{biosample}", "final_features.tsv.gz"),
 		crispr = config['crispr_dataset'],
 		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
 		tss = config['gene_TSS500']

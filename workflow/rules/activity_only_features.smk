@@ -18,3 +18,19 @@ rule activity_only_features:
 		mem_mb=32*1000
 	script:
 		"../scripts/activity_only_features.R"
+
+rule gen_final_features:
+	# We really only do a file renaming here
+	# This step should be replaced by other modules if they wish to add more features
+	input:
+		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
+	output:
+		final_features = os.path.join(RESULTS_DIR, "{biosample}", "final_features.tsv.gz")
+	conda:
+		"../envs/encode_re2g.yml"
+	resources:
+		mem_mb=4*1000
+	shell:
+		"""
+		mv {input.predictions_extended} {output.final_features}
+		"""
