@@ -54,6 +54,7 @@ rule all:
 			os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
 		),
 		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES],
+		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf"),
 		# expand(
 		# 	os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], biosample=BIOSAMPLES
 		# )
