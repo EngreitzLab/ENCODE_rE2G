@@ -32,5 +32,5 @@ rule gen_final_features:
 		mem_mb=1*1000
 	shell:
 		"""
-		mv {input.predictions_extended} {output.final_features}
+		cp {input.predictions_extended} {output.final_features}
 		"""
