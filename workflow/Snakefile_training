@@ -1,0 +1,74 @@
+from snakemake.utils import min_version
+min_version("7.0")
+
+import pandas as pd
+import os
+import yaml
+
+
+configfile: "config/config_training.yaml"
+model_config = pd.read_table(config["model_config"], na_values="").fillna("None").set_index("model", drop=False)
+dataset_config = pd.read_table(config["dataset_config"], na_values="").set_index("biosample", drop=False)
+conda: "mamba"
+include: "rules/utils.smk"
+
+E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
+config = make_paths_absolute(config, E2G_DIR_PATH)
+# Need to manually make results_dir an absolute path since above may
+# not work if results_dir folder isn't created
+# If results_dir is already an absolute path, this is a no-op
+config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
+
+def get_abc_config(config):
+	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
+	with open(abc_config_file, 'r') as stream:
+		abc_config = yaml.safe_load(stream)
+	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
+	abc_config["biosamplesTable"] = config["dataset_config"]
+	abc_config["results_dir"] = config["results_dir"]
+	return abc_config
+
+module ABC:
+	snakefile:
+		f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
+	config: get_abc_config(config)
+
+use rule * from ABC exclude all as abc_*
+
+RESULTS_DIR = config["results_dir"]
+SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
+
+# These rules requires the variables above to be defined
+include: "rules/gen_new_features.smk"
+include: "rules/train_model.smk"
+
+# Validate and fill ABC_directory column:
+# Confirm each dataset corresponds to a unique ABC_directory
+is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() == 1
+if ~is_corresponding.all():
+	raise Exception(f"Please ensure each dataset corresponds to a unique ABC directory.")
+# Make a dictionary of dataset:ABC_dir pairs
+ABC_dirs = {}
+for row in model_config.itertuples(index=False):
+	if row.dataset not in ABC_dirs: 
+		if row.ABC_directory=="None": # ABC directory is not provided
+			if row.dataset not in dataset_config['biosample']: # is there info to run ABC?
+				raise Exception(f"Dataset {row.dataset} not specified in dataset_config.")
+			ABC_dirs[row.dataset] = os.path.join(RESULTS_DIR, row.dataset)
+		else: # ABC directory is provided
+			ABC_dirs[row.dataset] = row.ABC_directory
+
+# specify target files
+output_files = []
+output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+if config["run_feature_analysis"]:
+	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "permuation_feature_importance.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "all_feature_sets.tsv"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+
+
+rule all:
+	input: 
+		output_files
+

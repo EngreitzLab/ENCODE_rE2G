@@ -54,7 +54,10 @@ merge_feature_to_crispr <- function(crispr, features, feature_score_cols, agg_fu
   }
 
   # combine merged and missing pairs to create output
-  output <- rbind(merged, missing)
+  #output <- rbind(merged, missing)
+
+  # only return merged pairs
+  output <- merged
 
   # sort output by cre position
   output <- output[order(dataset, chrom, chromStart, chromEnd, measuredGeneSymbol), ]

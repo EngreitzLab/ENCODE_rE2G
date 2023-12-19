@@ -40,11 +40,11 @@ BIOSAMPLE_ACTIVITES = {
 	biosample: activity for _, (biosample, activity) in 
 	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
 }
+ABC_dirs = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosamples}
 
 # These rules requires the variables above to be defined
 include: "rules/gen_new_features.smk"
 include: "rules/activity_only_features.smk"
-include: "rules/overlap_crispr.smk"
 include: "rules/predictions.smk"
 include: "rules/qc.smk"
 
@@ -53,7 +53,4 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
 		),
-		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES],
-		# expand(
-		# 	os.path.join(RESULTS_DIR, "{biosample}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_ActivityOnly_features_{nafill}.tsv.gz"), nafill = ["withNA", "NAfilled"], biosample=BIOSAMPLES
-		# )
+		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES]
