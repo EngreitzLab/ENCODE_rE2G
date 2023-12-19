@@ -3,7 +3,7 @@ import pandas as pd
 
 def threshold_predictions(all_putative, threshold, include_self_promoter):
     # filter by threshold and promoter category
-    filtered_predictions = all_putative[all_putative['ENCODE-E2G.Score'] >= threshold]
+    filtered_predictions = all_putative[all_putative['ENCODE-rE2G.Score'] >= threshold]
 
     # process promoters & self-promoters
     if include_self_promoter:
