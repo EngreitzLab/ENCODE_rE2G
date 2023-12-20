@@ -22,7 +22,7 @@ rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz")
 	output:
-		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_external_features.tsv.gz")
+		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_plus_external_features.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
@@ -42,6 +42,6 @@ rule gen_final_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/gen_final_features.R"
