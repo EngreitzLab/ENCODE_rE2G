@@ -42,6 +42,6 @@ rule gen_final_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/gen_final_features.R"
