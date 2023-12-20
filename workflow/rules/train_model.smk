@@ -3,7 +3,7 @@
 rule activity_only_features:
 	input:
 		feature_table_file = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
-		abc = lambda wildcards: os.path.join(ABC_dirs[wildcards.dataset], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
+		abc = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.dataset], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumCandidateEnhGene.tsv"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{dataset}", "NumTSSEnhGene.tsv"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{dataset}", "NumEnhancersEG5kb.txt"),
@@ -23,20 +23,20 @@ rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "ActivityOnly_features.tsv.gz")
 	output:
-		plus_external_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "ActivityOnly_external_features.tsv.gz")
+		plus_external_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "ActivityOnly_plus_external_features.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
 		mem_mb=4*1000
 	shell:
 		"""
-		mv {input.predictions_extended} {output.plus_external_features}
+		cp {input.predictions_extended} {output.plus_external_features}
 		"""
 
 # compute interaction or squared terms, fill NAs, rename features to finals, fill nas
 rule gen_final_features:
 	input:
-		plus_external_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "ActivityOnly_external_features.tsv.gz"),
+		plus_external_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "ActivityOnly_plus_external_features.tsv.gz"),
 		feature_table_file = lambda wildcards: model_config.loc[wildcards.model, 'feature_table']
 	output:
 		final_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "final_features.tsv.gz")

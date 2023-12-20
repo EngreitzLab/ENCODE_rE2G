@@ -1,3 +1,4 @@
 model	dataset	ABC_directory	feature_table	polynomial
 DNase_megamap_8features	DNase_megamap		/oak/stanford/groups/engreitz/Users/sheth/ENCODE_rE2G/resources/feature_tables/final_feature_set_DNase_hic.tsv	False 
 DNase_intact_8features	DNase_intact		/oak/stanford/groups/engreitz/Users/sheth/ENCODE_rE2G/resources/feature_tables/final_feature_set_DNase_hic.tsv	False 
+DNase_intact_8features_fromAT	DNase_intact_AT	/oak/stanford/groups/engreitz/Users/atan5133/encode_dataset_processing/datasets/dhs_hic/K562_ENCSR000EOT_ENCFF621AIY/	/oak/stanford/groups/engreitz/Users/sheth/ENCODE_rE2G/resources/feature_tables/final_feature_set_DNase_hic.tsv	False 

@@ -15,10 +15,6 @@ crispr_dataset: "reference/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz" # CRIS
 
 # Model parameters
 epsilon: .01
-filter_features: ['ABC.Score', 'ARC'] 
-# if any of these features are present, remove CRISPR elements where feature==0 before training
-# if more than one are present, elements where any present features==0 will be removed
-
 
 ### INTERNAL USE ONLY
 ABC_DIR_PATH: "ABC"
