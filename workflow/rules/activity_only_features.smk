@@ -2,7 +2,7 @@
 rule activity_only_features:
 	input:
 		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
-		abc = lambda wildcards: os.path.join(ABC_dirs[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
+		abc = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumCandidateEnhGene.tsv"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),
 		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "NumEnhancersEG5kb.txt"),
