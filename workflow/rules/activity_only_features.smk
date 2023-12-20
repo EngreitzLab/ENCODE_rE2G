@@ -13,7 +13,7 @@ rule activity_only_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/activity_only_features.R"
 
@@ -26,7 +26,7 @@ rule add_external_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=4*1000
+		mem_mb=1*1000
 	shell:
 		"""
 		mv {input.predictions_extended} {output.plus_external_features}
