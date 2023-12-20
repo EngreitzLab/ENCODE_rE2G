@@ -2,8 +2,8 @@ from functools import partial
 
 rule gen_new_features: 
 	input:
-		abc_predictions = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
-		enhancer_list = os.path.join(RESULTS_DIR, "{biosample}", "Neighborhoods", "EnhancerList.txt"),
+		abc_predictions = lambda wildcards: os.path.join(ABC_dirs[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
+		enhancer_list = lambda wildcards: os.path.join(ABC_dirs[wildcards.biosample], "Neighborhoods", "EnhancerList.txt"),
 	params:
 		gene_TSS500 = config['gene_TSS500'],
 		chr_sizes = config['chr_sizes'],
