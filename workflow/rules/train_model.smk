@@ -71,8 +71,7 @@ rule process_crispr_data:
 	input:
 		crispr_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
 	params:
-		genes = config["gene_TSS500"],
-		filter_features = config["filter_features"]
+		genes = config["gene_TSS500"]
 	output:
 		processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
 	conda:

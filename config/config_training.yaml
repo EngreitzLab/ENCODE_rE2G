@@ -2,7 +2,7 @@
 # Input config
 model_config: "config/config_models_test.tsv"
 dataset_config: "config/config_datasets_test.tsv" 
-run_feature_analysis: False # do you want to run feature analysis? 
+run_feature_analysis: True # do you want to run feature analysis? 
 
 # Output directory
 results_dir: "results_test/"
