@@ -73,6 +73,7 @@ def permutation_feature_importance(df_dataset, feature_table, model_name, epsilo
 
 def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, n_repeats):
     model_name = 'ENCODE-rE2G'
+    n_repeats = int(n_repeats)
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
 

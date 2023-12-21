@@ -131,7 +131,7 @@ def SBFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial
         else:
             feature_list.remove(to_remove)
             model_name = model_name_core + '_' + str(i+1)
-            df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name)
+            df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name)
             Y_new = df_dataset[model_name+'.Score']
 
         data_compare = (Y_true, Y_last, Y_new)

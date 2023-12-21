@@ -13,10 +13,12 @@ output_file_prec = (snakemake@output$out_prec)
 
 df = fread(input_file, sep="\t")
 feature_table = fread(feature_table_file)
+polynomial = gsub(" ", "", my_string)
 
 # if polynomial==False, use nice_name for plotting
-if (polynomial==FALSE){
+if (polynomial=="False"){
   ft_names = dplyr::select(feature_table, feature, nice_name)
+  ft_names %>% add_row(feature='None', nice_name='None')
   df = left_join(df, ft_names, by=c("feature_added"="feature"))
   df$feature_added = df$nice_name
 }
@@ -56,7 +58,7 @@ x = ggplot(df, aes(x=feature_added, y=delta_aupr)) +
   coord_flip() +
   ylim(c(ymin_aupr, 1)) +
   theme_classic() + theme(axis.text = element_text(size = 7), axis.title = element_text(size = 8), legend.position="none")
-ggsave(filename=output_file_aupr, plot=x, width=4, height=ht)
+ggsave(filename=output_file_auprc, plot=x, width=4, height=ht)
 
 y = ggplot(df, aes(x=feature_added, y=delta_precision)) +
   geom_bar(stat="identity") +
