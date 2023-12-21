@@ -13,14 +13,13 @@ output_file_prec = (snakemake@output$out_prec)
 
 df = fread(input_file, sep="\t")
 feature_table = fread(feature_table_file)
-polynomial = gsub(" ", "", my_string)
+polynomial = gsub(" ", "", polynomial)
 
 # if polynomial==False, use nice_name for plotting
 if (polynomial=="False"){
   ft_names = dplyr::select(feature_table, feature, nice_name)
-  ft_names %>% add_row(feature='None', nice_name='None')
-  df = left_join(df, ft_names, by=c("feature_removed"="feature"))
-  df$feature_removed = df$nice_name
+  df = left_join(df, ft_names, by=c("feature_removed"="feature")) %>% 
+    mutate(feature_removed = ifelse(!is.na(nice_name), nice_name, feature_removed))
 }
 
 # order features for plotting
