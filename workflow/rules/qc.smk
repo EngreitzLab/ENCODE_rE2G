@@ -16,7 +16,7 @@ rule get_stats:
 
 rule generate_plots:
 	input:
-		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES]
+		stat_files = [os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES]
 	params:
 		scripts_dir = SCRIPTS_DIR
 	conda:
@@ -28,7 +28,6 @@ rule generate_plots:
 	shell:
 		"""
 		python {params.scripts_dir}/generate_plots.py \
-			--results_dir {RESULTS_DIR} \
 			--output_file {output.plots} \
-			# --y2ave_metadata /oak/stanford/groups/engreitz/Users/atan5133/igvf_dataset_processing/Y2AVE_SingleCellDatasets.CellClusterTable.tsv
+			{input.stat_files}
 		"""

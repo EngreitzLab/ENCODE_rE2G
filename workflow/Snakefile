@@ -40,7 +40,10 @@ BIOSAMPLE_ACTIVITES = {
 	biosample: activity for _, (biosample, activity) in 
 	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
 }
-ABC_dirs = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosamples}
+
+# make directory of ABC output where EnhancersAllPutative and EnhancerList are found
+# defined to be compatible with training workflow, which can start from an existing ABC directory
+ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosample}
 
 # These rules requires the variables above to be defined
 include: "rules/gen_new_features.smk"
@@ -53,5 +56,5 @@ rule all:
 		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
 		),
-		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES]
+		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES],
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")

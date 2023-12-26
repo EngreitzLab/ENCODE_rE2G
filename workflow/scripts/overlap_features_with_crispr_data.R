@@ -56,7 +56,7 @@ merge_feature_to_crispr <- function(crispr, features, feature_score_cols, agg_fu
   # combine merged and missing pairs to create output
   #output <- rbind(merged, missing)
 
-  # only return merged pairs
+  # only return crispr pairs that overlap features
   output <- merged
 
   # sort output by cre position
