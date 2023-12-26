@@ -20,4 +20,4 @@ epsilon: .01
 ABC_DIR_PATH: "ABC"
 # e2g path to prepend to reference and script files
 # Only relevant when using e2g as a submodule
-E2G_DIR_PATH: "/oak/stanford/groups/engreitz/Users/sheth/ENCODE_rE2G"
+E2G_DIR_PATH: "."

@@ -13,7 +13,7 @@ rule calculate_forward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=64*1000
+		mem_mb=determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/forward_sequential_feature_selection.py \
@@ -36,7 +36,7 @@ rule plot_forward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/plot_sffs.R"
 
@@ -55,7 +55,7 @@ rule calculate_backward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=64*1000
+		mem_mb=determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/backward_sequential_feature_selection.py \
@@ -78,7 +78,7 @@ rule plot_backward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/plot_sbfs.R"
 
@@ -96,7 +96,7 @@ rule compare_all_feature_sets:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=64*1000
+		mem_mb=determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/compare_all_feature_sets.py \
@@ -122,7 +122,7 @@ rule calculate_permutation_feature_importance:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=64*1000
+		mem_mb=determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/permutation_feature_importance.py \
@@ -147,7 +147,7 @@ rule plot_permutation_feature_importance:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=32*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/plot_pfi.R"
 
