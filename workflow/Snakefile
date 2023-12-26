@@ -40,6 +40,7 @@ BIOSAMPLE_ACTIVITES = {
 	biosample: activity for _, (biosample, activity) in 
 	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
 }
+
 # make directory of ABC output where EnhancersAllPutative and EnhancerList are found
 # defined to be compatible with training workflow, which can start from an existing ABC directory
 ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosample}
