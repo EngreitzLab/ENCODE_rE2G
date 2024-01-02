@@ -45,65 +45,66 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
     # logistic regression predictions on chromosome-wise cross validation
     idx = np.arange(len(Y))
     chr_list = np.unique(df_dataset['chr'])
-    for chr in chr_list:
-        idx_test = df_dataset[df_dataset['chr']==chr].index.values
+    if len(chr_list)>1:
+        for chr in chr_list:
+            idx_test = df_dataset[df_dataset['chr']==chr].index.values
 
-        if len(idx_test) > 0:
-            idx_train = np.delete(idx, idx_test)
-            X_test = X.loc[idx_test, :]
-            X_train = X.loc[idx_train, :]
-            Y_test = Y[idx_test]
-            Y_train = Y[idx_train]
-            
-            model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X_train, Y_train)
+            if len(idx_test) > 0:
+                idx_train = np.delete(idx, idx_test)
+                X_test = X.loc[idx_test, :]
+                X_train = X.loc[idx_train, :]
+                Y_test = Y[idx_test]
+                Y_train = Y[idx_train]
+                
+                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X_train, Y_train)
 
-            with open(out_dir+f'/model_test_{chr}.pkl','wb') as f:
-                pickle.dump(model,f)
-            
-            probs = model.predict_proba(X_test)
-            df_dataset.loc[idx_test, model_name+'.Score'] = probs[:,1]
+                with open(out_dir+f'/model_test_{chr}.pkl','wb') as f:
+                    pickle.dump(model,f)
+                
+                probs = model.predict_proba(X_test)
+                df_dataset.loc[idx_test, model_name+'.Score'] = probs[:,1]
 
-            # performance metrics
-            ll_train = log_loss(Y_train, model.predict_proba(X_train)[:,1])
-            ll_test_full = log_loss(Y_test, probs_full[idx_test,1])
-            ll_test = log_loss(Y_test, probs[:,1])
-            auroc_train = roc_auc_score(Y_train, model.predict_proba(X_train)[:,1])
-            auroc_test_full = roc_auc_score(Y_test, probs_full[idx_test,1])
-            auroc_test = roc_auc_score(Y_test, probs[:,1])
-            auprc_train = statistic_aupr(Y_train, model.predict_proba(X_train)[:,1])
-            auprc_test_full = statistic_aupr(Y_test, probs_full[idx_test,1])
-            auprc_test = statistic_aupr(Y_test, probs[:,1])
-            n_train_pos = np.sum(Y_train)
-            n_train_neg = len(Y_train) - n_train_pos
-            n_test_pos = np.sum(Y_test)
-            n_test_neg = len(Y_test) - n_test_pos
+                # performance metrics
+                ll_train = log_loss(Y_train, model.predict_proba(X_train)[:,1])
+                ll_test_full = log_loss(Y_test, probs_full[idx_test,1])
+                ll_test = log_loss(Y_test, probs[:,1])
+                auroc_train = roc_auc_score(Y_train, model.predict_proba(X_train)[:,1])
+                auroc_test_full = roc_auc_score(Y_test, probs_full[idx_test,1])
+                auroc_test = roc_auc_score(Y_test, probs[:,1])
+                auprc_train = statistic_aupr(Y_train, model.predict_proba(X_train)[:,1])
+                auprc_test_full = statistic_aupr(Y_test, probs_full[idx_test,1])
+                auprc_test = statistic_aupr(Y_test, probs[:,1])
+                n_train_pos = np.sum(Y_train)
+                n_train_neg = len(Y_train) - n_train_pos
+                n_test_pos = np.sum(Y_test)
+                n_test_neg = len(Y_test) - n_test_pos
 
-            df_temp = pd.DataFrame({'test_chr': [chr], 'log_loss_test_full': [ll_test_full], 'log_loss_train': [ll_train], 'log_loss_test': [ll_test],
-                                    'AUROC_test_full': [auroc_test_full], 'AUROC_train': [auroc_train], 'AUROC_test': [auroc_test],
-                                    'AUPRC_test_full': [auprc_test_full], 'AUPRC_train': [auprc_train], 'AUPRC_test': [auprc_test],
-                                    'n_test_pos': [n_test_pos], 'n_test_neg': [n_test_neg], 'n_train_pos': [n_train_pos], 'n_train_neg': [n_train_neg]})
-            df_metrics = pd.concat([df_metrics, df_temp])
+                df_temp = pd.DataFrame({'test_chr': [chr], 'log_loss_test_full': [ll_test_full], 'log_loss_train': [ll_train], 'log_loss_test': [ll_test],
+                                        'AUROC_test_full': [auroc_test_full], 'AUROC_train': [auroc_train], 'AUROC_test': [auroc_test],
+                                        'AUPRC_test_full': [auprc_test_full], 'AUPRC_train': [auprc_train], 'AUPRC_test': [auprc_test],
+                                        'n_test_pos': [n_test_pos], 'n_test_neg': [n_test_neg], 'n_train_pos': [n_train_pos], 'n_train_neg': [n_train_neg]})
+                df_metrics = pd.concat([df_metrics, df_temp])
 
-            # save model weights
-            coefficients = model.coef_[0]
-            df_temp = pd.DataFrame({'feature': X.columns, 'coefficient': coefficients, 'test_chr': chr})
-            df_coef = pd.concat([df_coef, df_temp])
+                # save model weights
+                coefficients = model.coef_[0]
+                df_temp = pd.DataFrame({'feature': X.columns, 'coefficient': coefficients, 'test_chr': chr})
+                df_coef = pd.concat([df_coef, df_temp])
 
-    # calc performance metrics across chromosomes
-    total_ll_test = log_loss(Y, df_dataset[model_name+'.Score'])
-    total_ll_test_full = log_loss(Y, probs_full[:,1])
-    total_auroc_test = roc_auc_score(Y, df_dataset[model_name+'.Score'])
-    total_auroc_test_full = log_loss(Y, probs_full[:,1])
-    total_auprc_test = statistic_aupr(Y, df_dataset[model_name+'.Score'])
-    total_auprc_test_full = statistic_aupr(Y, probs_full[:,1])
-    n_pos = np.sum(Y)
-    n_neg = len(Y)- n_pos
+        # calc performance metrics across chromosomes
+        total_ll_test = log_loss(Y, df_dataset[model_name+'.Score'])
+        total_ll_test_full = log_loss(Y, probs_full[:,1])
+        total_auroc_test = roc_auc_score(Y, df_dataset[model_name+'.Score'])
+        total_auroc_test_full = log_loss(Y, probs_full[:,1])
+        total_auprc_test = statistic_aupr(Y, df_dataset[model_name+'.Score'])
+        total_auprc_test_full = statistic_aupr(Y, probs_full[:,1])
+        n_pos = np.sum(Y)
+        n_neg = len(Y)- n_pos
 
-    df_temp = pd.DataFrame({'test_chr': ['all'], 'log_loss_test_full': [total_ll_test_full], 'log_loss_train': [np.NaN], 'log_loss_test': [total_ll_test],
-                                    'AUROC_test_full': [total_auroc_test_full], 'AUROC_train': [np.NaN], 'AUROC_test': [total_auroc_test],
-                                    'AUPRC_test_full': [total_auprc_test_full], 'AUPRC_train': [np.NaN], 'AUPRC_test': [total_auprc_test],
-                                    'n_test_pos': [n_pos], 'n_test_neg': [n_neg], 'n_train_pos': [np.NaN], 'n_train_neg': [np.NaN]})
-    df_metrics = pd.concat([df_metrics, df_temp])
+        df_temp = pd.DataFrame({'test_chr': ['all'], 'log_loss_test_full': [total_ll_test_full], 'log_loss_train': [np.NaN], 'log_loss_test': [total_ll_test],
+                                        'AUROC_test_full': [total_auroc_test_full], 'AUROC_train': [np.NaN], 'AUROC_test': [total_auroc_test],
+                                        'AUPRC_test_full': [total_auprc_test_full], 'AUPRC_train': [np.NaN], 'AUPRC_test': [total_auprc_test],
+                                        'n_test_pos': [n_pos], 'n_test_neg': [n_neg], 'n_train_pos': [np.NaN], 'n_train_neg': [np.NaN]})
+        df_metrics = pd.concat([df_metrics, df_temp])
 
     # save dfs
     df_dataset.to_csv(out_dir + '/training_predictions.tsv', sep='\t', index=False)
