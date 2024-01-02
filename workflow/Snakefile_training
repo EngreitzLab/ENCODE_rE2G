@@ -73,7 +73,7 @@ if config["run_feature_analysis"]:
 			features = pd.read_table(row.feature_table)
 			n_features = len(features)
 			if n_features<14:
-				output_files.extend(os.path.join(RESULTS_DIR, row.dataset, row.model, "feature_analysis", "all_feature_sets.tsv"))
+				output_files.append(os.path.join(RESULTS_DIR, row.dataset, row.model, "feature_analysis", "all_feature_sets.tsv"))
 
 
 rule all:
