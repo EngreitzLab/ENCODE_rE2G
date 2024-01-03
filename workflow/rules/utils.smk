@@ -34,20 +34,22 @@ def _get_biosample_model_dir(biosample):
 	hic_file = row["HiC_file"]
 	if pd.isna(hic_file):
 		raise Exception("No model found for powerlaw")
-		# return os.path.join(E2G_DIR_PATH, "models", f"{access_type}_powerlaw")
+		# return os.path.join(MODEL_DIR, f"{access_type}_powerlaw")
 	
 	if pd.notna(row["H3K27ac"]):
 		raise Exception("H3K27ac model not supported")
 	
 	if row["HiC_type"] == "avg":
 		raise Exception("No model found for avg hic")
-		# return os.path.join(E2G_DIR_PATH, "models", f"{access_type}_avg_hic")
+		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
 	
 	if hic_file == config["MEGAMAP_HIC_FILE"]:
-		return os.path.join(E2G_DIR_PATH, "models", f"{access_type}_megamap")
+		if access_type=="atac":
+			return os.path.join(MODEL_DIR, "multiome_megamap_test") # enable testing of sc-E2G pipeline
+		return os.path.join(MODEL_DIR, f"{access_type}_megamap")
 	else:
 		# assume intact hi-c
-		return os.path.join(E2G_DIR_PATH, "models", f"{access_type}_intact_hic")
+		return os.path.join(MODEL_DIR, f"{access_type}_intact_hic")
 
 def get_feature_table_file(biosample):
 	model_dir = _get_biosample_model_dir(biosample)
