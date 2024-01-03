@@ -8,6 +8,7 @@ from training_functions import statistic_aupr, statistic_precision, train_and_pr
 def compare_feature_sets(df_dataset, feature_table, epsilon, n_boot):
 
     feature_list = feature_table['feature']
+    X = df_dataset.loc[:, feature_list]
     X = np.log(np.abs(X) + epsilon)
     Y_true = df_dataset['Regulated'].values.astype(np.int64)
 
