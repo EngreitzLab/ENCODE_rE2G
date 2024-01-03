@@ -58,15 +58,20 @@ def train_and_predict_once(df_dataset, X, Y, feature_list, model_name):
     idx = np.arange(len(Y)) # number of elements 
 
     chr_list = np.unique(df_dataset['chr'])
-    for chr in chr_list:
-        idx_test = df_dataset[df_dataset['chr']==chr].index.values
-        if len(idx_test) > 0:
-            idx_train = np.delete(idx, idx_test)
-            X_test = X.loc[idx_test, :]
-            X_train = X.loc[idx_train, :]
-            Y_train = Y[idx_train]
-            model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X_train, Y_train)
-            probs = model.predict_proba(X_test) # calculate scores
-            df_dataset.loc[idx_test, model_name+'.Score'] = probs[:,1]
+    if len(chr_list)>1:
+        for chr in chr_list:
+            idx_test = df_dataset[df_dataset['chr']==chr].index.values
+            if len(idx_test) > 0:
+                idx_train = np.delete(idx, idx_test)
+                X_test = X.loc[idx_test, :]
+                X_train = X.loc[idx_train, :]
+                Y_train = Y[idx_train]
+                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X_train, Y_train)
+                probs = model.predict_proba(X_test) # calculate scores
+                df_dataset.loc[idx_test, model_name+'.Score'] = probs[:,1]
+    else:
+        model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X, Y)
+        probs = model.predict_proba(X) # calculate scores
+        df_dataset.loc[:, model_name+'.Score'] = probs[:,1]
 
     return df_dataset
