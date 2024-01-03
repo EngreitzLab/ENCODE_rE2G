@@ -44,11 +44,11 @@ def _get_biosample_model_dir(biosample):
 		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
 	
 	if hic_file == config["MEGAMAP_HIC_FILE"]:
-		if access_type=="atac":
-			return os.path.join(MODEL_DIR, "multiome_megamap_test") # enable testing of sc-E2G pipeline
 		return os.path.join(MODEL_DIR, f"{access_type}_megamap")
 	else:
 		# assume intact hi-c
+		if access_type=="atac":
+			return os.path.join(MODEL_DIR, "multiome_intact_hic_test") # enable testing of sc-E2G pipeline
 		return os.path.join(MODEL_DIR, f"{access_type}_intact_hic")
 
 def get_feature_table_file(biosample):
@@ -61,6 +61,7 @@ def get_trained_model(biosample):
 
 def get_threshold(biosample):
 	model_dir = _get_biosample_model_dir(biosample)
+	print(model_dir)
 	threshold_file = glob.glob(os.path.join(model_dir, 'threshold_*'))[0]
 	threshold_file = os.path.basename(threshold_file)
 	return threshold_file.split("_")[1]
