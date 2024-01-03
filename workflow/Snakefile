@@ -9,12 +9,14 @@ import yaml
 configfile: "config/config.yaml"
 conda: "mamba"
 include: "rules/utils.smk"
+
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
 config = make_paths_absolute(config, E2G_DIR_PATH)
 # Need to manually make results_dir an absolute path since above may
 # not work if results_dir folder isn't created
 # If results_dir is already an absolute path, this is a no-op
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
+MODEL_DIR = config["model_dir"]
 
 def get_abc_config(config):
 	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
