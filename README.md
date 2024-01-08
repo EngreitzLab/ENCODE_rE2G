@@ -11,7 +11,7 @@ Train and evaluate models with new features on a K562 dataset, optimized based o
 
 Clone the repo and set it up for submodule usage
 ```
-git clone --recurse-submodules https://github.com/EngreitzLab/ENCODE_rE2G.git
+git clone --recurse-submodules git@github.com:EngreitzLab/ENCODE_rE2G.git
 git config --global submodule.recurse true
 ```
 We use `ABC` as a submodule, so this command will initialize it and set up your git config to automatically keep the submodule up to date.
