@@ -55,8 +55,4 @@ include: "rules/qc.smk"
 
 rule all:
 	input: 
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
-		),
-		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES],
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
