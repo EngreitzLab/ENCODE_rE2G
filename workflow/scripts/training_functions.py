@@ -66,11 +66,11 @@ def train_and_predict_once(df_dataset, X, Y, feature_list, model_name):
                 X_test = X.loc[idx_test, :]
                 X_train = X.loc[idx_train, :]
                 Y_train = Y[idx_train]
-                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X_train, Y_train)
+                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000, penalty=None).fit(X_train, Y_train)
                 probs = model.predict_proba(X_test) # calculate scores
                 df_dataset.loc[idx_test, model_name+'.Score'] = probs[:,1]
     else:
-        model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X, Y)
+        model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000, penalty=None).fit(X, Y)
         probs = model.predict_proba(X) # calculate scores
         df_dataset.loc[:, model_name+'.Score'] = probs[:,1]
 

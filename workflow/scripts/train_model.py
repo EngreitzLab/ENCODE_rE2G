@@ -33,7 +33,7 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                                          'n_test_pos', 'n_test_neg', 'n_train_neg', 'n_train_pos'])
 
     # train aggregate model across all chromosomes, calc weights and performance metrics, save full model
-    model_full = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X, Y)
+    model_full = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000,  penalty=None).fit(X, Y)
     probs_full = model_full.predict_proba(X)
     df_dataset[model_name+'.Score_full'] = probs_full[:,1]
     coefficients = model_full.coef_[0]
@@ -56,7 +56,7 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                 Y_test = Y[idx_test]
                 Y_train = Y[idx_train]
                 
-                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000).fit(X_train, Y_train)
+                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000,  penalty=None).fit(X_train, Y_train)
 
                 with open(out_dir+f'/model_test_{chr}.pkl','wb') as f:
                     pickle.dump(model,f)
