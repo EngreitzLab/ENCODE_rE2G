@@ -8,7 +8,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
 from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision
 
-def permutation_feature_importance(df_dataset, feature_table, model_name, epsilon, n_repeats=20, polynomial=False):
+def permutation_feature_importance(df_dataset, feature_table, model_name, epsilon, params, n_repeats=20, polynomial=False):
     feature_list_core = feature_table['feature']
     model_name_core = model_name
         
@@ -31,7 +31,7 @@ def permutation_feature_importance(df_dataset, feature_table, model_name, epsilo
 
     # train full model
     model_name = model_name_core + '_full'
-    df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name)
+    df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name, params)
     Y_full = df_dataset[model_name+'.Score']
 
     df = pd.DataFrame(columns = ['feature_permuted', 'delta_aupr', 'delta_precision'])
@@ -45,7 +45,7 @@ def permutation_feature_importance(df_dataset, feature_table, model_name, epsilo
         for j in range(n_repeats):
             X[feature_list[i]] = np.random.permutation(X[feature_list[i]])
             model_name = model_name_core + "_shuff_" + feature_list[i]
-            df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name)
+            df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name, params)
             Y_shuffle = df_dataset[model_name + ".Score"]
 
             delta_aupr = statistic_delta_aupr(Y_true, Y_full, Y_shuffle)
@@ -69,15 +69,18 @@ def permutation_feature_importance(df_dataset, feature_table, model_name, epsilo
 @click.option("--polynomial", type=bool, default=False)
 @click.option("--epsilon", type=float, default=0.01)
 @click.option("--n_repeats", type=float, default=20)
+@click.option("--params_file", type=dict, default=False)
 
-
-def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, n_repeats):
+def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, n_repeats, params_file):
     model_name = 'ENCODE-rE2G'
     n_repeats = int(n_repeats)
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
 
-    res = permutation_feature_importance(df_dataset, feature_table, model_name, epsilon, n_repeats, polynomial)
+    with open(params_file, 'rb') as handle:
+        params = pickle.load(handle)
+    
+    res = permutation_feature_importance(df_dataset, feature_table, model_name, epsilon, params, n_repeats, polynomial)
 
     res.to_csv(out_dir+'/permutation_feature_importance.tsv', sep = '\t', index=False)
 

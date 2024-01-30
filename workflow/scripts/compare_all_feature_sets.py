@@ -5,7 +5,7 @@ import pandas as pd
 import scipy
 from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision
 
-def compare_feature_sets(df_dataset, feature_table, epsilon, n_boot):
+def compare_feature_sets(df_dataset, feature_table, epsilon, params,  n_boot):
 
     feature_list = feature_table['feature']
     X = df_dataset.loc[:, feature_list]
@@ -34,7 +34,7 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, n_boot):
             print(model_name)
         features = df.loc[i, 'features']
         df.loc[i, 'n_features'] = len(features)
-        df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name)
+        df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name, params)
         Y_pred = df_dataset[model_name+'.Score']
 
         data = (Y_true, Y_pred)
@@ -53,12 +53,16 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, n_boot):
 @click.option("--feature_table_file", required=True)
 @click.option("--out_dir", required=True)
 @click.option("--epsilon", type=float, default=0.01)
+@click.option("--params_file", type=dict, default=False)
 
-def main(crispr_features_file, feature_table_file, out_dir, epsilon):
+def main(crispr_features_file, feature_table_file, out_dir, epsilon, params_file):
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
 
-    res = compare_feature_sets(df_dataset, feature_table, epsilon, n_boot=1000)
+    with open(params_file, 'rb') as handle:
+        params = pickle.load(handle)
+
+    res = compare_feature_sets(df_dataset, feature_table, epsilon, params, n_boot=1000)
 
     res.to_csv(out_dir+'/all_feature_sets.tsv', sep = '\t', index=False)
 

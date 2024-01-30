@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from training_functions import statistic_aupr
 
 
-def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, polynomial=False):
+def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, params, polynomial=False):
     # specify feature list
     feature_list_core = feature_table['feature']
     if polynomial:
@@ -33,7 +33,7 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                                          'n_test_pos', 'n_test_neg', 'n_train_neg', 'n_train_pos'])
 
     # train aggregate model across all chromosomes, calc weights and performance metrics, save full model
-    model_full = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000,  penalty=None).fit(X, Y)
+    model_full = LogisticRegression(**params).fit(X, Y)
     probs_full = model_full.predict_proba(X)
     df_dataset[model_name+'.Score_full'] = probs_full[:,1]
     coefficients = model_full.coef_[0]
@@ -56,7 +56,7 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                 Y_test = Y[idx_test]
                 Y_train = Y[idx_train]
                 
-                model = LogisticRegression(random_state=0, class_weight=None, solver='lbfgs', max_iter=100000,  penalty=None).fit(X_train, Y_train)
+                model = LogisticRegression(**params).fit(X_train, Y_train)
 
                 with open(out_dir+f'/model_test_{chr}.pkl','wb') as f:
                     pickle.dump(model,f)
@@ -117,14 +117,16 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
 @click.option("--out_dir", required=True)
 @click.option("--polynomial", type=bool, default=False)
 @click.option("--epsilon", type=float, default=0.01)
+@click.option("--params_file", required=True)
 
-
-def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon):
+def main(crispr_features_file, feature_table_file, out_dir, polynomial, params_file, epsilon):
     model_name = 'ENCODE-rE2G'
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
+    with open(params_file, 'rb') as handle:
+        params = pickle.load(handle)
 
-    train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, polynomial)
+    train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, params, polynomial)
 
 if __name__ == "__main__":
     main()
