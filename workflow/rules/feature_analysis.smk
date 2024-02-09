@@ -3,6 +3,7 @@ rule calculate_forward_feature_selection:
 	input:
 		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
+		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
@@ -21,13 +22,14 @@ rule calculate_forward_feature_selection:
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
 			--polynomial {params.polynomial} \
-			--epsilon {params.epsilon}
+			--epsilon {params.epsilon} \
+			--params_file {input.model_params}
 		"""
 
 rule plot_forward_feature_selection:
 	input:
 		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection.tsv"),
-		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table']
+		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 	params:
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial']
 	output:
@@ -45,6 +47,7 @@ rule calculate_backward_feature_selection:
 	input:
 		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
+		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
@@ -63,7 +66,8 @@ rule calculate_backward_feature_selection:
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
 			--polynomial {params.polynomial} \
-			--epsilon {params.epsilon}
+			--epsilon {params.epsilon} \
+			--params {input.model_params}
 		"""
 
 rule plot_backward_feature_selection:
@@ -87,6 +91,7 @@ rule compare_all_feature_sets:
 	input:
 		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
+		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
@@ -103,7 +108,8 @@ rule compare_all_feature_sets:
 			--crispr_features_file {input.crispr_features_processed} \
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
-			--epsilon {params.epsilon}
+			--epsilon {params.epsilon} \
+			--params_file {input.model_params}
 		"""
 
 # permuation feature importance
@@ -111,6 +117,7 @@ rule calculate_permutation_feature_importance:
 	input:
 		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
+		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		n_repeats = 20,
@@ -131,7 +138,8 @@ rule calculate_permutation_feature_importance:
 			--out_dir {params.out_dir} \
 			--polynomial {params.polynomial} \
 			--epsilon {params.epsilon} \
-			--n_repeats {params.n_repeats}
+			--n_repeats {params.n_repeats} \
+			--params_file {input.model_params}
 		"""
 
 rule plot_permutation_feature_importance:
