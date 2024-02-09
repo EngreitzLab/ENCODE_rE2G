@@ -44,7 +44,11 @@ def _get_biosample_model_dir(biosample):
 		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
 	
 	if hic_file == config["MEGAMAP_HIC_FILE"]:
-		return os.path.join(MODEL_DIR, f"{access_type}_megamap")
+		if access_type=="atac":
+			return os.path.join(MODEL_DIR, "multiome_megamap_test")
+		else: # dnase 
+			return os.path.join(MODEL_DIR, f"{access_type}_megamap")
+
 	else:
 		# assume intact hi-c
 		if access_type=="atac":
