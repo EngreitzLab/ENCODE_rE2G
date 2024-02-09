@@ -8,7 +8,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
 from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision
 
-def SFFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
+def SFFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=False):
     feature_list_core = feature_table['feature']
     model_name_core = model_name
         
@@ -46,7 +46,7 @@ def SFFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
             model_name = model_name_core + '_' + str(i+1) + '_' + str(k+1)
             print(model_name)
 
-            df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name)
+            df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name, params)
 
             # evaluate model once trained
             Y_pred = df_dataset[model_name+'.Score']
@@ -69,8 +69,8 @@ def SFFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
 
     return(best_features)
 
-def SFFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial=False, n_boot = 1000):
-    feature_list = SFFS(df_dataset, feature_table, model_name, epsilon, polynomial) # get order of features
+def SFFS_significance(df_dataset, feature_table, model_name, epsilon, params,  polynomial=False, n_boot = 1000):
+    feature_list = SFFS(df_dataset, feature_table, model_name, epsilon, params, polynomial) # get order of features
     feature_list_core = feature_table['feature']
     model_name_core = model_name
 
@@ -112,7 +112,7 @@ def SFFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial
         features = features + [feature_added]
         model_name = model_name_core + '_' + str(i+1)
         print(model_name)
-        df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name)
+        df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name, params)
         Y_new = df_dataset[model_name+'.Score']
 
         data_compare = (Y_true, Y_last, Y_new)
@@ -142,14 +142,17 @@ def SFFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial
 @click.option("--out_dir", required=True)
 @click.option("--polynomial", type=bool, default=False)
 @click.option("--epsilon", type=float, default=0.01)
+@click.option("--params_file", type=dict, default=False)
 
-
-def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon):
+def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, params_file):
     model_name = 'ENCODE-rE2G'
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
 
-    res = SFFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial, n_boot = 1000)
+    with open(params_file, 'rb') as handle:
+        params = pickle.load(handle)
+
+    res = SFFS_significance(df_dataset, feature_table, model_name, epsilon, params, polynomial, n_boot = 1000)
 
     res.to_csv(out_dir+'/forward_feature_selection.tsv', sep = '\t', index=False)
 

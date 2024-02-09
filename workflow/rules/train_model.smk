@@ -81,11 +81,31 @@ rule process_crispr_data:
 	script:
 		"../scripts/process_crispr_data.R"
 
+# integrate default params with any overriding params for model training
+rule generate_model_params:
+	input:
+	params:
+		override_params = lambda wildcards: model_config.loc[wildcards.model, "override_params"],
+		default_params = config["default_params"],
+		scripts_dir = SCRIPTS_DIR
+	output:
+		final_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+	conda:
+		"../envs/encode_re2g.yml" 
+	shell:
+		""" 
+		python {params.scripts_dir}/get_params.py \
+			--default_params "{params.default_params}" \
+			--override_params "{params.override_params}" \
+			--output_file {output.final_params} 
+		"""
+
 # generate trained model and cross-validated predictions on CRISPR data
 rule train_model:
 	input:
 		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
+		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
@@ -105,6 +125,40 @@ rule train_model:
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
 			--polynomial {params.polynomial} \
-			--epsilon {params.epsilon}
+			--epsilon {params.epsilon} \
+			--params_file {input.model_params}
 		"""
 		
+# compare cv-performance on training data across all models (note, this is not the true benchmarking performance CRISPR elements not overlapping prediction elements aren't considered)  
+rule gather_model_performances:
+	input:
+		all_predictions = expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_predictions.tsv"), zip, dataset=model_config["dataset"], model=model_config["model"])
+	output:
+		comp_table = os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")
+	params:
+		scripts_dir = SCRIPTS_DIR,
+		out_dir = RESULTS_DIR,
+		model_config_file = config["model_config"]
+	conda:
+		"../envs/encode_re2g.yml" 
+	resources:
+		mem_mb=64*1000
+	shell: 
+		""" 
+		python {params.scripts_dir}/compare_all_models.py \
+			--model_config_file {params.model_config_file} \
+			--output_file {output.comp_table}  \
+			--out_dir {params.out_dir}
+		"""
+
+rule plot_model_performances:
+	input:
+		comp_table = os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")
+	output:
+		comp_plot = os.path.join(RESULTS_DIR, "relative_performance_across_models.pdf")
+	conda:
+		"../envs/encode_re2g.yml" 
+	resources:
+		mem_mb=64*1000
+	script:
+		"../scripts/plot_model_comparison.R"

@@ -5,7 +5,6 @@ import pandas as pd
 import os
 import yaml
 
-
 configfile: "config/config_training.yaml"
 model_config = pd.read_table(config["model_config"], na_values="").fillna("None").set_index("model", drop=False)
 dataset_config = pd.read_table(config["dataset_config"], na_values="").set_index("biosample", drop=False)
@@ -61,7 +60,8 @@ for row in model_config.itertuples(index=False):
 
 # specify target files
 output_files = []
-output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
+output_files.append(os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")) # comparison across models
 if config["run_feature_analysis"]:
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
@@ -75,8 +75,6 @@ if config["run_feature_analysis"]:
 			if n_features<14:
 				output_files.append(os.path.join(RESULTS_DIR, row.dataset, row.model, "feature_analysis", "all_feature_sets.tsv"))
 
-
 rule all:
 	input: 
 		output_files
-

@@ -8,7 +8,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
 from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision
 
-def SBFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
+def SBFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=False):
     feature_list_core = feature_table['feature']
     model_name_core = model_name
         
@@ -37,7 +37,7 @@ def SBFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
 
      # train all feature model
     model_name = model_name_core + '_full'
-    df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name)
+    df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name, params)
     Y_pred = df_dataset[model_name+'.Score']
     aupr = statistic_aupr(Y_true, Y_pred)
     precision_at_70_pct_recall = statistic_precision(Y_true, Y_pred)
@@ -57,7 +57,7 @@ def SBFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
             model_name = model_name_core + '_' + str(i+1) + '_' + str(k+1)
             print(model_name)
 
-            df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name)
+            df_dataset = train_and_predict_once(df_dataset, X, Y_true, features, model_name, params)
 
             # evaluate model once trained
             Y_pred = df_dataset[model_name+'.Score']
@@ -82,8 +82,8 @@ def SBFS(df_dataset, feature_table, model_name, epsilon, polynomial=False):
     
     return(feature_removed)         
 
-def SBFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial=False, n_boot = 1000):
-    feature_list = SBFS(df_dataset, feature_table, model_name, epsilon, polynomial) # get order of features
+def SBFS_significance(df_dataset, feature_table, model_name, epsilon, params, polynomial=False, n_boot = 1000):
+    feature_list = SBFS(df_dataset, feature_table, model_name, epsilon, params, polynomial) # get order of features
     feature_list_core = feature_table['feature']
     model_name_core = model_name
 
@@ -106,7 +106,7 @@ def SBFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial
     # train first model (all features)
     model_name = model_name_core + '_full'
     feature_list.remove('None')
-    df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name)
+    df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name, params)
     Y_new = df_dataset[model_name+'.Score']
     
     data=(Y_true, Y_new)
@@ -131,7 +131,7 @@ def SBFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial
         else:
             feature_list.remove(to_remove)
             model_name = model_name_core + '_' + str(i+1)
-            df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name)
+            df_dataset = train_and_predict_once(df_dataset, X, Y_true, feature_list, model_name, params)
             Y_new = df_dataset[model_name+'.Score']
 
         data_compare = (Y_true, Y_last, Y_new)
@@ -161,14 +161,16 @@ def SBFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial
 @click.option("--out_dir", required=True)
 @click.option("--polynomial", type=bool, default=False)
 @click.option("--epsilon", type=float, default=0.01)
+@click.option("--params_file", type=dict, default=False)
 
-
-def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon):
+def main(crispr_features_file, feature_table_file, out_dir, polynomial, params_file, epsilon):
     model_name = 'ENCODE-rE2G'
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
+    with open(params_file, 'rb') as handle:
+        params = pickle.load(handle)
 
-    res = SBFS_significance(df_dataset, feature_table, model_name, epsilon, polynomial, n_boot = 1000)
+    res = SBFS_significance(df_dataset, feature_table, model_name, epsilon, params, polynomial, n_boot = 1000)
 
     res.to_csv(out_dir+'/backward_feature_selection.tsv', sep = '\t', index=False)
 

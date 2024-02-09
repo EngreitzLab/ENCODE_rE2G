@@ -2,10 +2,10 @@
 # Input config
 model_config: "config/config_models_test.tsv"
 dataset_config: "config/config_datasets_test.tsv" 
-run_feature_analysis: True # do you want to run feature analysis? 
+run_feature_analysis: False # do you want to run feature analysis? 
 
 # Output directory
-results_dir: "results_test/"
+results_dir: "results_test_L1L2/"
 
 # Reference files
 gene_TSS500: "reference/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed" # TSS reference file
@@ -15,6 +15,17 @@ crispr_dataset: "reference/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz" # CRIS
 
 # Model parameters
 epsilon: .01
+default_params: 
+  'solver': 'lbfgs'
+  'fit_intercept': True
+  'penalty': 'none'
+  'max_iter': 1e8
+  'class_weight': None
+  'tol': 1e-4
+  'warm_start': False
+  'random_state': 0
+  'verbose': True
+  'n_jobs': 1
 
 ### INTERNAL USE ONLY
 ABC_DIR_PATH: "ABC"

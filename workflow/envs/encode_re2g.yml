@@ -27,3 +27,4 @@ dependencies:
   - seaborn
   - matplotlib
   - bioconductor-genomicranges
+  - conda-forge::abess # Zhu Jin, Xueqin Wang, Liyuan Hu, Junhao Huang, Kangkang Jiang, Yanhang Zhang, Shiyun Lin, and Junxian Zhu. "abess: A Fast Best-Subset Selection Library in Python and R." Journal of Machine Learning Research 23, no. 202 (2022): 1-7.
