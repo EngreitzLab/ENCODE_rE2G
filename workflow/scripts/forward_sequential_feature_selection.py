@@ -142,7 +142,7 @@ def SFFS_significance(df_dataset, feature_table, model_name, epsilon, params,  p
 @click.option("--out_dir", required=True)
 @click.option("--polynomial", type=bool, default=False)
 @click.option("--epsilon", type=float, default=0.01)
-@click.option("--params_file", type=dict, default=False)
+@click.option("--params_file", required=True)
 
 def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, params_file):
     model_name = 'ENCODE-rE2G'

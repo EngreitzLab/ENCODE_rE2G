@@ -67,7 +67,7 @@ rule calculate_backward_feature_selection:
 			--out_dir {params.out_dir} \
 			--polynomial {params.polynomial} \
 			--epsilon {params.epsilon} \
-			--params {input.model_params}
+			--params_file {input.model_params}
 		"""
 
 rule plot_backward_feature_selection:
