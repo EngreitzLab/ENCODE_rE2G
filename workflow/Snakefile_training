@@ -41,6 +41,7 @@ SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 include: "rules/gen_new_features.smk"
 include: "rules/train_model.smk"
 include: "rules/feature_analysis.smk"
+include: "rules/compare_models.smk"
 
 # Validate and fill ABC_directory column:
 # Confirm each dataset corresponds to a unique ABC_directory

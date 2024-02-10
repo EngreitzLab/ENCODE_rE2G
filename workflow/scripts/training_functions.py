@@ -41,6 +41,16 @@ def statistic_precision(y_true, y_pred_full):
     precision_full_at_70_pct_recall = precision_full[idx_recall_full_70_pct]
     return precision_full_at_70_pct_recall
 
+# return threshold for 70% recall
+def threshold_70_pct_recall(y_true, y_pred_full):
+    precision_full, recall_full, thresholds_full = precision_recall_curve(y_true, y_pred_full)
+    if np.max(recall_full) > 0.7:
+        idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0]
+        thresh = thresholds_full[idx_recall_full_70_pct]
+    else:
+        thresh = None
+    return thresh
+
 # bootstrap p-values for delta (aupr/precision) 
 def bootstrap_pvalue(delta, res_delta):  
     # Generate boostrap distribution of delta under null hypothesis (important centering step to get sampling distribution under the null)

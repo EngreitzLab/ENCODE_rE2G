@@ -53,14 +53,12 @@ merge_feature_to_crispr <- function(crispr, features, feature_score_cols, agg_fu
     missing[[i]] <- fill_value
   }
 
-  # combine merged and missing pairs to create output
-  #output <- rbind(merged, missing)
-
   # only return crispr pairs that overlap features
   output <- merged
 
   # sort output by cre position
   output <- output[order(dataset, chrom, chromStart, chromEnd, measuredGeneSymbol), ]
+  return(list(merged=output, missing=missing))
 }
 
 # function to aggregate multiple overlaps
@@ -76,8 +74,6 @@ aggregate_features <- function(merged, feature_score_cols, agg_cols, agg_fun) {
 
   # merge all the aggregates together to make collapsed data.frame
   output <- as.data.table(Reduce(function(df1, df2) merge(df1, df2, by = agg_cols), agg_list))
-
-  return(output)
 }
 
 ## Overlap features with CRISPR data ---------------------------------------------------------------
@@ -100,27 +96,33 @@ tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "
 agg_funs <- deframe(distinct(select(config, feature, aggregate_function)))
 
 # filter out any CRISPR E-G pairs involving genes not part of the TSS universe or feature genes
-if (snakemake@params$filter_genes == "tss_universe") {
+filter_genes = "tss_universe"
+if (filter_genes== "tss_universe") { 
   missing_genes <- setdiff(crispr$measuredGeneSymbol, tss$name)
   message("Removing CRISPR data for ", length(missing_genes), " genes not part of TSS universe")
   crispr <- filter(crispr, !measuredGeneSymbol %in% missing_genes)
-} else if (snakemake@params$filter_genes == "feature_genes") {
+} else if (filter_genes == "feature_genes") {
   missing_genes <- setdiff(crispr$measuredGeneSymbol, features$TargetGene)
   message("Removing CRISPR data for ", length(missing_genes), " genes not part of feature genes")
   crispr <- filter(crispr, !measuredGeneSymbol %in% missing_genes)
 }
 
 # overlap feature table with CRISPR data
-output <- merge_feature_to_crispr(crispr,
+df_list <- merge_feature_to_crispr(crispr,
   feature = features,
   feature_score_cols = unique(config$feature),
   agg_fun = agg_funs, fill_value = NA_real_
 )
+output = df_list$merged
+missing = df_list$missing
 
 # add TSS coordinates from TSS annotations
 output <- tss %>%
   select(measuredGeneSymbol = name, startTSS_ref = start, endTSS_ref = end) %>%
   left_join(output, ., by = "measuredGeneSymbol")
+missing <- tss %>%
+  select(measuredGeneSymbol = name, startTSS_ref = start, endTSS_ref = end) %>%
+  left_join(missing, ., by = "measuredGeneSymbol")
 
 # re-calculate distance to tss based on crispr data for missing values
 if ("distanceToTSS" %in% colnames(output)) {
@@ -146,4 +148,6 @@ if (snakemake@wildcards$nafill == "NAfilled") {
 }
 
 # write output to file
-fwrite(output, file = snakemake@output[[1]], sep = "\t")
+fwrite(output, file = snakemake@output$features, sep = "\t")
+fwrite(missing, file = snakemake@output$missing, sep= "\t" )
+

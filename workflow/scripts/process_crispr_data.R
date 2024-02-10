@@ -19,7 +19,7 @@ df = dplyr::rename(df, 'chr'='chrom', 'start'='chromStart', 'end'='chromEnd', 'T
 # drop elements where Regulated=NA
 df = dplyr::filter(df, Regulated!="NA")
 
-# filter to elements with target gene in gene universe
+# filter to elements with target gene in gene universe (should be redundant with applying filter_genes=tss_universe in feature overlap)
 df = dplyr::filter(df, TargetGene %in% genes$gene)
 
 # save output to file
