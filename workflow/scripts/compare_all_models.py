@@ -34,8 +34,8 @@ def performance_summary(model_id, dataset, model_name, out_dir, n_boot=1000):
     data = (Y_true_all, Y_pred_all)
 
     # evaluate
-    res_aupr =  scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
-    res_prec = scipy.stats.bootstrap(data, statistic_precision, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
+    res_aupr =  scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+    res_prec = scipy.stats.bootstrap(data, statistic_precision, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
     thresh = threshold_70_pct_recall(Y_true_all, Y_pred_all) # will return None if max recall < 70%
 
     res_row = pd.DataFrame({'model': model_id, 'dataset': dataset,  'AUPRC': np.mean(res_aupr.bootstrap_distribution), 'AUPRC_95CI_low': res_aupr.confidence_interval[0], 'AUPRC_95CI_high': res_aupr.confidence_interval[1],
