@@ -69,9 +69,9 @@ if config["run_feature_analysis"]:
 	
 	# only test all feature sets if polynomial==False and n_features<14
 	for row in model_config.itertuples(index=False):
-		if not row.polynomial:
+		if not row.polynomial == 'True':
 			features = pd.read_table(row.feature_table)
-			n_features = len(features)
+			n_features = len(features) 
 			if n_features<14:
 				output_files.append(os.path.join(RESULTS_DIR, row.dataset, row.model, "feature_analysis", "all_feature_sets.tsv"))
 
