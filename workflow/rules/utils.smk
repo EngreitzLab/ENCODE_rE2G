@@ -65,7 +65,6 @@ def get_trained_model(biosample):
 
 def get_threshold(biosample):
 	model_dir = _get_biosample_model_dir(biosample)
-	print(model_dir)
 	threshold_file = glob.glob(os.path.join(model_dir, 'threshold_*'))[0]
 	threshold_file = os.path.basename(threshold_file)
 	return threshold_file.split("_")[1]
