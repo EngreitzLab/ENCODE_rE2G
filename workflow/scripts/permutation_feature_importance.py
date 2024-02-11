@@ -69,7 +69,7 @@ def permutation_feature_importance(df_dataset, feature_table, model_name, epsilo
 @click.option("--polynomial", type=bool, default=False)
 @click.option("--epsilon", type=float, default=0.01)
 @click.option("--n_repeats", type=float, default=20)
-@click.option("--params_file", type=dict, default=False)
+@click.option("--params_file", required=True)
 
 def main(crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, n_repeats, params_file):
     model_name = 'ENCODE-rE2G'
