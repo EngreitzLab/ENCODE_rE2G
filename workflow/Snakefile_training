@@ -63,6 +63,8 @@ for row in model_config.itertuples(index=False):
 output_files = []
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
 output_files.append(os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")) # comparison across models
+output_files.append(os.path.join(RESULTS_DIR, "relative_performance_across_models.pdf")) # plot of comparison
+
 if config["run_feature_analysis"]:
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
