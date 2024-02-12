@@ -58,6 +58,12 @@ for row in model_config.itertuples(index=False):
 		else: # ABC directory is provided
 			ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
 
+# validate features
+ref_features = config["reference_features"]
+for index, row in model_config.iterrows():
+	dataset_row = dataset_config.loc[dataset_config["dataset"] == row["dataset"]]].squeeze() # corresponding row of datsaet_config as a series
+	validate_feature_table(row["model"], row["feature_table"], dataset_row, ref_features)
+
 # specify target files
 output_files = []
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
