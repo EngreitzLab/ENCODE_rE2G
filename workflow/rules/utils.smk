@@ -28,8 +28,26 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
-def _get_biosample_model_dir(biosample):
+def _validate_model_dir(potential_dir):
+	files = os.listdir(potential_dir)
+	if "model.pkl" not in files:
+		raise Exception("model.pkl is provided in the specified model directory")
+	if "feature_table.tsv" not in files:
+		raise Exception("feature_table.tsv is not provided in the specified model directory") 
+	if sum(s.startswith("threshold_") for s in files) == 0:
+		raise Exception("A threshold is not provided in the specified model directory")
+	elif sum(s.startswith("threshold_") for s in files) > 1:
+		raise Exception("More than one threshold is provided in the specified model directory")
+
+def _get_biosample_model_dir(biosample):	
 	row = BIOSAMPLE_DF.loc[BIOSAMPLE_DF["biosample"] == biosample].iloc[0]
+	# if user has explicitly defined model_dir, use by default
+	if "model_dir" in BIOSAMPLE_DF.columns:
+		if pd.notna(row["model_dir"]):
+			_validate_model_dir(row["model_dir"])
+			return row["model_dir"]
+
+	# infer model choice from biosample config
 	access_type = row["default_accessibility_feature"].lower()
 	hic_file = row["HiC_file"]
 	if pd.isna(hic_file):
@@ -68,4 +86,3 @@ def get_threshold(biosample):
 	threshold_file = glob.glob(os.path.join(model_dir, 'threshold_*'))[0]
 	threshold_file = os.path.basename(threshold_file)
 	return threshold_file.split("_")[1]
-	
