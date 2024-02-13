@@ -21,7 +21,6 @@ rule gather_model_performances:
 			--out_dir {params.out_dir}
 		"""
 
-# not used yet
 rule plot_model_performances:
 	input:
 		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
@@ -31,6 +30,6 @@ rule plot_model_performances:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=64*1000
+		mem_mb=determine_mem_mb
 	script:
 		"../scripts/plot_model_comparison.R"
