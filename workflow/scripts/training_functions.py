@@ -28,6 +28,7 @@ def statistic_aupr(y_true, y_pred_full):
 
     return aupr_full
 
+# note: precision at 70% recall (vs precision at constant threshold chosen for 70% recall)
 def statistic_delta_precision(y_true, y_pred_full, y_pred_ablated): # return precision_ablated-precision_full
     precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
     idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0] 
@@ -40,6 +41,7 @@ def statistic_delta_precision(y_true, y_pred_full, y_pred_ablated): # return pre
 
     return delta_precision
 
+# note: precision at 70% recall (vs precision at constant threshold chosen for 70% recall)
 def statistic_precision(y_true, y_pred_full):
     precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
     idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0]
@@ -55,6 +57,15 @@ def threshold_70_pct_recall(y_true, y_pred_full):
     else:
         thresh = None
     return thresh
+
+# note: precision at constant threshold chosen for 70% recall (vs precision at 70% recall)
+def statistic_precision_at_threshold(y_true, y_pred_full, threshold):
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
+    # index of thresholds_full for value closest threshold
+    idx_threshold = np.argsort(np.abs(thresholds_full - threshold))[0]
+    # precision at corresponding index
+    precision_at_threshold = precision_full[idx_threshold-1]
+    return precision_at_threshold
 
 # bootstrap p-values for delta (aupr/precision) 
 def bootstrap_pvalue(delta, res_delta):  

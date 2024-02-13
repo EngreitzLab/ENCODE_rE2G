@@ -4,7 +4,7 @@ import click
 import numpy as np
 import pandas as pd
 import scipy
-from training_functions import statistic_aupr, statistic_precision, threshold_70_pct_recall
+from training_functions import statistic_aupr, statistic_precision_at_threshold, threshold_70_pct_recall
 
 
 
@@ -31,12 +31,10 @@ def performance_summary(model_id, dataset, model_name, out_dir, n_boot=1000):
         Y_true_all = Y_true
         Y_pred_all = Y_pred
 
-    data = (Y_true_all, Y_pred_all)
-
     # evaluate
-    res_aupr =  scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
-    res_prec = scipy.stats.bootstrap(data, statistic_precision, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+    res_aupr =  scipy.stats.bootstrap((Y_true_all, Y_pred_all), statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
     thresh = threshold_70_pct_recall(Y_true_all, Y_pred_all) # will return None if max recall < 70%
+    res_prec = scipy.stats.bootstrap((Y_true_all, Y_pred_all),  lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh), n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
 
     res_row = pd.DataFrame({'model': model_id, 'dataset': dataset,  'AUPRC': np.mean(res_aupr.bootstrap_distribution), 'AUPRC_95CI_low': res_aupr.confidence_interval[0], 'AUPRC_95CI_high': res_aupr.confidence_interval[1],
                                  'precision': np.mean(res_prec.bootstrap_distribution), 'precision_95CI_low': res_prec.confidence_interval[0], 'precision_95CI_high': res_prec.confidence_interval[1], 

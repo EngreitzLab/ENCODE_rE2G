@@ -4,7 +4,7 @@ rule gather_model_performances:
 	input:
 		all_predictions = expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_predictions.tsv"), zip, dataset=model_config["dataset"], model=model_config["model"])
 	output:
-		comp_table = os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")
+		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
 	params:
 		scripts_dir = SCRIPTS_DIR,
 		out_dir = RESULTS_DIR,
@@ -24,9 +24,10 @@ rule gather_model_performances:
 # not used yet
 rule plot_model_performances:
 	input:
-		comp_table = os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")
+		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
 	output:
-		comp_plot = os.path.join(RESULTS_DIR, "relative_performance_across_models.pdf")
+		comp_plot_auprc = os.path.join(RESULTS_DIR, "performance_across_models_auprc.pdf"),
+		comp_plot_prec = os.path.join(RESULTS_DIR, "performance_across_models_precision.pdf")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
