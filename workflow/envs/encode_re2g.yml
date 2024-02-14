@@ -14,7 +14,7 @@ dependencies:
   - pandas
   - python>=3.6
   - pigz
-  - snakemake>=7.0
+  - snakemake>=7,<8
   - scikit-learn=1.2.1  # Must match with ENCODE-rE2G version
   - scipy
   - wget
