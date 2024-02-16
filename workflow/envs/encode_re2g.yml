@@ -12,6 +12,7 @@ dependencies:
   - csvtk
   - numpy
   - pandas
+  - pyarrow
   - python>=3.6
   - pigz
   - snakemake>=7,<8
