@@ -47,6 +47,7 @@ def _get_biosample_model_dir(biosample):
 			_validate_model_dir(row["model_dir"])
 			return row["model_dir"]
 
+	access_type = row["default_accessibility_feature"].lower()
 	hic_file = row["HiC_file"]
 	if pd.isna(hic_file):
 		raise Exception("No model found for powerlaw")
