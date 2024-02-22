@@ -9,7 +9,6 @@ MODEL = "ENCODE-rE2G"
 def make_e2g_predictions(df_enhancers, feature_list, trained_model, epsilon):
     # transform the features
     X = df_enhancers.loc[:, feature_list]
-    X.columns = feature_list
     X = np.log(np.abs(X) + epsilon)
 
     with open(trained_model, "rb") as f:
