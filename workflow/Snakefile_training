@@ -41,6 +41,7 @@ SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 include: "rules/gen_new_features.smk"
 include: "rules/train_model.smk"
 include: "rules/feature_analysis.smk"
+include: "rules/compare_models.smk"
 
 # Validate and fill ABC_directory column:
 # Confirm each dataset corresponds to a unique ABC_directory
@@ -67,7 +68,9 @@ for index, row in model_config.iterrows():
 # specify target files
 output_files = []
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
-output_files.append(os.path.join(RESULTS_DIR, "relative_performance_across_models.tsv")) # comparison across models
+output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
+output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
+
 if config["run_feature_analysis"]:
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
@@ -75,9 +78,9 @@ if config["run_feature_analysis"]:
 	
 	# only test all feature sets if polynomial==False and n_features<14
 	for row in model_config.itertuples(index=False):
-		if not row.polynomial:
+		if not row.polynomial == 'True':
 			features = pd.read_table(row.feature_table)
-			n_features = len(features)
+			n_features = len(features) 
 			if n_features<14:
 				output_files.append(os.path.join(RESULTS_DIR, row.dataset, row.model, "feature_analysis", "all_feature_sets.tsv"))
 

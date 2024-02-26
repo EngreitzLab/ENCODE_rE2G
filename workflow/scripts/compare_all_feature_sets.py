@@ -53,7 +53,7 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, params,  n_boot):
 @click.option("--feature_table_file", required=True)
 @click.option("--out_dir", required=True)
 @click.option("--epsilon", type=float, default=0.01)
-@click.option("--params_file", type=dict, default=False)
+@click.option("--params_file", required=True)
 
 def main(crispr_features_file, feature_table_file, out_dir, epsilon, params_file):
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")

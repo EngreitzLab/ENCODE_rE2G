@@ -7,39 +7,65 @@ from sklearn.linear_model import LogisticRegression
 
 ## statistic functions for delta auPR/precision to be used for scipy.stats.bootstrap
 
+# the first precision & recall values are precision=class_balance and recall=1, not corresponding to a threshold. we do not want this point to affect our performance.
+def precision_recall_curve_modified(y_true, y_pred):
+    precision_full, recall_full, thresholds_full = precision_recall_curve(y_true, y_pred)
+    return precision_full[1:], recall_full[1:], thresholds_full
+
 def statistic_delta_aupr(y_true, y_pred_full, y_pred_ablated): # return aupr_ablated-aupr_full
-    precision_full, recall_full, thresholds_full = precision_recall_curve(y_true, y_pred_full)
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
     aupr_full = auc(recall_full, precision_full)
 
-    precision_ablated, recall_ablated, thresholds_ablated = precision_recall_curve(y_true, y_pred_ablated)
+    precision_ablated, recall_ablated, thresholds_ablated = precision_recall_curve_modified(y_true, y_pred_ablated)
     aupr_ablated = auc(recall_ablated, precision_ablated)
     delta_aupr = aupr_ablated - aupr_full
 
     return delta_aupr
 
 def statistic_aupr(y_true, y_pred_full):
-    precision_full, recall_full, thresholds_full = precision_recall_curve(y_true, y_pred_full)
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
     aupr_full = auc(recall_full, precision_full)
 
     return aupr_full
 
+# note: precision at 70% recall (vs precision at constant threshold chosen for 70% recall)
 def statistic_delta_precision(y_true, y_pred_full, y_pred_ablated): # return precision_ablated-precision_full
-    precision_full, recall_full, thresholds_full = precision_recall_curve(y_true, y_pred_full)
-    idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0]
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
+    idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0] 
     precision_full_at_70_pct_recall = precision_full[idx_recall_full_70_pct]
 
-    precision_ablated, recall_ablated, thresholds_ablated = precision_recall_curve(y_true, y_pred_ablated)
+    precision_ablated, recall_ablated, thresholds_ablated = precision_recall_curve_modified(y_true, y_pred_ablated)
     idx_recall_ablated_70_pct = np.argsort(np.abs(recall_ablated - 0.7))[0]
     precision_ablated_at_70_pct_recall = precision_ablated[idx_recall_ablated_70_pct]
     delta_precision = precision_ablated_at_70_pct_recall - precision_full_at_70_pct_recall
 
     return delta_precision
 
+# note: precision at 70% recall (vs precision at constant threshold chosen for 70% recall)
 def statistic_precision(y_true, y_pred_full):
-    precision_full, recall_full, thresholds_full = precision_recall_curve(y_true, y_pred_full)
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
     idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0]
     precision_full_at_70_pct_recall = precision_full[idx_recall_full_70_pct]
     return precision_full_at_70_pct_recall
+
+# return threshold for 70% recall
+def threshold_70_pct_recall(y_true, y_pred_full):
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
+    if np.max(recall_full) > 0.7:
+        idx_recall_full_70_pct = np.argsort(np.abs(recall_full - 0.7))[0] # find index of recall closest to 0.7
+        thresh = thresholds_full[idx_recall_full_70_pct+1] #adjust for removing first row of rec + prec 
+    else:
+        thresh = None
+    return thresh
+
+# note: precision at constant threshold chosen for 70% recall (vs precision at 70% recall)
+def statistic_precision_at_threshold(y_true, y_pred_full, threshold):
+    precision_full, recall_full, thresholds_full = precision_recall_curve_modified(y_true, y_pred_full)
+    # index of thresholds_full for value closest threshold
+    idx_threshold = np.argsort(np.abs(thresholds_full - threshold))[0]
+    # precision at corresponding index
+    precision_at_threshold = precision_full[idx_threshold-1]
+    return precision_at_threshold
 
 # bootstrap p-values for delta (aupr/precision) 
 def bootstrap_pvalue(delta, res_delta):  
