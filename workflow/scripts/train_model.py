@@ -49,7 +49,7 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
         for chr in chr_list:
             idx_test = df_dataset[df_dataset['chr']==chr].index.values
 
-            if len(idx_test) > 0:
+            if len(idx_test) > 0: 
                 idx_train = np.delete(idx, idx_test)
                 X_test = X.loc[idx_test, :]
                 X_train = X.loc[idx_train, :]
@@ -65,19 +65,21 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                 df_dataset.loc[idx_test, model_name+'.Score'] = probs[:,1]
 
                 # performance metrics
-                ll_train = log_loss(Y_train, model.predict_proba(X_train)[:,1])
-                ll_test_full = log_loss(Y_test, probs_full[idx_test,1])
-                ll_test = log_loss(Y_test, probs[:,1])
-                auroc_train = roc_auc_score(Y_train, model.predict_proba(X_train)[:,1])
-                auroc_test_full = roc_auc_score(Y_test, probs_full[idx_test,1])
-                auroc_test = roc_auc_score(Y_test, probs[:,1])
-                auprc_train = statistic_aupr(Y_train, model.predict_proba(X_train)[:,1])
-                auprc_test_full = statistic_aupr(Y_test, probs_full[idx_test,1])
-                auprc_test = statistic_aupr(Y_test, probs[:,1])
                 n_train_pos = np.sum(Y_train)
                 n_train_neg = len(Y_train) - n_train_pos
                 n_test_pos = np.sum(Y_test)
                 n_test_neg = len(Y_test) - n_test_pos
+
+                ll_train = log_loss(Y_train, model.predict_proba(X_train)[:,1])
+                ll_test_full = log_loss(Y_test, probs_full[idx_test,1]) if n_test_pos>0 else np.NaN
+                ll_test = log_loss(Y_test, probs[:,1]) if n_test_pos>0 else np.NaN
+                auroc_train = roc_auc_score(Y_train, model.predict_proba(X_train)[:,1])
+                auroc_test_full = roc_auc_score(Y_test, probs_full[idx_test,1]) if n_test_pos>0 else np.NaN
+                auroc_test = roc_auc_score(Y_test, probs[:,1]) if n_test_pos>0 else np.NaN
+                auprc_train = statistic_aupr(Y_train, model.predict_proba(X_train)[:,1])
+                auprc_test_full = statistic_aupr(Y_test, probs_full[idx_test,1]) if n_test_pos>0 else np.NaN
+                auprc_test = statistic_aupr(Y_test, probs[:,1]) if n_test_pos>0 else np.NaN
+   
 
                 df_temp = pd.DataFrame({'test_chr': [chr], 'log_loss_test_full': [ll_test_full], 'log_loss_train': [ll_train], 'log_loss_test': [ll_test],
                                         'AUROC_test_full': [auroc_test_full], 'AUROC_train': [auroc_train], 'AUROC_test': [auroc_test],
