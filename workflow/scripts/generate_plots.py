@@ -12,6 +12,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 STATS_SUFFIX = "_stats.tsv"
 VALUE_KEY = "Value"
 METRICS = [
+    "num_sequencing_reads",
     "num_enh",
     "num_genes",
     "num_enh_gene_links",
