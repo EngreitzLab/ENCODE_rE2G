@@ -59,8 +59,9 @@ def _get_biosample_model_dir(biosample):
 	if row["HiC_type"] == "avg":
 		raise Exception("No model found for avg hic")
 		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
-	
-	if hic_file == config["MEGAMAP_HIC_FILE"]:
+	if os.path.basename(hic_file) == os.path.basename(config["MEGAMAP_HIC_FILE"]):
+		# We just check that basename matches, in case someone wishes to use megamap
+		# from a local directory instead of web
 		if access_type=="atac":
 			return os.path.join(MODEL_DIR, "multiome_megamap_test")
 		else: # dnase 
@@ -82,6 +83,7 @@ def get_trained_model(biosample):
 
 def get_threshold(biosample):
 	model_dir = _get_biosample_model_dir(biosample)
-	threshold_file = glob.glob(os.path.join(model_dir, 'threshold_*'))[0]
-	threshold_file = os.path.basename(threshold_file)
+	threshold_files = glob.glob(os.path.join(model_dir, 'threshold_*'))
+	assert len(threshold_files) == 1, "Should have exactly 1 threshold file in directory"
+	threshold_file = os.path.basename(threshold_files[0])
 	return threshold_file.split("_")[1]

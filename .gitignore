@@ -1,3 +1,4 @@
 results/
 .vscode/
 .snakemake/
+__pycache__
