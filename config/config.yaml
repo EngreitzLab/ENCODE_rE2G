@@ -1,8 +1,8 @@
 ### INPUT
-ABC_BIOSAMPLES: "/oak/stanford/groups/engreitz/Users/atan5133/encode_dataset_processing/biosamples_config_dhs_hic.tsv"
+ABC_BIOSAMPLES: "/oak/stanford/groups/engreitz/Users/atan5133/encode_dataset_processing/datasets/biosamples_config_dhs_only.tsv"
 
 ### OUTPUT
-results_dir: "/oak/stanford/groups/engreitz/Users/atan5133/encode_dataset_processing/results/dhs_hic"
+results_dir: "/oak/stanford/groups/engreitz/Users/atan5133/encode_dataset_processing/results/dhs_only"
 
 # Reference files
 gene_TSS500: "reference/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed"

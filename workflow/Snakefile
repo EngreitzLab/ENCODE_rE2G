@@ -27,12 +27,12 @@ def get_abc_config(config):
 	abc_config["results_dir"] = config["results_dir"]
 	return abc_config
 
-# module ABC:
-# 	snakefile:
-# 		f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
-# 	config: get_abc_config(config)
+module ABC:
+	snakefile:
+		f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
+	config: get_abc_config(config)
 
-# use rule * from ABC exclude all as abc_*
+use rule * from ABC exclude all as abc_*
 
 RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
