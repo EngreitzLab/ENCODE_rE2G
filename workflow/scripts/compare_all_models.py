@@ -11,7 +11,7 @@ from training_functions import statistic_aupr, statistic_precision_at_threshold,
 def performance_summary(model_id, dataset, model_name, out_dir, n_boot=1000):
     # read in predicitons
     pred_file = os.path.join(out_dir, dataset, model_id, "model", "training_predictions.tsv")
-    missing_file = os.path.join(out_dir, dataset, model_id, "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz")
+    missing_file = os.path.join(out_dir, dataset, "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz")
     pred_df = pd.read_csv(pred_file, sep="\t")
     missing_df = pd.read_csv(missing_file, sep="\t")
 

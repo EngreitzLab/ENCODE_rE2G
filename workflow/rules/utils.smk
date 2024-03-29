@@ -87,30 +87,5 @@ def get_threshold(biosample):
 	threshold_file = os.path.basename(threshold_file)
 	return threshold_file.split("_")[1]
 
-# confirm external feature data is specified
-	# for model application workflow, "entry" = biosample in biosample config, and biosample_row is its corresponding row
-	# for model training workflow, "entry" = model in model_config, and biosample_row is the corresponding row in dataset_config
-def validate_feature_table(entry, feature_table, biosample_row, ref_features):
-	extra_features = _determine_extra_features(feature_table, ref_features)
-	if len(extra_features) > 0:
-		if "external_feature_config" not in biosample_row.index.tolist():
-			raise Exception("No external_feature_config is provided for these features required for " + entry + ": " + exra_features)
-		no_data = _validate_external_features(extra_features, biosample_row["external_feature_config"])
-		if len(no_data) > 0:
-			raise Exception("Data for these external features are not present for " + entry + ": " + no_data)
-
-# check feature table features against reference and return list of extra features
-def _determine_extra_features(feature_table, ref_features):
-	feature_table = pd.read_table(feature_table))
-	req_features  = features_table[['input_col', 'second_input']].stack().dropna().unique().tolist()
-	extra_features = [ft for ft in req_features if ft not in ref_features] # return things in feature table that aren't automatically generated
-	return extra_features
-
-# check dataset config to see if extra features are deliniated in external_feature_config
-def _validate_external_features(extra_features, external_feature_config):
-	efc = pd.read_table(external_feature_config)
-	no_data = [ft for ft in extra_features if ft not in efc["input_col"]] 
-	return no_data
-
 
 

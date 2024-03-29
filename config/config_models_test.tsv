@@ -1,13 +1,7 @@
 model	dataset	ABC_directory	feature_table	polynomial	override_params
-DNase_megamap_noReg	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	
-DNase_megamap_L1	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'l1'}
-DNase_megamap_L2	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'penalty': 'l2'}
-DNase_megamap_elastic_0.1	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.1}
-DNase_megamap_elastic_0.2	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.2}
-DNase_megamap_elastic_0.3	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.3}
-DNase_megamap_elastic_0.4	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.4}
-DNase_megamap_elastic_0.5	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.5}
-DNase_megamap_elastic_0.6	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.6}
-DNase_megamap_elastic_0.7	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.7}
-DNase_megamap_elastic_0.8	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.8}
-DNase_megamap_elastic_0.9	DNase_megamap		resources/feature_tables/all_features_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.9}
+DNase_ENCFF860XAE_megamap_8features	DNase_ENCFF860XAE_megamap		resources/feature_tables/final_feature_set_DNase_hic.tsv	False 	
+DNase_ENCFF325RTP_megamap_8features	DNase_ENCFF325RTP_megamap		resources/feature_tables/final_feature_set_DNase_hic.tsv	False 	
+DNase_both_megamap_8features	DNase_both_megamap		resources/feature_tables/final_feature_set_DNase_hic.tsv	False 	
+ATAC_bulk_1_8features	ATAC_bulk_1		resources/feature_tables/final_feature_set_ATAC_hic.tsv	False 	
+ATAC_bulk_2_8features	ATAC_bulk_2		resources/feature_tables/final_feature_set_ATAC_hic.tsv	False 	
+ATAC_bulk_both_megamap_8features	ATAC_bulk_both_megamap		resources/feature_tables/final_feature_set_ATAC_hic.tsv	False 	

@@ -47,11 +47,6 @@ BIOSAMPLE_ACTIVITES = {
 # defined to be compatible with training workflow, which can start from an existing ABC directory
 ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosample}
 
-# validate features
-ref_features = config["reference_features"]
-for index, row in BIOSAMPLE_DF.iterrows():
-	biosample = row["biosample"]
-	validate_feature_table(biosample, get_feature_table_file(biosample), row, ref_features)
 
 # These rules requires the variables above to be defined
 include: "rules/gen_new_features.smk"

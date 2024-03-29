@@ -16,7 +16,7 @@ feature_table = fread(feature_table_file)
 polynomial = gsub(" ", "", polynomial)
 
 # if polynomial==False, use nice_name for plotting
-if (polynomial=="False"){
+if (polynomial=="FALSE" || polynomial == "False" || !polynomial){
   ft_names = dplyr::select(feature_table, feature, nice_name)
   df = left_join(df, ft_names, by=c("feature_removed"="feature")) %>% 
     mutate(feature_removed = ifelse(!is.na(nice_name), nice_name, feature_removed))

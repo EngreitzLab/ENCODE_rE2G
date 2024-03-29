@@ -6,7 +6,7 @@ import scipy
 from sklearn.metrics import precision_recall_curve, auc, log_loss, roc_auc_score
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
-from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision
+from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision_at_threshold, threshold_70_pct_recall
 
 def permutation_feature_importance(df_dataset, feature_table, model_name, epsilon, params, n_repeats=20, polynomial=False):
     feature_list_core = feature_table['feature']
@@ -49,7 +49,9 @@ def permutation_feature_importance(df_dataset, feature_table, model_name, epsilo
             Y_shuffle = df_dataset[model_name + ".Score"]
 
             delta_aupr = statistic_delta_aupr(Y_true, Y_full, Y_shuffle)
-            delta_precision = statistic_delta_precision(Y_true, Y_full, Y_shuffle)
+            thresh_full = threshold_70_pct_recall(Y_true, Y_full)
+            thresh_shuffle = threshold_70_pct_recall(Y_true, Y_shuffle)
+            delta_precision = statistic_delta_precision_at_threshold(Y_true, Y_full, Y_shuffle, thresh_full, thresh_shuffle)
 
             delta_aupr_feature = delta_aupr_feature + [delta_aupr]
             delta_precision_feature = delta_precision_feature + [delta_precision]

@@ -10,8 +10,10 @@ suppressPackageStartupMessages({
 
 # load feature config file
 config <- fread(snakemake@input$feature_table_file)
-# load ABC table
+# load ABC table and compute denominator
 abc <- fread(snakemake@input$abc)
+abc$ABC.Numerator = abc$ABC.Score.Numerator
+abc$ABC.Denominator = abc$ABC.Score/abc$ABC.Numerator
 
 # load individual feature tables
 NumCandidateEnhGene <- fread(snakemake@input$NumCandidateEnhGene,
@@ -30,13 +32,12 @@ SumEnhancersEG5kb <- fread(snakemake@input$SumEnhancersEG5kb,
   header = FALSE, sep = "\t",
   col.names = c("name", "sumNearbyEnhancers")
 )
-ubiqExprGenes <- fread(snakemake@input$ubiqExprGenes)
+ubiqExprGenes <- fread(snakemake@input$geneClass)
 
 
 # get a list of all input feature names from feature table
 input_features = c(config$input_col, config$second_input)
 input_features = unique(na.omit(input_features)) # remove NAs, keep unique
-#print(input_features)
 
 # core columns from ABC for output
 core_cols <- c(
@@ -76,9 +77,9 @@ output <- SumEnhancersEG5kb %>%
   select(name, any_of(input_features)) %>%
   left_join(output, ., by = "name")
 
-# add ubiquitously expressed gene info
+# add ubiquitously expressed and P2 gene info
 output <- ubiqExprGenes %>%
-  select(TargetGene = GeneSymbol, any_of(input_features)) %>%
+  select(TargetGene, any_of(input_features)) %>%
   left_join(output, ., by = "TargetGene")
 
 # save output to file

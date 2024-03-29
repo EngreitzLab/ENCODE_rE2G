@@ -1,0 +1,41 @@
+feature	input_col	second_input	aggregate_function	fill_value	nice_name
+numTSSEnhGene	numTSSEnhGene	NA	max	0	# TSSs between E and P
+distanceToTSS	distance	NA	max	NA	Distance to TSS
+activity_enh	activity_base	NA	mean	0	sqrt(DNase x H3K27ac signal at E)
+3DContact	hic_contact_pl_scaled_adj		mean	0	Contact frequency (ENCODE Hi-C)
+activity_enh_squared	activity_base	activity_base	mean	0	DNase x H3K27ac signal at E
+3DContact_squared	hic_contact_pl_scaled_adj	hic_contact_pl_scaled_adj	mean	0	(Contact frequency (ENCODE Hi-C))^2
+activity_prom	TargetGenePromoterActivityQuantile	NA	mean	0	Quantile of DNase x H3K27ac signal at P
+ABCNumerator	ABC.Numerator	NA	sum	0	ABC_A=DNase-seq x H3K27ac, C=ENCODE Hi-C numerator
+ABCScore	ABC.Score	NA	sum	0	ABC_A=DNase-seq x H3K27ac, C=ENCODE Hi-C score
+ABCDenominator	ABC.Denominator	NA	sum	mean	ABC_A=DNase-seq x H3K27ac, C=ENCODE Hi-C denominator
+numCandidateEnhGene	numCandidateEnhGene	NA	max	0	# peaks between E and P
+numNearbyEnhancers	numNearbyEnhancers	NA	max	0	# peaks within 5Kb of E
+sumNearbyEnhancers	sumNearbyEnhancers	NA	max	0	Activity of other peaks within 5Kb of E
+ubiquitousExpressedGene	ubiquitousExpressedGene	NA	max	0	Ubiquitous expression
+P2PromoterClass	P2PromoterClass	NA	max	0	Promoter class (Bergman et al. 2022)
+averageCorrWeighted	averageCorrWeighted	NA	mean	mean	Correlation of ABC scores for gene across cell type
+H3K4me3_e_max_L_8	H3K4me3_e_max_L_8	NA	max	0	GraphReg: H3K4me3 at E, signal max
+H3K4me3_e_grad_max_L_8	H3K4me3_e_grad_max_L_8	NA	max	0	GraphReg: H3K4me3 at E, gradient max
+H3K27ac_e_grad_max_L_8	H3K27ac_e_grad_max_L_8	NA	max	0	GraphReg: H3K27ac at E, gradient max
+DNase_e_grad_max_L_8	DNase_e_grad_max_L_8	NA	max	0	GraphReg: DNase at E, gradient max
+H3K4me3_e_grad_min_L_8	H3K4me3_e_grad_min_L_8	NA	max	0	GraphReg: H3K4me3 at E, gradient min
+H3K27ac_e_grad_min_L_8	H3K27ac_e_grad_min_L_8	NA	max	0	GraphReg: H3K27ac at E, gradient min
+DNase_e_grad_min_L_8	DNase_e_grad_min_L_8	NA	max	0	GraphReg: DNase at E, gradient min
+H3K4me3_p_max_L_8	H3K4me3_p_max_L_8	NA	max	0	GraphReg: H3K4me3 at P, signal max
+H3K4me3_p_grad_max_L_8	H3K4me3_p_grad_max_L_8	NA	max	0	GraphReg: H3K4me3 at P, gradient max
+H3K27ac_p_grad_max_L_8	H3K27ac_p_grad_max_L_8	NA	max	0	GraphReg: H3K27ac at P, gradient max
+DNase_p_grad_max_L_8	DNase_p_grad_max_L_8	NA	max	0	GraphReg: DNase at P, gradient max
+H3K4me3_p_grad_min_L_8	H3K4me3_p_grad_min_L_8	NA	max	0	GraphReg: H3K4me3 at P, gradient min
+H3K27ac_p_grad_min_L_8	H3K27ac_p_grad_min_L_8	NA	max	0	GraphReg: H3K27ac at P, gradient min
+DNase_p_grad_min_L_8	DNase_p_grad_min_L_8	NA	max	0	GraphReg: DNase at P, gradient min
+EpiMapScore	EpiMapScore	NA	mean	0	EpiMap score
+glsCoefficient	glsCoefficient	NA	mean	mean	DNase E-P correlation (GLS)
+PEToutsideNormalized	PEToutsideNormalized	NA	max	0	CTCF PET counts spanning E-P pair
+PETcrossNormalized	PETcrossNormalized	NA	max	0	CTCF PET counts crossing E-P pair
+promCTCF	promCTCF	NA	max	0	CTCF signal at P
+enhCTCF	enhCTCF	NA	max	0	CTCF signal at E
+HiCLoopOutsideNormalized	HiCLoopOutsideNormalized	NA	max	0	Hi-C loops spanning E-P pair
+HiCLoopCrossNormalized	HiCLoopCrossNormalized	NA	max	0	Hi-C loops crossing E-P pair
+inTAD	inTAD	NA	max	0	In TAD
+inCCD	inCCD	NA	max	0	In CCD

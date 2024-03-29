@@ -38,7 +38,7 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, params,  n_boot):
         Y_pred = df_dataset[model_name+'.Score']
 
         data = (Y_true, Y_pred)
-        res_aupr = scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
+        res_aupr = scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
         df.loc[i, 'AUPRC'] = np.mean(res_aupr.bootstrap_distribution)
         df.loc[i, 'AUPRC_95CI_low'] = res_aupr.confidence_interval[0]
         df.loc[i, 'AUPRC_95CI_high'] = res_aupr.confidence_interval[1]

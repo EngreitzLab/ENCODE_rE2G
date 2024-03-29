@@ -13,6 +13,7 @@ include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
 config = make_paths_absolute(config, E2G_DIR_PATH)
+    
 # Need to manually make results_dir an absolute path since above may
 # not work if results_dir folder isn't created
 # If results_dir is already an absolute path, this is a no-op
@@ -39,11 +40,12 @@ SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 
 # These rules requires the variables above to be defined
 include: "rules/gen_new_features.smk"
+include: "rules/create_feature_tables.smk"
 include: "rules/train_model.smk"
 include: "rules/feature_analysis.smk"
 include: "rules/compare_models.smk"
 
-# Validate and fill ABC_directory column:
+# Validate and fill ABC_directory column: add vaidation steps to rule
 # Confirm each dataset corresponds to a unique ABC_directory
 is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() == 1
 if ~is_corresponding.all():
@@ -59,14 +61,9 @@ for row in model_config.itertuples(index=False):
 		else: # ABC directory is provided
 			ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
 
-# validate features
-ref_features = config["reference_features"]
-for index, row in model_config.iterrows():
-	dataset_row = dataset_config.loc[dataset_config["dataset"] == row["dataset"]]].squeeze() # corresponding row of datsaet_config as a series
-	validate_feature_table(row["model"], row["feature_table"], dataset_row, ref_features)
-
 # specify target files
 output_files = []
+output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), dataset=model_config["dataset"].unique()))
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
 output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
 output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
