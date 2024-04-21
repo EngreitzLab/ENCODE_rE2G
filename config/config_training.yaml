@@ -2,10 +2,10 @@
 # Input config
 model_config: "config/config_models_test.tsv"
 dataset_config: "config/config_datasets_all.tsv" 
-run_feature_analysis: False # do you want to run feature analysis? 
+run_feature_analysis: True # do you want to run feature analysis? 
 
 # Output directory
-results_dir: "results/2024_0329_final_models_two_inputs"
+results_dir: "results/2024_0421_extended_no_conserv/"
 
 # Reference files
 gene_TSS500: "reference/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed" # TSS reference file
