@@ -49,14 +49,17 @@ overlap_feature_with_abc <- function(abc, feature, feature_score_cols, agg_fun, 
   # get pairs from abc table that are missing from features 
   missing <- abc[setdiff(seq_len(nrow(abc)), queryHits(ovl)), ]
   
-  # fill in missing value for features in missing pairs
-  for (i in feature_score_cols) {
-    missing[[i]] <- fill_value
+  if (nrow(missing)>0){
+    # fill in missing value for features in missing pairs
+    for (i in feature_score_cols) {
+        missing[[i]] <- fill_value
+    }
+     # combine merged and missing pairs to create output
+    output <- rbind(merged, missing)
+  } else {
+    output = merged
   }
-  
-  # combine merged and missing pairs to create output
-  output <- rbind(merged, missing)
-  
+
   # sort output by cre position
   output <- output[order(chr, start, end, TargetGene), ]
   
