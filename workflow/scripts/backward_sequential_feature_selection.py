@@ -55,6 +55,7 @@ def SBFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=Fals
             new_feature = feature_list[k] # feature to remove
             print(new_feature)
             features = feature_list.loc[feature_list!=new_feature].reset_index(drop=True)
+            print(features)
             model_name = model_name_core + '_' + str(i+1) + '_' + str(k+1)
             print(model_name)
 
@@ -66,7 +67,7 @@ def SBFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=Fals
             thresh = threshold_70_pct_recall(Y_true, Y_pred)
             precision_at_70_pct_recall = statistic_precision_at_threshold(Y_true, Y_pred, thresh)
 
-            if aupr > best_aupr:
+            if aupr >= best_aupr:
                 best_aupr = aupr
                 best_k = k
                 best_precision = precision_at_70_pct_recall
