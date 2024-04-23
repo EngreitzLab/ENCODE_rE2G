@@ -41,11 +41,15 @@ def performance_summary(model_id, dataset, model_name, out_dir, crispr_data='', 
     # evaluate
     res_aupr =  scipy.stats.bootstrap((Y_true_all, Y_pred_all), statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
     thresh = threshold_70_pct_recall(Y_true_all, Y_pred_all) # will return None if max recall < 70%
-    res_prec = scipy.stats.bootstrap((Y_true_all, Y_pred_all),  lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh), n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+    if thresh is not None:
+        res_prec = scipy.stats.bootstrap((Y_true_all, Y_pred_all),  lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh), n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+    prec_mean = 0 if thresh is None else np.mean(res_prec.bootstrap_distribution)
+    prec_low = 0 if thresh is None else res_prec.confidence_interval[0]
+    prec_high = 0 if thresh is None else res_prec.confidence_interval[1]
 
     res_row = pd.DataFrame({'model': model_id, 'dataset': dataset,  'AUPRC': np.mean(res_aupr.bootstrap_distribution), 'AUPRC_95CI_low': res_aupr.confidence_interval[0], 'AUPRC_95CI_high': res_aupr.confidence_interval[1],
-                                 'precision': np.mean(res_prec.bootstrap_distribution), 'precision_95CI_low': res_prec.confidence_interval[0], 'precision_95CI_high': res_prec.confidence_interval[1], 
-                                 'threshold_70_pct_recall': thresh}, index=[0])
+                                 'precision': prec_mean, 'precision_95CI_low': prec_low, 'precision_95CI_high': prec_high, 
+                                 'threshold_70_pct_recall': thresh, 'pct_missing_elements': len(missing_df)/len(Y_true_all)}, index=[0])
     return res_row
 
 @click.command()
@@ -59,7 +63,8 @@ def main(model_config_file, output_file, crispr_data, out_dir):
     model_config = pd.read_table(model_config_file, na_values="").fillna("None").set_index("model", drop=False)
     # initiate final df
     df = pd.DataFrame(columns = ['model', 'dataset', 'AUPRC', 'AUPRC_95CI_low', 'AUPRC_95CI_high',
-                                 'precision', 'precision_95CI_low', 'precision_95CI_high', 'threshold_70_pct_recall' ])
+                                 'precision', 'precision_95CI_low', 'precision_95CI_high', 'threshold_70_pct_recall', 
+                                 'pct_missing_elements'])
     
     # iterate through rows of model config and add results to final df
     for row in model_config.itertuples(index=False):
