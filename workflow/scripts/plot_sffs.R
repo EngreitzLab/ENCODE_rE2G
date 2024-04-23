@@ -28,6 +28,8 @@ df$feature_added = factor(df$feature_added, levels=rev(features), ordered=TRUE)
 ht = ifelse(nrow(df)<20, 3, 7) # set height of figure based on number of features
 ymin_aupr = min(-0.05, min(df$delta_aupr_low)-0.01)
 ymin_prec = min(-0.05, min(df$delta_precision_low)-0.01)
+full_aupr = df$aupr[nrow(df)]
+full_prec = df$precision[nrow(df)]
 
 # add some columns...
 df <- df %>%
@@ -48,6 +50,7 @@ df <- df %>%
 
 # plot
 x = ggplot(df, aes(x=feature_added, y=delta_aupr)) +
+  geom_hline(yintercept=full_aupr, linewidth=0.5, color='gray') +
   geom_bar(stat="identity") +
   geom_point(aes(x=feature_added, y=aupr), size=0.8) +
   geom_errorbar(aes(ymin=delta_aupr_low, ymax=delta_aupr_high), width=0.5) +
@@ -60,6 +63,7 @@ x = ggplot(df, aes(x=feature_added, y=delta_aupr)) +
 ggsave(filename=output_file_auprc, plot=x, width=4, height=ht)
 
 y = ggplot(df, aes(x=feature_added, y=delta_precision)) +
+  geom_hline(yintercept=full_prec, linewidth=0.5, color='gray') +
   geom_bar(stat="identity") +
   geom_point(aes(x=feature_added, y=precision), size=0.8) +
   geom_errorbar(aes(ymin=delta_precision_low, ymax=delta_precision_high), width=0.5) +

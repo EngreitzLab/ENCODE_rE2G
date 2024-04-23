@@ -16,6 +16,7 @@ def performance_summary(model_id, dataset, model_name, out_dir, crispr_data='', 
         crispr_data = crispr_data.dropna(subset = ['Regulated', 'distance'])
         Y_true_all = crispr_data['Regulated'].values.astype(np.int64)
         Y_pred_all = crispr_data['distance'] * -1
+        pct_missing = 0
     else: # normal models
         pred_file = os.path.join(out_dir, dataset, model_id, "model", "training_predictions.tsv")
         missing_file = os.path.join(out_dir, dataset, "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz")
@@ -37,6 +38,7 @@ def performance_summary(model_id, dataset, model_name, out_dir, crispr_data='', 
         else:
             Y_true_all = Y_true
             Y_pred_all = Y_pred
+        pct_missing = n_missing/len(Y_true_all)
 
     # evaluate
     res_aupr =  scipy.stats.bootstrap((Y_true_all, Y_pred_all), statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
@@ -49,7 +51,7 @@ def performance_summary(model_id, dataset, model_name, out_dir, crispr_data='', 
 
     res_row = pd.DataFrame({'model': model_id, 'dataset': dataset,  'AUPRC': np.mean(res_aupr.bootstrap_distribution), 'AUPRC_95CI_low': res_aupr.confidence_interval[0], 'AUPRC_95CI_high': res_aupr.confidence_interval[1],
                                  'precision': prec_mean, 'precision_95CI_low': prec_low, 'precision_95CI_high': prec_high, 
-                                 'threshold_70_pct_recall': thresh, 'pct_missing_elements': len(missing_df)/len(Y_true_all)}, index=[0])
+                                 'threshold_70_pct_recall': thresh, 'pct_missing_elements': pct_missing}, index=[0])
     return res_row
 
 @click.command()
