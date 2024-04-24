@@ -50,7 +50,7 @@ df <- df %>%
 
 # plot
 x = ggplot(df, aes(x=feature_added, y=delta_aupr)) +
-  geom_hline(yintercept=full_aupr, linewidth=0.5, color='gray') +
+  geom_hline(yintercept=full_aupr, linewidth=0.5, color='gray', linetype='dotted') +
   geom_bar(stat="identity") +
   geom_point(aes(x=feature_added, y=aupr), size=0.8) +
   geom_errorbar(aes(ymin=delta_aupr_low, ymax=delta_aupr_high), width=0.5) +
@@ -63,7 +63,7 @@ x = ggplot(df, aes(x=feature_added, y=delta_aupr)) +
 ggsave(filename=output_file_auprc, plot=x, width=4, height=ht)
 
 y = ggplot(df, aes(x=feature_added, y=delta_precision)) +
-  geom_hline(yintercept=full_prec, linewidth=0.5, color='gray') +
+  geom_hline(yintercept=full_prec, linewidth=0.5, color='gray', linetype='dotted') +
   geom_bar(stat="identity") +
   geom_point(aes(x=feature_added, y=precision), size=0.8) +
   geom_errorbar(aes(ymin=delta_precision_low, ymax=delta_precision_high), width=0.5) +
