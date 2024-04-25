@@ -1,6 +1,0 @@
-biosample	DHS	ATAC	H3K27ac	default_accessibility_feature	HiC_file	HiC_type	HiC_resolution	HiC_gamma	HiC_scale	alt_TSS	alt_genes
-ATAC_bulk_1		/oak/stanford/groups/engreitz/Users/sheth/Data/ATAC/encode_bulk_ATAC_1.tagAlign.sort.gz		ATAC	https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic	hic	5000				
-ATAC_bulk_2		/oak/stanford/groups/engreitz/Users/sheth/Data/ATAC/encode_bulk_ATAC_2.tagAlign.sort.gz		ATAC	https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic	hic	5000				
-scATAC_Xu		/oak/stanford/groups/engreitz/Projects/scE2G/data/xu_et_al/xu_K562_sorted.tagAlign.gz		ATAC	https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic	hic	5000				
-scATAC_IGVF_rep1		/oak/stanford/groups/engreitz/Projects/scE2G/data/IGVF_K562_downsample/original/cellranger_rep1/K562_cellranger_rep_1_sorted.tagAlign.gz		ATAC	https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic	hic	5000				
-scATAC_IGVF_rep2		/oak/stanford/groups/engreitz/Projects/scE2G/data/IGVF_K562_downsample/original/cellranger_rep2/K562_cellranger_rep_2_sorted.tagAlign.gz		ATAC	https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic	hic	5000				
