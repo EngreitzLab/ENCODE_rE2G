@@ -24,7 +24,7 @@ rule format_external_features_config:
 
 rule generate_e2g_predictions:
 	input:
-		final_features = os.path.join(RESULTS_DIR, "{biosample}", "final_features.tsv.gz"),
+		final_features = os.path.join(RESULTS_DIR, "{biosample}", "genomewide_features.tsv.gz"),
 	params:
 		epsilon = config["epsilon"],
 		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),

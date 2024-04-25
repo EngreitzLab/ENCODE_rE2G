@@ -67,7 +67,7 @@ rule gen_final_features:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_plus_external_features.tsv.gz"),
 		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
 	output:
-		final_features = os.path.join(RESULTS_DIR, "{biosample}", "final_features.tsv.gz")
+		final_features = os.path.join(RESULTS_DIR, "{biosample}", "genomewide_features.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
