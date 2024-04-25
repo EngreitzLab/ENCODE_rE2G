@@ -39,8 +39,8 @@ RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 
 # These rules requires the variables above to be defined
-include: "rules/gen_new_features.smk"
-include: "rules/create_feature_tables.smk"
+include: "rules/genomewide_features.smk"
+include: "rules/crispr_features.smk"
 include: "rules/train_model.smk"
 include: "rules/feature_analysis.smk"
 include: "rules/compare_models.smk"

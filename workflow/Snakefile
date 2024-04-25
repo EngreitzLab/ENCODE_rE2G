@@ -49,8 +49,7 @@ ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosam
 
 
 # These rules requires the variables above to be defined
-include: "rules/gen_new_features.smk"
-include: "rules/activity_only_features.smk"
+include: "rules/genomewide_features.smk"
 include: "rules/predictions.smk"
 include: "rules/qc.smk"
 

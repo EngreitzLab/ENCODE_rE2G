@@ -159,5 +159,3 @@ rule plot_permutation_feature_importance:
 	script:
 		"../scripts/plot_pfi.R"
 
-# shap?
-

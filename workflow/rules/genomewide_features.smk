@@ -1,31 +1,36 @@
-# reformat external features config
-rule format_external_features_config:
+from functools import partial
+
+rule gen_new_features: 
 	input:
-		dataset_config = config["ABC_BIOSAMPLES"]
-	output:
-		external_features_config = os.path.join(RESULTS_DIR, "{dataset}", "external_features_config.tsv"),
+		abc_predictions = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
+		enhancer_list = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Neighborhoods", "EnhancerList.txt"),
 	params:
-		e2g_path = config["E2G_DIR_PATH"]
+		gene_TSS500 = config['gene_TSS500'],
+		chr_sizes = config['chr_sizes'],
+		scripts_dir = SCRIPTS_DIR
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=8*1000
-	script:
-		"../scripts/format_external_features_config.R"
-
-# write feature table to output directory for future reference
-rule write_feature_table:
-    input:
-        feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample)
-    output:
-        feature_table_here = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
-    run:
-        shell("cat {input.feature_table_file} > {output.feature_table_here}")
-
+		mem_mb=partial(determine_mem_mb, min_gb=32)
+	output: 
+		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumCandidateEnhGene.tsv"),
+		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),
+		NumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "NumEnhancersEG5kb.txt"),
+		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "SumEnhancersEG5kb.txt"),
+	shell: 
+		""" 
+		python {params.scripts_dir}/gen_new_features.py \
+			--enhancer_list {input.enhancer_list} \
+			--abc_predictions {input.abc_predictions} \
+			--ref_gene_tss {params.gene_TSS500} \
+			--chr_sizes {params.chr_sizes} \
+			--results_dir {RESULTS_DIR}/{wildcards.biosample}
+		"""
+		
 # create activity-only feature table
 rule activity_only_features:
 	input:
-		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
+		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
 		abc = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumCandidateEnhGene.tsv"),
 		NumTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "NumTSSEnhGene.tsv"),
@@ -45,7 +50,7 @@ rule activity_only_features:
 rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
-		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
+		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
 		external_features_config = os.path.join(RESULTS_DIR, "{biosample}", "external_features_config.tsv"),
 	output:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}",  "ActivityOnly_plus_external_features.tsv.gz")
@@ -60,7 +65,7 @@ rule add_external_features:
 rule gen_final_features:
 	input:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_plus_external_features.tsv.gz"),
-		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample)
+		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
 	output:
 		final_features = os.path.join(RESULTS_DIR, "{biosample}", "final_features.tsv.gz")
 	conda:
