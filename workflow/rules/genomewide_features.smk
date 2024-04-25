@@ -19,7 +19,7 @@ rule gen_new_features:
 		SumEnhancersEG5kb = os.path.join(RESULTS_DIR, "{biosample}", "SumEnhancersEG5kb.txt"),
 	shell: 
 		""" 
-		python {params.scripts_dir}/gen_new_features.py \
+		python {params.scripts_dir}/feature_tables/gen_new_features.py \
 			--enhancer_list {input.enhancer_list} \
 			--abc_predictions {input.abc_predictions} \
 			--ref_gene_tss {params.gene_TSS500} \
@@ -44,7 +44,7 @@ rule activity_only_features:
 	resources:
 		mem_mb=determine_mem_mb
 	script:
-		"../scripts/activity_only_features.R"
+		"../scripts/feature_tables/activity_only_features.R"
 
 # add external features
 rule add_external_features:
@@ -59,7 +59,7 @@ rule add_external_features:
 	resources:
 		mem_mb=128*1000
 	script:
-		"../scripts/merge_external_features.R"
+		"../scripts/feature_tables/merge_external_features.R"
 
 # compute interaction or squared terms, fill NAs, rename features to finals, fill nas
 rule gen_final_features:
@@ -73,4 +73,4 @@ rule gen_final_features:
 	resources:
 		mem_mb=determine_mem_mb
 	script:
-		"../scripts/gen_final_features.R"
+		"../scripts/feature_tables/gen_final_features.R"

@@ -20,14 +20,14 @@ rule format_external_features_config:
 	resources:
 		mem_mb=8*1000
 	script:
-		"../scripts/format_external_features_config.R"
+		"../scripts/feature_tables/format_external_features_config.R"
 
 rule generate_e2g_predictions:
 	input:
 		final_features = os.path.join(RESULTS_DIR, "{biosample}", "final_features.tsv.gz"),
 	params:
 		epsilon = config["epsilon"],
-		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample),
+		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
 		trained_model = lambda wildcards: get_trained_model(wildcards.biosample),
 		scripts_dir = SCRIPTS_DIR
 	conda:
@@ -38,7 +38,7 @@ rule generate_e2g_predictions:
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz")
 	shell: 
 		""" 
-		python {params.scripts_dir}/run_e2g.py \
+		python {params.scripts_dir}/model_application/run_e2g.py \
 			--predictions {input.final_features} \
 			--feature_table_file {params.feature_table_file} \
 			--epsilon {params.epsilon} \
@@ -61,7 +61,7 @@ rule filter_e2g_predictions:
 		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	shell:
 		"""
-		python {params.scripts_dir}/threshold_e2g_predictions.py \
+		python {params.scripts_dir}/model_application/threshold_e2g_predictions.py \
 			--all_predictions_file {input.prediction_file} \
 			--threshold {params.threshold} \
 			--include_self_promoter {params.include_self_promoter} \

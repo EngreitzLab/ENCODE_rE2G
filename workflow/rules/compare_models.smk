@@ -16,7 +16,7 @@ rule gather_model_performances:
 		mem_mb=64*1000
 	shell: 
 		""" 
-		python {params.scripts_dir}/compare_all_models.py \
+		python {params.scripts_dir}/model_training/compare_all_models.py \
 			--model_config_file {params.model_config_file} \
 			--output_file {output.comp_table}  \
 			--crispr_data {params.crispr_dataset} \
@@ -34,4 +34,4 @@ rule plot_model_performances:
 	resources:
 		mem_mb=determine_mem_mb
 	script:
-		"../scripts/plot_model_comparison.R"
+		"../scripts/model_training/plot_model_comparison.R"

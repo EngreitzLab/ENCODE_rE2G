@@ -80,6 +80,3 @@ def get_threshold(biosample):
 	threshold_file = glob.glob(os.path.join(model_dir, 'threshold_*'))[0]
 	threshold_file = os.path.basename(threshold_file)
 	return threshold_file.split("_")[1]
-
-
-

@@ -12,7 +12,7 @@ rule generate_model_params:
 		"../envs/encode_re2g.yml" 
 	shell:
 		""" 
-		python {params.scripts_dir}/get_params.py \
+		python {params.scripts_dir}/model_training/get_params.py \
 			--default_params "{params.default_params}" \
 			--override_params "{params.override_params}" \
 			--output_file {output.final_params} 
@@ -38,7 +38,7 @@ rule train_model:
 		mem_mb=64*1000
 	shell: 
 		""" 
-		python {params.scripts_dir}/train_model.py \
+		python {params.scripts_dir}/model_training/train_model.py \
 			--crispr_features_file {input.crispr_features_processed} \
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \

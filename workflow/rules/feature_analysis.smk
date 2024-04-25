@@ -17,7 +17,7 @@ rule calculate_forward_feature_selection:
 		mem_mb=determine_mem_mb
 	shell: 
 		""" 
-		python {params.scripts_dir}/forward_sequential_feature_selection.py \
+		python {params.scripts_dir}/model_training/forward_sequential_feature_selection.py \
 			--crispr_features_file {input.crispr_features_processed} \
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
@@ -40,7 +40,7 @@ rule plot_forward_feature_selection:
 	resources:
 		mem_mb=determine_mem_mb
 	script:
-		"../scripts/plot_sffs.R"
+		"../scripts/model_training/plot_sffs.R"
 
 # backward sequential feature selection
 rule calculate_backward_feature_selection:
@@ -61,7 +61,7 @@ rule calculate_backward_feature_selection:
 		mem_mb=determine_mem_mb
 	shell: 
 		""" 
-		python {params.scripts_dir}/backward_sequential_feature_selection.py \
+		python {params.scripts_dir}/model_training/backward_sequential_feature_selection.py \
 			--crispr_features_file {input.crispr_features_processed} \
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
@@ -84,7 +84,7 @@ rule plot_backward_feature_selection:
 	resources:
 		mem_mb=determine_mem_mb
 	script:
-		"../scripts/plot_sbfs.R"
+		"../scripts/model_training/plot_sbfs.R"
 
 # compare all features sets
 rule compare_all_feature_sets:
@@ -104,7 +104,7 @@ rule compare_all_feature_sets:
 		mem_mb=determine_mem_mb
 	shell: 
 		""" 
-		python {params.scripts_dir}/compare_all_feature_sets.py \
+		python {params.scripts_dir}/model_training/compare_all_feature_sets.py \
 			--crispr_features_file {input.crispr_features_processed} \
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
@@ -132,7 +132,7 @@ rule calculate_permutation_feature_importance:
 		mem_mb=determine_mem_mb
 	shell: 
 		""" 
-		python {params.scripts_dir}/permutation_feature_importance.py \
+		python {params.scripts_dir}/model_training/permutation_feature_importance.py \
 			--crispr_features_file {input.crispr_features_processed} \
 			--feature_table_file {input.feature_table} \
 			--out_dir {params.out_dir} \
@@ -157,5 +157,5 @@ rule plot_permutation_feature_importance:
 	resources:
 		mem_mb=determine_mem_mb
 	script:
-		"../scripts/plot_pfi.R"
+		"../scripts/model_training/plot_pfi.R"
 

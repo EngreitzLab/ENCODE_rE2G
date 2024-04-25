@@ -10,7 +10,7 @@ rule make_dataset_feature_table:
 	resources:
 		mem_mb=8*1000
 	script:
-		"../scripts/combine_feature_tables.R"
+		"../scripts/feature_tables/combine_feature_tables.R"
 
 # reformat external features config
 rule format_external_features_config:
@@ -25,7 +25,7 @@ rule format_external_features_config:
 	resources:
 		mem_mb=8*1000
 	script:
-		"../scripts/format_external_features_config.R"
+		"../scripts/feature_tables/format_external_features_config.R"
 
 # overlap feature table  with K562 CRISPR data
 rule overlap_features_crispr:
@@ -42,7 +42,7 @@ rule overlap_features_crispr:
 	resources:
 		mem_mb=32*1000
 	script:
-		"../scripts/overlap_features_with_crispr_data.R"
+		"../scripts/feature_tables/overlap_features_with_crispr_data.R"
 
 # process data for model training: rename columns, apply filter features, filter to gene list
 # note: we use the NAfilled CRISPR feature data here!
@@ -58,4 +58,4 @@ rule process_crispr_data:
 	resources:
 		mem_mb=32*1000
 	script:
-		"../scripts/process_crispr_data.R"
+		"../scripts/feature_tables/process_crispr_data.R"
