@@ -11,7 +11,7 @@ rule get_stats:
 		stats = os.path.join(RESULTS_DIR, "{biosample}", "Metrics", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
 	shell:
 		"""
-		python {params.scripts_dir}/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
+		python {params.scripts_dir}/model_application/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
 		"""
 
 rule generate_plots:
@@ -27,7 +27,7 @@ rule generate_plots:
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
 	shell:
 		"""
-		python {params.scripts_dir}/generate_plots.py \
+		python {params.scripts_dir}/model_application/generate_plots.py \
 			--output_file {output.plots} \
 			{input.stat_files}
 		"""

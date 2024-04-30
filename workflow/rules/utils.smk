@@ -62,15 +62,9 @@ def _get_biosample_model_dir(biosample):
 		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
 	
 	if hic_file == config["MEGAMAP_HIC_FILE"]:
-		if access_type=="atac":
-			return os.path.join(MODEL_DIR, "multiome_megamap_test")
-		else: # dnase 
-			return os.path.join(MODEL_DIR, f"{access_type}_megamap")
+		return os.path.join(MODEL_DIR, f"{access_type}_megamap")
 
 	else:
-		# assume intact hi-c
-		if access_type=="atac":
-			return os.path.join(MODEL_DIR, "multiome_intact_hic_test") # enable testing of sc-E2G pipeline
 		return os.path.join(MODEL_DIR, f"{access_type}_intact_hic")
 
 def get_feature_table_file(biosample):

@@ -6,7 +6,7 @@ import scipy
 from sklearn.metrics import precision_recall_curve, auc, log_loss, roc_auc_score
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
-from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, statistic_delta_precision
+from training_functions import statistic_aupr, statistic_precision, train_and_predict_once, bootstrap_pvalue, statistic_delta_aupr, threshold_70_pct_recall, statistic_precision_at_threshold, statistic_delta_precision_at_threshold
 
 def SFFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=False):
     feature_list_core = feature_table['feature']
@@ -43,6 +43,7 @@ def SFFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=Fals
             new_feature = feature_list[k]
             print(new_feature)
             features = best_features + [new_feature]
+            print(features)
             model_name = model_name_core + '_' + str(i+1) + '_' + str(k+1)
             print(model_name)
 
@@ -51,9 +52,10 @@ def SFFS(df_dataset, feature_table, model_name, epsilon, params, polynomial=Fals
             # evaluate model once trained
             Y_pred = df_dataset[model_name+'.Score']
             aupr = statistic_aupr(Y_true, Y_pred)
-            precision_at_70_pct_recall = statistic_precision(Y_true, Y_pred)
+            thresh = threshold_70_pct_recall(Y_true, Y_pred)
+            precision_at_70_pct_recall = statistic_precision_at_threshold(Y_true, Y_pred, thresh)
 
-            if aupr > best_aupr:
+            if aupr >= best_aupr:
                 best_aupr = aupr
                 best_k = k
                 best_precision = precision_at_70_pct_recall
@@ -95,8 +97,10 @@ def SFFS_significance(df_dataset, feature_table, model_name, epsilon, params,  p
     Y_new = df_dataset['all_true']
 
     data=(Y_true, Y_new)
-    res_aupr = scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
-    res_precision = scipy.stats.bootstrap(data, statistic_precision, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
+    res_aupr =  scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+    thresh = threshold_70_pct_recall(Y_true, Y_new) # will return None if max recall < 70%
+    res_precision = scipy.stats.bootstrap(data,  lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh), n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+
     aupr = np.mean(res_aupr.bootstrap_distribution)
     precision = np.mean(res_precision.bootstrap_distribution)
 
@@ -116,16 +120,21 @@ def SFFS_significance(df_dataset, feature_table, model_name, epsilon, params,  p
         Y_new = df_dataset[model_name+'.Score']
 
         data_compare = (Y_true, Y_last, Y_new)
-        res_delta_aupr = scipy.stats.bootstrap(data_compare, statistic_delta_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
-        res_delta_precision = scipy.stats.bootstrap(data_compare, statistic_delta_precision, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
+        thresh_last = threshold_70_pct_recall(Y_true, Y_last)
+        thresh_new = threshold_70_pct_recall(Y_true, Y_new)
+        res_delta_aupr = scipy.stats.bootstrap(data_compare, statistic_delta_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+        res_delta_precision = scipy.stats.bootstrap(data_compare, lambda Y_true, Y_last, Y_new, : statistic_delta_precision_at_threshold(Y_true, Y_last, Y_new, thresh_last, thresh_new),
+                                                    n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
         delta_aupr = np.mean(res_delta_aupr.bootstrap_distribution) # aupr_new - aupr_last
         delta_precision = np.mean(res_delta_precision.bootstrap_distribution)
         pval_aupr = bootstrap_pvalue(delta_aupr, res_delta_aupr)
         pval_precision = bootstrap_pvalue(delta_precision, res_delta_precision)
         
         data=(Y_true, Y_new)
-        res_aupr = scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
-        res_precision = scipy.stats.bootstrap(data, statistic_precision, n_resamples=n_boot, paired=True, confidence_level=0.95, method='percentile')
+        res_aupr =  scipy.stats.bootstrap(data, statistic_aupr, n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+        thresh = threshold_70_pct_recall(Y_true, Y_new) # will return None if max recall < 70%
+        res_precision = scipy.stats.bootstrap(data,  lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh), n_resamples=n_boot, paired=True, confidence_level=0.95, method='BCa')
+
         aupr = np.mean(res_aupr.bootstrap_distribution)
         precision = np.mean(res_precision.bootstrap_distribution) 
 
