@@ -1,7 +1,29 @@
 import numpy as np
-
+import subprocess
+from io import StringIO
 import click
 import pandas as pd
+
+NORMAL_CHROMOSOMES = set(["chr" + str(x) for x in range(1, 23)] + ["chrX"] + ["chrY"])
+
+def count_bam_total(bam_file: str) -> int:
+    cmd = ["samtools", "idxstat", bam_file]
+    result = subprocess.check_output(cmd).decode("utf-8")
+    tsv_io = StringIO(result)
+    df = pd.read_csv(
+        tsv_io, sep="\t", names=["chr", "size", "mapped_reads", "unmapped_reads"]
+    )
+    no_alt_chrom_df = df[df["chr"].isin(NORMAL_CHROMOSOMES)]
+    return no_alt_chrom_df["mapped_reads"].sum()
+
+def get_num_reads(accessibility_files):
+    total_counts = 0
+    for access_in in accessibility_files:
+        if not access_in.endswith(".bam"):
+            print("Only support num reads for bam files")
+            return 0
+        total_counts += count_bam_total(access_in)
+    return total_counts
 
 def get_num_enh(df):
     return len(df[["chr", "start", "end"]].drop_duplicates())
@@ -44,10 +66,13 @@ def get_mean_enh_region_size(df):
 
 @click.command()
 @click.option("--predictions", type=str, required=True)
+@click.option("--accessibility", type=str, required=True)
 @click.option("--output_file", type=str, default="stats.tsv")
-def main(predictions, output_file):
+def main(predictions, accessibility, output_file):
     df = pd.read_csv(predictions, sep="\t")
+    accessibility_files = [f.strip() for f in accessibility.split(" ")]
     stats = [
+        ("num_sequencing_reads", get_num_reads(accessibility_files)),
         ("num_enh", get_num_enh(df)),
         ("num_genes", get_num_genes(df)),
         ("num_enh_gene_links", get_num_enh_gene_links(df)),

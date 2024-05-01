@@ -1,17 +1,24 @@
+def get_accessibility_files(wildcards):
+	# Inputs have been validated so only DHS or ATAC is provided
+	biosample = BIOSAMPLE_DF[BIOSAMPLE_DF["biosample"] == wildcards.biosample].iloc[0]
+	files = biosample["DHS"] or biosample["ATAC"]
+	return files.split(",")
+
 rule get_stats:
 	input:
-		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz"),
+		accessibility = get_accessibility_files
 	params:
 		scripts_dir = SCRIPTS_DIR
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=4*1000
 	output:
 		stats = os.path.join(RESULTS_DIR, "{biosample}", "Metrics", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
 	shell:
 		"""
-		python {params.scripts_dir}/model_application/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
+		python {params.scripts_dir}/model_application/get_stats.py --predictions {input.thresholded} --accessibility "{input.accessibility}" --output_file {output.stats}
 		"""
 
 rule generate_plots:
