@@ -1,5 +1,5 @@
 # Input config
-ABC_BIOSAMPLES: "config/config_biosamples_chr22.tsv"
+ABC_BIOSAMPLES: "config/config_biosamples_chr22.tsv"  # Replace with your own config/config_biosamples.tsv
 
 # Results directory
 results_dir: "results"

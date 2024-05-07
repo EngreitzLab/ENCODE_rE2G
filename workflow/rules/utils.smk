@@ -77,23 +77,24 @@ def _get_biosample_model_dir_from_row(row):
 			return row["model_dir"]
 
 	access_type = row["default_accessibility_feature"].lower()
+	input_params = [access_type]
+	if not pd.isna(row["H3K27ac"]):
+		input_params.append("h3k27ac")
+
 	hic_file = row["HiC_file"]
 	if pd.isna(hic_file):
-		raise Exception("No model found for powerlaw")
-		# return os.path.join(MODEL_DIR, f"{access_type}_powerlaw")
+		input_params.append("powerlaw")
+	elif row["HiC_type"] == "avg":
+		input_params.append("avg_hic")
+	elif os.path.basename(hic_file) == os.path.basename(config["MEGAMAP_HIC_FILE"]):
+		input_params.append("megamap")
+	elif row["HiC_type"] == "hic":
+		input_params.append("intact_hic")
 	
-	if pd.notna(row["H3K27ac"]):
-		raise Exception("H3K27ac model not supported")
-	
-	if row["HiC_type"] == "avg":
-		raise Exception("No model found for avg hic")
-		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
-	if os.path.basename(hic_file) == os.path.basename(config["MEGAMAP_HIC_FILE"]):
-		# We just check that basename matches, in case someone wishes to use megamap
-		# from a local directory instead of web
-		return os.path.join(MODEL_DIR, f"{access_type}_megamap")
-	else:
-		return os.path.join(MODEL_DIR, f"{access_type}_intact_hic")
+	model_folder = os.path.join(MODEL_DIR, "_".join(input_params))
+	if not os.path.exists(model_folder):
+		raise Exception(f"{model_folder} not found. Model with input params not supported")
+	return model_folder
 
 def get_feature_table_file(biosample, model_name): 
 	model_dir = _get_model_dir_from_wildcards(biosample, model_name)

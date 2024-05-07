@@ -65,8 +65,8 @@ for row in model_config.itertuples(index=False):
 output_files = []
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), dataset=model_config["dataset"].unique()))
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
-output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
-output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
+# output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
+# output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
 
 if config["run_feature_analysis"]:
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))

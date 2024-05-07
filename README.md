@@ -29,6 +29,7 @@ mamba env create -f workflow/envs/encode_re2g.yml
 conda activate encode_re2g
 snakemake -j1 --use-conda
 ```
+Based on your biosample config, we will find the right model to use for you. If we haven't trained that model before, an exception will get raised. 
 
 Output will show up in the `results/` directory
 - Binarized predictions will be located at `results/{biosample_name}/{model_name}/encode_e2g_predictions_threshold.{threshold}.tsv.gz`
@@ -70,3 +71,6 @@ conda activate encode_re2g
 snakemake -s workflow/Snakefile_training -j1 --use-conda
 ```
 
+### Output
+`results/{biosample}/{model}/model/model_full.pkl`: full model trained on all chromosomes
+`results/{biosample}/{model}/model/training_predictions.tsv`: rE2G predictions on CRISPR training data, using leave 1 chromosome out models
