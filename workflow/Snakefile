@@ -4,6 +4,7 @@ min_version("7.0")
 import pandas as pd
 import os
 import yaml
+import numpy as np
 
 
 configfile: "config/config.yaml"
@@ -18,12 +19,16 @@ config = make_paths_absolute(config, E2G_DIR_PATH)
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
 MODEL_DIR = config["model_dir"]
 
+config["ABC_BIOSAMPLES_DEDUP"] = os.path.join(config["results_dir"], "tmp", "config_abc_biosamples.tsv")
+config["ABC_BIOSAMPLES_MODELS"] = os.path.join(config["results_dir"], "tmp", "config_biosamples_models.tsv")
+make_biosample_config(config["ABC_BIOSAMPLES"], config["ABC_BIOSAMPLES_DEDUP"], config["results_dir"])
+
 def get_abc_config(config):
 	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
 	with open(abc_config_file, 'r') as stream:
 		abc_config = yaml.safe_load(stream)
 	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
-	abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
+	abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES_DEDUP"]
 	abc_config["results_dir"] = config["results_dir"]
 	return abc_config
 
@@ -37,16 +42,27 @@ use rule * from ABC exclude all as abc_*
 RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 BIOSAMPLE_DF = pd.read_csv(config["ABC_BIOSAMPLES"], sep="\t")
-BIOSAMPLES = BIOSAMPLE_DF["biosample"].to_list()
+BIOSAMPLE_DF_DEDUP = pd.read_csv(config["ABC_BIOSAMPLES_DEDUP"], sep="\t")
+BIOSAMPLES = BIOSAMPLE_DF_DEDUP["biosample"].to_list()
 BIOSAMPLE_ACTIVITES = {
 	biosample: activity for _, (biosample, activity) in 
-	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
+	BIOSAMPLE_DF_DEDUP[["biosample", "default_accessibility_feature"]].iterrows()
 }
 
 # make directory of ABC output where EnhancersAllPutative and EnhancerList are found
 # defined to be compatible with training workflow, which can start from an existing ABC directory
-ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosample}
+ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF_DEDUP.biosample}
 
+# add model directory path to biosamples df
+if "model_dir" not in BIOSAMPLE_DF.columns:
+	BIOSAMPLE_DF['model_dir'] = np.nan
+BIOSAMPLE_DF['model_dir_base'] = ''
+BIOSAMPLE_DF['model_threshold'] = float(0)
+for index, row in BIOSAMPLE_DF.iterrows():
+	BIOSAMPLE_DF.loc[index, 'model_dir'] = os.path.normpath(_get_biosample_model_dir_from_row(row))
+	BIOSAMPLE_DF.loc[index, 'model_dir_base'] = os.path.basename(os.path.normpath(BIOSAMPLE_DF.loc[index, 'model_dir']))
+	BIOSAMPLE_DF.loc[index, "model_threshold"] = float(get_threshold(BIOSAMPLE_DF.loc[index, "model_dir"]))
+BIOSAMPLE_DF.to_csv(config["ABC_BIOSAMPLES_MODELS"], sep='\t', index=False)
 
 # These rules requires the variables above to be defined
 include: "rules/genomewide_features.smk"
@@ -56,7 +72,10 @@ include: "rules/qc.smk"
 rule all:
 	input: 
 		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
+			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz"), zip, biosample=BIOSAMPLE_DF['biosample'], model_name=BIOSAMPLE_DF['model_dir_base']
 		),
-		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES],
+		expand(
+			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
+			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+		),
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")

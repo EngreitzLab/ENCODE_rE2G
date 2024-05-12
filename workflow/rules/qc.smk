@@ -1,6 +1,6 @@
 rule get_stats:
 	input:
-		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	params:
 		scripts_dir = SCRIPTS_DIR
 	conda:
@@ -8,7 +8,7 @@ rule get_stats:
 	resources:
 		mem_mb=determine_mem_mb
 	output:
-		stats = os.path.join(RESULTS_DIR, "{biosample}", "Metrics", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
+		stats = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
 	shell:
 		"""
 		python {params.scripts_dir}/model_application/get_stats.py --predictions {input.thresholded} --output_file {output.stats}
@@ -16,7 +16,10 @@ rule get_stats:
 
 rule generate_plots:
 	input:
-		stat_files = [os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES]
+		stat_files = expand(
+            os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
+            model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+        )
 	params:
 		scripts_dir = SCRIPTS_DIR
 	conda:
