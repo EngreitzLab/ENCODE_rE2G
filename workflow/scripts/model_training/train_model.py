@@ -2,6 +2,7 @@ import pickle
 import click
 import numpy as np
 import pandas as pd
+import shap
 from sklearn.metrics import precision_recall_curve, auc, log_loss, roc_auc_score
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LogisticRegression
@@ -31,6 +32,8 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                                          'AUROC_test_full', 'AUROC_train', 'AUROC_test',
                                          'AUPRC_test_full', 'AUPRC_train', 'AUPRC_test',
                                          'n_test_pos', 'n_test_neg', 'n_train_neg', 'n_train_pos'])
+    df_shap = pd.DataFrame()
+    X_test_all = pd.DataFrame() 
 
     # train aggregate model across all chromosomes, calc weights and performance metrics, save full model
     model_full = LogisticRegression(**params).fit(X, Y)
@@ -92,6 +95,15 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
                 df_temp = pd.DataFrame({'feature': X.columns, 'coefficient': coefficients, 'test_chr': chr})
                 df_coef = pd.concat([df_coef, df_temp])
 
+                # shap scores
+                background = shap.kmeans(X_train, 10)  # use 10 kmeans samples from train samples as background
+                explainer = shap.KernelExplainer(model.predict_proba, background)
+                shap_values = explainer.shap_values(X_test) # d1 = eg pairs; d2 = features; d3 = neg/pos (want pos)
+                shap_values_this =pd.DataFrame(shap_values[:,:,1])
+
+                df_shap = pd.concat([df_shap, shap_values_this])
+                X_test_all = pd.concat([X_test_all, X_test])
+
         # calc performance metrics across chromosomes
         total_ll_test = log_loss(Y, df_dataset[model_name+'.Score'])
         total_ll_test_full = log_loss(Y, probs_full[:,1])
@@ -112,6 +124,11 @@ def train_and_predict(df_dataset, feature_table, model_name, out_dir, epsilon, p
     df_dataset.to_csv(out_dir + '/training_predictions.tsv', sep='\t', index=False)
     df_coef.to_csv(out_dir + '/model_coefficients.tsv', sep="\t", index=False)
     df_metrics.to_csv(out_dir + '/performance_metrics.tsv', sep="\t", index=False)
+
+    df_shap.columns = X_train.columns
+    df_shap.to_csv(out_dir +'/shap_scores.tsv', sep="\t", index=False)
+    X_test_all.to_csv(out_dir + '/training_data_in_order.tsv',  sep="\t", index=False)
+
 
 @click.command()
 @click.option("--crispr_features_file", required=True)
