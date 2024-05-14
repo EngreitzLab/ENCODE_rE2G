@@ -32,8 +32,8 @@ rule train_model:
 	output:
 		trained_model = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"),
 		pred = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_predictions.tsv"),
-		in_order = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_data_in_order.tsv"),
-		shap = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "shap_scores.tsv")
+		#in_order = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_data_in_order.tsv"),
+		#shap = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "shap_scores.tsv")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
