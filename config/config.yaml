@@ -1,4 +1,3 @@
-
 # Input config
 ABC_BIOSAMPLES: "config/config_biosamples_chr22.tsv"
 

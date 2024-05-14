@@ -11,6 +11,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 STATS_SUFFIX = "_stats.tsv"
 VALUE_KEY = "Value"
+SEQ_DEPTH_METRIC = "num_sequencing_reads"
 METRICS = [
     "num_enh",
     "num_genes",
@@ -39,25 +40,66 @@ def snake_to_title(snake_case):
     return title
 
 
-def plot_violin(stat_dfs, metric):
+def plot_cdf(stats, metric, biosample_type=None):
     plt.clf()
-    points = [df.loc[metric, VALUE_KEY] for df in stat_dfs.values()]
+    points = [df.loc[metric, VALUE_KEY] for df in stats.values()]
+    mean, median = np.mean(points) / 1e6, np.median(points) / 1e6
+    ax = sns.kdeplot(points, fill=True, bw_adjust=0.5, color="blue", label="Density")
+    title = snake_to_title(metric)
+    if biosample_type:
+        title = f"{biosample_type}: {title}"
+
+    ax.set_title(title)
+    plt.xlabel("Data")
+    plt.ylabel("Density")
+    plt.scatter(
+        [], [], label=f"n={len(points)}\nMean={mean:.2f}M\nMedian={median:.2f}M"
+    )
+    plt.legend()
+    return ax.get_figure()
+
+
+def plot_violin(stats, metric, biosample_type=None):
+    plt.clf()
+    points = [df.loc[metric, VALUE_KEY] for df in stats.values()]
     mean, median = np.mean(points), np.median(points)
     ax = sns.violinplot(y=points)
-    ax.set_title(snake_to_title(metric))
+    title = snake_to_title(metric)
+    if biosample_type:
+        title = f"{biosample_type}: {title}"
+
+    ax.set_title(title)
     plt.scatter([], [], label=f"n={len(points)}\nMean={mean:.2f}\nMedian={median:.2f}")
     plt.legend()
     return ax.get_figure()
 
 
-def plot_swarm_box(stat_dfs, metric):
+def plot_swarm_box(stats, metric, biosample_type=None):
     plt.clf()
-    points = [df.loc[metric, VALUE_KEY] for df in stat_dfs.values()]
+    points = [df.loc[metric, VALUE_KEY] for df in stats.values()]
     mean, median = np.mean(points), np.median(points)
     ax = sns.swarmplot(y=points)
     ax = sns.boxplot(y=points)
-    ax.set_title(snake_to_title(metric))
+    title = snake_to_title(metric)
+    if biosample_type:
+        title = f"{biosample_type}: {title}"
+
+    ax.set_title(title)
     plt.scatter([], [], label=f"n={len(points)}\nMean={mean:.2f}\nMedian={median:.2f}")
+    plt.legend()
+    return ax.get_figure()
+
+
+def plot_metric_vs_seq_depth(stats, metric, biosample_type=None):
+    plt.clf()
+    points = [df.loc[metric, VALUE_KEY] for df in stats.values()]
+    seq_depths = [df.loc[SEQ_DEPTH_METRIC, VALUE_KEY] / 1e6 for df in stats.values()]
+    ax = sns.scatterplot(x=seq_depths, y=points, label=f"n={len(points)}")
+    title = f"{snake_to_title(metric)} vs Sequencing Depth"
+    if biosample_type:
+        title = f"{biosample_type}: {title}"
+    ax.set_title(title)
+    plt.xlabel("Sequencing Depth (Millions of Reads)")
     plt.legend()
     return ax.get_figure()
 
@@ -155,22 +197,66 @@ def save_outlier_stats(stat_dfs, metric, pdf_writer):
     pdf_writer.savefig()
 
 
+def split_stats(stats, metadata_df):
+    cell_stats, tissue_stats = {}, {}
+    for cluster, stat in stats.items():
+        try:
+            experiment = [
+                encode_id for encode_id in cluster.split("_") if encode_id.startswith("ENC")
+            ][0]
+            matching_row = metadata_df[
+                metadata_df["DNase Experiment accession"] == experiment
+            ].iloc[0]
+        except Exception as e:
+            import pdb; pdb.set_trace()
+            print()
+        if matching_row["Biosample type"] == "tissue":
+            tissue_stats[cluster] = stat
+        else:
+            cell_stats[cluster] = stat
+
+    return cell_stats, tissue_stats
+
+
 @click.command()
 @click.option("--output_file", type=str, default="qc_plots.pdf")
-@click.option("--y2ave_metadata", type=str)
 @click.argument("stat_files", nargs=-1, type=click.Path(exists=True))
-def main(output_file, stat_files, y2ave_metadata):
+@click.option("--y2ave_metadata", type=str)
+@click.option("--encode_metadata", type=str)
+def main(output_file, stat_files, y2ave_metadata, encode_metadata):
     if y2ave_metadata:
         metadata_df = pd.read_csv(y2ave_metadata, sep="\t")
-    stat_dfs = load_stat_files(stat_files)
+    stats = load_stat_files(stat_files)
+    if encode_metadata:
+        metadata_df = pd.read_csv(encode_metadata, sep="\t")
+        cell_stats, tissue_stats = split_stats(stats, metadata_df)
     with PdfPages(output_file) as pdf_writer:
         add_intro_page(pdf_writer)
+        pdf_writer.savefig(plot_cdf(stats, SEQ_DEPTH_METRIC))
         for metric in METRICS:
-            pdf_writer.savefig(plot_violin(stat_dfs, metric))
-            pdf_writer.savefig(plot_swarm_box(stat_dfs, metric))
-            save_outlier_stats(stat_dfs, metric, pdf_writer)
+            if encode_metadata:
+                for biosample_type, subtype_stats in [
+                    ("All", stats),
+                    ("Cells", cell_stats),
+                    ("Tissues", tissue_stats),
+                ]:
+                    pdf_writer.savefig(
+                        plot_violin(subtype_stats, metric, biosample_type)
+                    )
+                    pdf_writer.savefig(
+                        plot_swarm_box(subtype_stats, metric, biosample_type)
+                    )
+                    pdf_writer.savefig(
+                        plot_metric_vs_seq_depth(subtype_stats, metric, biosample_type)
+                    )
+                    save_outlier_stats(subtype_stats, metric, pdf_writer)
+            else:
+                pdf_writer.savefig(plot_violin(stats, metric))
+                pdf_writer.savefig(plot_swarm_box(stats, metric))
+                pdf_writer.savefig(plot_metric_vs_seq_depth(stats, metric))
+                save_outlier_stats(stats, metric, pdf_writer)
             if y2ave_metadata:
-                pdf_writer.savefig(plot_scatter(stat_dfs, metadata_df, metric))
+                pdf_writer.savefig(plot_scatter(stats, metadata_df, metric))
 
 
 if __name__ == "__main__":

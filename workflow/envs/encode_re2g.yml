@@ -27,5 +27,6 @@ dependencies:
   - r-ggpubr
   - r-ggcorrplot
   - seaborn
+  - samtools
   - matplotlib
   - bioconductor-genomicranges
