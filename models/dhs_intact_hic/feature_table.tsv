@@ -5,5 +5,5 @@ normalizedDNase_prom	normalized_dhs_prom	NA	mean	0	DNase signal at P
 sumNearbyEnhancers	sumNearbyEnhancers	NA	max	0	Activity of other peaks within 5Kb of E
 ubiquitousExpressedGene	is_ubiquitous_uniform	NA	max	0	Ubiquitous expression
 numCandidateEnhGene	numCandidateEnhGene	NA	max	0	# peaks between E and P
-3DContact	hic_contact_pl_scaled_adj	NA	mean	0	Contact frequency
+contactFrequency	hic_contact_pl_scaled_adj	NA	mean	0	Contact frequency
 ABC.Score	ABC.Score	NA	sum	0	ABC score
