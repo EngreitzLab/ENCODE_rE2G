@@ -158,18 +158,3 @@ rule plot_permutation_feature_importance:
 		mem_mb=determine_mem_mb
 	script:
 		"../scripts/model_training/plot_pfi.R"
-
-# rule plot_shape_scores:
-#     input:
-#         shap_scores = os.path.join(),
-#         training_data = os.path.join(),
-#         feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table']
-#     params:
-#         polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial']
-#     output:
-#     conda:
-# 		"../envs/encode_re2g.yml" 
-# 	resources:
-# 		mem_mb=determine_mem_mb
-# 	script:
-# 		"../scripts/model_training/plot_shap_scores.R"
