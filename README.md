@@ -1,7 +1,7 @@
 # ENCODE-rE2G
 > :memo: **Note:** This repo is currently undergoing development. To access the version using for the encode_re2g paper, go to this [version](https://github.com/EngreitzLab/ENCODE_rE2G/tree/1906b6dcd97269374778e67592168c9da2dc455a). There are currently no clear instructions for stitching together the outputs from ABC, e2g features, and e2g, so use at your own discretion. We are working on creating 1 clean pipeline for the future
 
-ENCODE-rE2G is a logistic regression pipeline built on top of [ABC](https://github.com/broadinstitute/ABC-Enhancer-Gene-Prediction). Given a chromatin accessibility input file, it will generate a list of enhancer-gene predictions. You can read the preprint paper [here]([url](https://www.biorxiv.org/content/10.1101/2023.11.09.563812v1)).
+ENCODE-rE2G is a logistic regression pipeline built on top of [ABC](https://github.com/broadinstitute/ABC-Enhancer-Gene-Prediction). Given a chromatin accessibility input file, it will generate a list of enhancer-gene predictions. You can read the preprint paper [here](https://www.biorxiv.org/content/10.1101/2023.11.09.563812v1)
 
 ![image](https://github.com/EngreitzLab/ENCODE_rE2G/assets/10254642/ce6d33b5-2c5f-49cc-8a09-8142f7ac9b62)
 
@@ -17,7 +17,7 @@ We use `ABC` as a submodule, so this command will initialize it and set up your 
 ## Apply A Pretrained model
 You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have h3k27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall.
 
-Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC config. Read more about ABC config [here]([url](https://abc-enhancer-gene-prediction.readthedocs.io/en/latest/usage/getting_started.html#configuring-abc)).
+Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC config. Read more about ABC config [here](https://abc-enhancer-gene-prediction.readthedocs.io/en/latest/usage/getting_started.html#configuring-abc).
 - [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file. 
 
 Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. 
@@ -32,14 +32,13 @@ Output will show up in the `results/` directory
 - Main predictions will be `results/{biosample_name/{Predictions}/encode_e2g_predictions_threshold.{threshold}.tsv.gz`
 
 ### Supported Models
-
 We have pre-trained ENCODE-rE2G on certain model types. You can find them in the `models` directory.
 Each model must have the following:
 1. model pickle file
 2. feature table file
 3. threshold file
 
-The way we choose the model depends on the biosamples input. The code for model selection can be found [here]([url](https://github.com/EngreitzLab/ENCODE_rE2G/blob/main/workflow/rules/utils.smk#L42))
+The way we choose the model depends on the biosamples input. The code for model selection can be found [here](https://github.com/EngreitzLab/ENCODE_rE2G/blob/main/workflow/rules/utils.smk#L42).
 
 ## Train model
 
