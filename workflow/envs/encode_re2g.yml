@@ -10,6 +10,7 @@ dependencies:
   - mamba
   - click
   - csvtk
+  - gzip
   - numpy
   - pandas
   - pyarrow
