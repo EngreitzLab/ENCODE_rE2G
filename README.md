@@ -1,4 +1,4 @@
-![image](https://github.com/EngreitzLab/ENCODE_rE2G/assets/10254642/59486ac6-d888-43ad-b237-00f354e3155e)# ENCODE-rE2G
+# ENCODE-rE2G
 > :memo: **Note:** This repo is currently undergoing development. To access the version using for the encode_re2g paper, go to this [version](https://github.com/EngreitzLab/ENCODE_rE2G/tree/1906b6dcd97269374778e67592168c9da2dc455a). There are currently no clear instructions for stitching together the outputs from ABC, e2g features, and e2g, so use at your own discretion. We are working on creating 1 clean pipeline for the future
 
 ENCODE-rE2G is a logistic regression pipeline built on top of [ABC](https://github.com/broadinstitute/ABC-Enhancer-Gene-Prediction). Given a chromatin accessibility input file, it will generate a list of enhancer-gene predictions. You can read the preprint paper [here]([url](https://www.biorxiv.org/content/10.1101/2023.11.09.563812v1)).
