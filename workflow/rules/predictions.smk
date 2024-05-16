@@ -10,7 +10,7 @@ rule make_biosample_feature_table:  # make feature table per biosample
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=8*1000
+		mem_mb=4*1000
 	script:
 		"../scripts/feature_tables/combine_feature_tables_apply.R"
 
@@ -25,7 +25,7 @@ rule format_external_features_config:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=8*1000
+		mem_mb=4*1000
 	script:
 		"../scripts/feature_tables/format_external_features_config.R"
 
