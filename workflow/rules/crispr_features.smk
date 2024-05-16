@@ -4,6 +4,7 @@ rule make_dataset_feature_table:
 	output:
 		dataset_features = os.path.join(RESULTS_DIR, "{dataset}", "feature_table.tsv")
 	params:
+        model_config = config["model_config"],
 		e2g_path = config["E2G_DIR_PATH"]
 	conda:
 		"../envs/encode_re2g.yml"

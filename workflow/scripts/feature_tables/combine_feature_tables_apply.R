@@ -3,7 +3,7 @@ library(data.table)
 library(dplyr)
 
 # inputs from snakemake
-biosample_config = fread(snakemake@input$biosample_config)
+biosample_config = fread(snakemake@params$biosample_config)
 b = snakemake@wildcards$biosample
 
 # merge feature tables

@@ -6,7 +6,7 @@ def get_accessibility_files(wildcards):
 
 rule get_stats:
 	input:
-		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz"),
 		accessibility = get_accessibility_files
 	params:
 		scripts_dir = SCRIPTS_DIR

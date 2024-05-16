@@ -28,27 +28,6 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
-def make_biosample_config(input_config, biosample_config, results_dir):
-	# Make ABC biosample config with unqiue biosamples from the input  config (in the case that there are duplicated biosamples for different models)
-	df = pd.read_csv(input_config, sep='\t')
-	abc_cols = ["biosample", "DHS", "ATAC", "H3K27ac", "default_accessibility_feature",	"HiC_file",	"HiC_type",	"HiC_resolution",	"alt_TSS",	"alt_genes", "external_features_config"]
-	abc_cols_present = [col for col in abc_cols if col in df.columns]
-	df = df[abc_cols_present].drop_duplicates()
-
-	# return an error if there are duplicate biosample names
-	duplicate_biosamples = df[df.duplicated(subset='biosample', keep=False)]
-	if not duplicate_biosamples.empty:
-		raise ValueError("Duplicate values found in the 'biosample' column.")
-
-	# save dedup config
-	output_dir = os.path.dirname(biosample_config)
-
-	# Create the output directory if it doesn't exist
-	if not os.path.exists(output_dir):
-		os.makedirs(output_dir)
-
-	df.to_csv(biosample_config, sep='\t', index=False)
-
 def _validate_model_dir(potential_dir):
 	files = os.listdir(potential_dir)
 	if "model.pkl" not in files:
