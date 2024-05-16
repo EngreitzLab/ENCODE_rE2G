@@ -1,11 +1,9 @@
-# ENCODE-rE2G
+![image](https://github.com/EngreitzLab/ENCODE_rE2G/assets/10254642/59486ac6-d888-43ad-b237-00f354e3155e)# ENCODE-rE2G
 > :memo: **Note:** This repo is currently undergoing development. To access the version using for the encode_re2g paper, go to this [version](https://github.com/EngreitzLab/ENCODE_rE2G/tree/1906b6dcd97269374778e67592168c9da2dc455a). There are currently no clear instructions for stitching together the outputs from ABC, e2g features, and e2g, so use at your own discretion. We are working on creating 1 clean pipeline for the future
 
-Generate [ENCODE-rE2G](https://github.com/karbalayghareh/ENCODE-E2G) input features based on [ABC](https://github.com/broadinstitute/ABC-Enhancer-Gene-Prediction) output
+ENCODE-rE2G is a logistic regression pipeline built on top of [ABC](https://github.com/broadinstitute/ABC-Enhancer-Gene-Prediction). Given a chromatin accessibility input file, it will generate a list of enhancer-gene predictions. You can read the preprint paper [here]([url](https://www.biorxiv.org/content/10.1101/2023.11.09.563812v1)).
 
-Apply a pre-trained model to new datasets to generate. Put the pretrained model in the config under `models_dir` (see Apply Models for usage)
-
-Train and evaluate models with new features on a K562 dataset, optimized based on CRISPRi validated E-G regulatory interactions (see Train Models for usage)
+![image](https://github.com/EngreitzLab/ENCODE_rE2G/assets/10254642/ce6d33b5-2c5f-49cc-8a09-8142f7ac9b62)
 
 ## Set up
 
@@ -16,9 +14,11 @@ git config --global submodule.recurse true
 ```
 We use `ABC` as a submodule, so this command will initialize it and set up your git config to automatically keep the submodule up to date.
 
-## Apply model
+## Apply A Pretrained model
+You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have h3k27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall.
 
-Modify `config/config.yaml` with your ABC biosamples config
+Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC config. Read more about ABC config [here]([url](https://abc-enhancer-gene-prediction.readthedocs.io/en/latest/usage/getting_started.html#configuring-abc)).
+- [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file. 
 
 Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. 
 
@@ -29,8 +29,7 @@ snakemake -j1 --use-conda
 ```
 
 Output will show up in the `results/` directory
-
-If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file. 
+- Main predictions will be `results/{biosample_name/{Predictions}/encode_e2g_predictions_threshold.{threshold}.tsv.gz`
 
 ### Supported Models
 
@@ -40,8 +39,7 @@ Each model must have the following:
 2. feature table file
 3. threshold file
 
-The way we choose the model depends on the biosamples input. The code for model selection is in
-the utils.smk file, under the `_get_biosample_model_dir` function.
+The way we choose the model depends on the biosamples input. The code for model selection can be found [here]([url](https://github.com/EngreitzLab/ENCODE_rE2G/blob/main/workflow/rules/utils.smk#L42))
 
 ## Train model
 
