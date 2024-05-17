@@ -34,8 +34,8 @@ rule generate_e2g_predictions:
 		final_features = os.path.join(RESULTS_DIR, "{biosample}", "genomewide_features.tsv.gz"),
 	params:
 		epsilon = config["epsilon"],
-		feature_table_file = lambda wildcards: os.path.join(str(BIOSAMPLE_DF.loc[(BIOSAMPLE_DF["biosample"]==wildcards.biosample) & (BIOSAMPLE_DF["model_dir_base"]==wildcards.model_name), "model_dir"]), "feature_table.tsv"),
-		trained_model = lambda wildcards: os.path.join(str(BIOSAMPLE_DF.loc[(BIOSAMPLE_DF["biosample"]==wildcards.biosample) & (BIOSAMPLE_DF["model_dir_base"]==wildcards.model_name), "model_dir"]), "model.pkl"),
+		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample, wildcards.model_name),
+		trained_model = lambda wildcards: get_trained_model(wildcards.biosample, wildcards.model_name),
 		scripts_dir = SCRIPTS_DIR
 	conda:
 		"../envs/encode_re2g.yml"
@@ -57,7 +57,7 @@ rule filter_e2g_predictions:
 	input:
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz")
 	params:
-		threshold = lambda wildcards: BIOSAMPLE_DF.loc[(BIOSAMPLE_DF["biosample"]==wildcards.biosample) &( BIOSAMPLE_DF["model_dir_base"]==wildcards.model_name), "model_threshold"],
+		threshold = lambda wildcards: get_model_threshold(wildcards.biosample, wildcards.model_name),
 		include_self_promoter = config["include_self_promoter"],
 		scripts_dir = SCRIPTS_DIR
 	conda:

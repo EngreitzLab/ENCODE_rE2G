@@ -52,34 +52,8 @@ BIOSAMPLE_ACTIVITES = {
 ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosample in BIOSAMPLE_DF.biosample}
 
 # add model directory path to biosamples df
-if "model_dir" not in BIOSAMPLE_DF.columns:
-	BIOSAMPLE_DF['model_dir']  = np.nan
-BIOSAMPLE_DF['model_dir_base'] = ''
-BIOSAMPLE_DF['model_threshold'] = float(0)
-
-# split rows with multiple model_dir to separate rows
-# function to split rows with multiple file paths into separate rows
-def split_rows(row):
-    model_dirs = str(row['model_dir']).split(',')
-    if len(model_dirs) > 1:
-        new_rows = []
-        for model_dir in model_dirs:
-            new_row = row.copy()
-            new_row['model_dir'] = model_dir.strip()
-            new_rows.append(new_row)
-        return pd.DataFrame(new_rows)
-    else:
-        return pd.DataFrame([row])
-
-new_rows = BIOSAMPLE_DF.apply(split_rows, axis=1)
-BIOSAMPLE_DF = pd.concat(BIOSAMPLE_DF.apply(split_rows, axis=1).tolist(), ignore_index=True)
-BIOSAMPLE_DF = BIOSAMPLE_DF.drop_duplicates()
-
-for index, row in BIOSAMPLE_DF.iterrows():
-	BIOSAMPLE_DF.loc[index, 'model_dir'] = os.path.normpath(_get_biosample_model_dir_from_row(row))
-	BIOSAMPLE_DF.loc[index, 'model_dir_base'] = os.path.basename(os.path.normpath(BIOSAMPLE_DF.loc[index, 'model_dir']))
-	BIOSAMPLE_DF.loc[index, "model_threshold"] = float(get_threshold(BIOSAMPLE_DF.loc[index, "model_dir"]))
-BIOSAMPLE_DF.to_csv(config["ABC_BIOSAMPLES_MODELS"], sep='\t', index=False)
+BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
+print(BIOSAMPLE_DF)
 
 # These rules requires the variables above to be defined
 include: "rules/genomewide_features.smk"
