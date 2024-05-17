@@ -53,7 +53,6 @@ ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosam
 
 # add model directory path to biosamples df
 BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
-print(BIOSAMPLE_DF)
 
 # These rules requires the variables above to be defined
 include: "rules/genomewide_features.smk"
