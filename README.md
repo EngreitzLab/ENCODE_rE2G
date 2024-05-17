@@ -15,7 +15,7 @@ git config --global submodule.recurse true
 We use `ABC` as a submodule, so this command will initialize it and set up your git config to automatically keep the submodule up to date.
 
 ## Apply a pretrained model
-You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have H3K27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall of a [CRISPR-validated E0G links](https://github.com/EngreitzLab/CRISPR_comparison/tree/main). 
+You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have H3K27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall of a [CRISPR-validated E-G links](https://github.com/EngreitzLab/CRISPR_comparison/tree/main). 
 
 Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC config. Read more about ABC config [here](https://abc-enhancer-gene-prediction.readthedocs.io/en/latest/usage/getting_started.html#configuring-abc).
 - [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file.
