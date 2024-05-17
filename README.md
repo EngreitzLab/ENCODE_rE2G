@@ -14,11 +14,11 @@ git config --global submodule.recurse true
 ```
 We use `ABC` as a submodule, so this command will initialize it and set up your git config to automatically keep the submodule up to date.
 
-## Apply A Pretrained model
-You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have h3k27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall.
+## Apply a pretrained model
+You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have H3K27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall of a [CRISPR-validated E0G links](https://github.com/EngreitzLab/CRISPR_comparison/tree/main). 
 
 Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC config. Read more about ABC config [here](https://abc-enhancer-gene-prediction.readthedocs.io/en/latest/usage/getting_started.html#configuring-abc).
-- [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file. 
+- [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file.
 
 Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. 
 
@@ -29,16 +29,19 @@ snakemake -j1 --use-conda
 ```
 
 Output will show up in the `results/` directory
-- Main predictions will be `results/{biosample_name/{Predictions}/encode_e2g_predictions_threshold.{threshold}.tsv.gz`
+- Binarized predictions will be located at `results/{biosample_name}/{model_name}/encode_e2g_predictions_threshold.{threshold}.tsv.gz`
+- Non-thresholded models will be located at `results/{biosample_name}/{model_name}/encode_e2g_predictions.tsv.gz` with the score in a column named "ENCODE-rE2G.Score".
 
 ### Supported Models
 We have pre-trained ENCODE-rE2G on certain model types. You can find them in the `models` directory.
 Each model must have the following:
-1. model pickle file
-2. feature table file
-3. threshold file
+1. model pickle file (`model.pkl` corresponding to `model_full.pkl` from the model training workflow)
+2. feature table file (`feature_table.tsv`, the corresponding feature table file from model training)
+3. threshold file (`threshold_0.XXX` where predictions with a score greater than 0.XXX are binarized as true links.
 
 The way we choose the model depends on the biosamples input. The code for model selection can be found [here](https://github.com/EngreitzLab/ENCODE_rE2G/blob/main/workflow/rules/utils.smk#L42).
+ 
+ To override default model selection and specify a different model (either one you've trained yourself or the extended model), add a column called `model_dir` to your biosample config. Multiple model directories can be specified as a comma-separated list. NOTE: The genome-wide feature tables to reproduce the ENCODE-rE2G_Extended model included in the prediction files on Synapse.org for [K562](https://www.synapse.org/#!Synapse:syn59478344) and [GM12878](https://www.synapse.org/#!Synapse:syn59478343).
 
 ## Train model
 
@@ -46,7 +49,7 @@ The way we choose the model depends on the biosamples input. The code for model 
 - Much of the the model training code was adapted from Alireza Karbalayghareh's [original implementation](https://github.com/karbalayghareh/ENCODE-E2G).
 
 Modify `config/config_training.yaml` with your model and dataset configs
-- `model_config` has columns:  model, dataset, ABC_directory, feature_table, polynomial (do you want to use polynomial features?), and override_params (are there model training parameters you would like to change from the default specfied in `config/config_training.yaml`?)
+- `model_config` has columns:  model, dataset, ABC_directory, feature_table, polynomial (do you want to use polynomial features?), and override_params (are there model training parameters you would like to change from the default logistic regression settings specfied in `config/config_training.yaml`?)
     - See example `model_config` for how to specify override_params. If there are no override_params, leave the column blank but still include the header.
     - Feature tables must be specified for each model (example: `resources/feature_tables`) with columns: feature (name in final table), input_col (name in ABC output), second_input (multiplied by input_col if provided), aggregate_function (how to combine feature values when a CRISPR element overlaps more than one ABC element), fill_value (how to replace NAs), nice_name (used when plotting)
     - Note that trained models generated using polynomial features cannot directly be used in the **Apply model** workflow
@@ -55,7 +58,8 @@ Modify `config/config_training.yaml` with your model and dataset configs
 - If you are including features in addition to those generated within the pipeline (e.g. a value in input_col or second_input of a feature table is not included in `reference_features` in `config/config_training/yaml`), you must also define how to add these values with an external_features_config, which you include in `dataset_config` in the optional column external_features_config:
     - An `external_features_config` has columns feature (corresponding to the missing input_col or second_input value), source_col (column name in the source file), aggregate_function (how to combine values when merging different element definitions), join_by, and source_file
     - join_by must be either "TargetGene" (feature is defined per gene) or "overlap" (feature is defined per element-gene pair)
-    - If join_by is "TargetGene," source_file must be a .tsv with, at minimum, columns source_col and TargetGene. If join_by is "overlap," source_file must be a .tsv with, at minimum, columns chr, start, end, TargetGene, source_col. 
+    - If join_by is "TargetGene," source_file must be a .tsv with, at minimum, columns source_col and TargetGene. If join_by is "overlap," source_file must be a .tsv with, at minimum, columns chr, start, end, TargetGene, source_col.
+
 Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. 
 
 ```
