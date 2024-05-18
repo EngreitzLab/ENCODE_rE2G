@@ -1,11 +1,19 @@
 
-rule write_feature_table: # write feature table to output directory for future reference
-    input:
-        feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample)
-    output:
-        feature_table_here = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
-    run:
-        shell("cat {input.feature_table_file} > {output.feature_table_here}")
+rule make_biosample_feature_table:  # make feature table per biosample
+	input:
+		config["ABC_BIOSAMPLES"]
+	output:
+		biosample_features = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
+	params:
+		model_dirs = lambda wildcards: BIOSAMPLE_DF.loc[BIOSAMPLE_DF['biosample'] == wildcards.biosample]['model_dir'].to_list(),
+		#biosample_config = config["ABC_BIOSAMPLES_MODELS"],
+		e2g_path = config["E2G_DIR_PATH"]
+	conda:
+		"../envs/encode_re2g.yml"
+	resources:
+		mem_mb=4*1000
+	script:
+		"../scripts/feature_tables/combine_feature_tables_apply.R"
 
 # reformat external features config
 rule format_external_features_config:
@@ -18,7 +26,7 @@ rule format_external_features_config:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=8*1000
+		mem_mb=4*1000
 	script:
 		"../scripts/feature_tables/format_external_features_config.R"
 
@@ -27,15 +35,15 @@ rule generate_e2g_predictions:
 		final_features = os.path.join(RESULTS_DIR, "{biosample}", "genomewide_features.tsv.gz"),
 	params:
 		epsilon = config["epsilon"],
-		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
-		trained_model = lambda wildcards: get_trained_model(wildcards.biosample),
+		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample, wildcards.model_name),
+		trained_model = lambda wildcards: get_trained_model(wildcards.biosample, wildcards.model_name),
 		scripts_dir = SCRIPTS_DIR
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
 		mem_mb=determine_mem_mb
 	output: 
-		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz")
+		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz")
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_application/run_e2g.py \
@@ -48,9 +56,9 @@ rule generate_e2g_predictions:
 
 rule filter_e2g_predictions:
 	input:
-		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz")
+		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz")
 	params:
-		threshold = lambda wildcards: get_threshold(wildcards.biosample),
+		threshold = lambda wildcards: get_model_threshold(wildcards.biosample, wildcards.model_name),
 		include_self_promoter = config["include_self_promoter"],
 		scripts_dir = SCRIPTS_DIR
 	conda:
@@ -58,7 +66,7 @@ rule filter_e2g_predictions:
 	resources:
 		mem_mb=determine_mem_mb
 	output:
-		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	shell:
 		"""
 		python {params.scripts_dir}/model_application/threshold_e2g_predictions.py \

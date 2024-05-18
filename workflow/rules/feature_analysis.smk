@@ -158,4 +158,3 @@ rule plot_permutation_feature_importance:
 		mem_mb=determine_mem_mb
 	script:
 		"../scripts/model_training/plot_pfi.R"
-
