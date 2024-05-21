@@ -6,6 +6,7 @@ import pandas as pd
 
 NORMAL_CHROMOSOMES = set(["chr" + str(x) for x in range(1, 23)] + ["chrX"] + ["chrY"])
 
+
 def count_bam_total(bam_file: str) -> int:
     cmd = ["samtools", "idxstat", bam_file]
     result = subprocess.check_output(cmd).decode("utf-8")
@@ -16,6 +17,7 @@ def count_bam_total(bam_file: str) -> int:
     no_alt_chrom_df = df[df["chr"].isin(NORMAL_CHROMOSOMES)]
     return no_alt_chrom_df["mapped_reads"].sum()
 
+
 def get_num_reads(accessibility_files):
     total_counts = 0
     for access_in in accessibility_files:
@@ -25,44 +27,54 @@ def get_num_reads(accessibility_files):
         total_counts += count_bam_total(access_in)
     return total_counts
 
+
 def get_num_enh(df):
     return len(df[["chr", "start", "end"]].drop_duplicates())
+
 
 def get_num_genes(df):
     return len(df["TargetGene"].drop_duplicates())
 
+
 def get_num_enh_gene_links(df):
     return len(df)
+
 
 def get_num_genes_with_1_enh_min(df):
     genes = df.groupby(["TargetGene"]).size()
     return len(genes[genes > 0])
 
+
 def get_mean_num_genes_per_enh(df):
     enh = df[["chr", "start", "end"]].groupby(["chr", "start", "end"]).size()
     return enh.mean()
 
+
 def get_mean_num_enh_per_gene(df):
     genes = df.groupby(["TargetGene"]).size()
     return genes.mean()
+
 
 def get_mean_num_enh_per_gene_no_prom(df):
     df = df[df["class"] != "promoter"]
     genes = df.groupby(["TargetGene"]).size()
     return genes.mean()
 
+
 def get_mean_log_dist_to_tss(df):
     log_dist = df["distanceToTSS"].apply(np.log10)
     log_dist = log_dist.replace(-np.inf, 0)
     return log_dist.mean()
 
-def get_mean_enh_region_size(df):  
+
+def get_mean_enh_region_size(df):
     enh = df.groupby(["chr", "start", "end"])
     sizes = []
     for (_, start, end), _ in enh:
-        sizes.append(end-start)
+        sizes.append(end - start)
     sizes = pd.Series(sizes)
     return sizes.mean()
+
 
 @click.command()
 @click.option("--predictions", type=str, required=True)
@@ -87,6 +99,7 @@ def main(predictions, accessibility, output_file):
     values = [stat[1] for stat in stats]
     df = pd.DataFrame({"Metric": metric, "Value": values})
     df.to_csv(output_file, sep="\t", index=False)
+
 
 if __name__ == "__main__":
     main()

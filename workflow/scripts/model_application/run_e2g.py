@@ -6,6 +6,7 @@ import pandas as pd
 
 MODEL = "ENCODE-rE2G"
 
+
 def make_e2g_predictions(df_enhancers, feature_list, trained_model, epsilon):
     # transform the features
     X = df_enhancers.loc[:, feature_list]
@@ -16,6 +17,7 @@ def make_e2g_predictions(df_enhancers, feature_list, trained_model, epsilon):
     probs = model.predict_proba(X)
     df_enhancers[MODEL + ".Score"] = probs[:, 1]
     return df_enhancers
+
 
 @click.command()
 @click.option("--predictions", required=True)
@@ -35,6 +37,7 @@ def main(predictions, feature_table_file, trained_model, epsilon, output_file):
         df_enhancers, feature_list, trained_model, epsilon
     )
     df_enhancers.to_csv(output_file, compression="gzip", sep="\t", index=False)
+
 
 if __name__ == "__main__":
     main()
