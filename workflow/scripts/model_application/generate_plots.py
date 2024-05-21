@@ -202,13 +202,17 @@ def split_stats(stats, metadata_df):
     for cluster, stat in stats.items():
         try:
             experiment = [
-                encode_id for encode_id in cluster.split("_") if encode_id.startswith("ENC")
+                encode_id
+                for encode_id in cluster.split("_")
+                if encode_id.startswith("ENC")
             ][0]
             matching_row = metadata_df[
                 metadata_df["DNase Experiment accession"] == experiment
             ].iloc[0]
         except Exception as e:
-            import pdb; pdb.set_trace()
+            import pdb
+
+            pdb.set_trace()
             print()
         if matching_row["Biosample type"] == "tissue":
             tissue_stats[cluster] = stat
