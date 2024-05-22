@@ -1,9 +1,9 @@
 feature	input_col	second_input	aggregate_function	fill_value	nice_name
-numTSSEnhGene	numTSSEnhGene		max	0	# TSSs between E and P
-distanceToTSS	distance		min		Distance to TSS
-normalizedATAC_prom	normalized_atac_prom		mean	0	ATAC signal at P
-sumNearbyEnhancers	sumNearbyEnhancers		max	0	Activity of other peaks within 5Kb of E
-ubiquitousExpressedGene	is_ubiquitous_uniform		max	0	Ubiquitous expression
-numCandidateEnhGene	numCandidateEnhGene		max	0	# peaks between E and P
-contactFrequency	hic_contact_pl_scaled_adj		mean	0	Contact frequency
-ABC.Score	ABC.Score		sum	0	ABC score
+numTSSEnhGene	numTSSEnhGene	NA	max	0	# TSSs between E and P
+distanceToTSS	distance	NA	min	NA	Distance to TSS
+normalizedH3K27ac_prom	normalized_h3k27ac_prom	NA	mean	0	H3K2ac signal at P
+sumNearbyEnhancers	sumNearbyEnhancers	NA	max	0	Activity of other peaks within 5Kb of E
+ubiquitousExpressedGene	is_ubiquitous_uniform	NA	max	0	Ubiquitous expression
+numCandidateEnhGene	numCandidateEnhGene	NA	max	0	# peaks between E and P
+contactFrequency	hic_contact_pl_scaled_adj	NA	mean	0	Contact frequency
+ABC.Score	ABC.Score	NA	sum	0	ABC score
