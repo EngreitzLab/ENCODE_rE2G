@@ -15,6 +15,8 @@ jobs:
     # CircleCI will report the results back to your VCS provider.
     steps:
       - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
           name: Install basic OS pkgs
           command: apt-get update && apt-get -y install curl vim
@@ -32,7 +34,7 @@ jobs:
           name: Run tests
           no_output_timeout: 30m
           command: |
-            conda run -n encode_re2g pytest -n 4
+            conda run -n encode_re2g pytest -n 4 tests/
 
 workflows:
   my-workflow:
