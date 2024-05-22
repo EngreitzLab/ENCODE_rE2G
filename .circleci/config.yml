@@ -5,25 +5,18 @@
 # https://circleci.com/docs/language-python/ for more details
 version: 2.1
 
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/orb-intro/
 orbs:
-  # See the Python orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@2.1.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
-    # These next lines defines a Docker executors: https://circleci.com/docs/executor-types/
-    # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
-    # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
-    # The executor is the environment in which the steps below will be executed
+  build-and-test: 
     docker:
       - image: condaforge/mambaforge
     # CircleCI will report the results back to your VCS provider.
     steps:
       - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
           name: Install basic OS pkgs
           command: apt-get update && apt-get -y install curl vim
@@ -37,11 +30,13 @@ jobs:
           no_output_timeout: 30m
           command: |
             mamba env create -f workflow/envs/encode_re2g.yml
+      - run:
+          name: Run tests
+          no_output_timeout: 30m
+          command: |
+            conda run -n encode_re2g pytest -s -n 4 tests/
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  my-workflow:
     jobs:
       - build-and-test

@@ -1,4 +1,5 @@
 results/
 .vscode/
 .snakemake/
-__pycache__
+__pycache__/
+tests/test_output

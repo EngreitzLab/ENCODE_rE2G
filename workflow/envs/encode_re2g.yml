@@ -15,6 +15,7 @@ dependencies:
   - pandas
   - pyarrow
   - python>=3.6
+  - pytest-xdist
   - pigz
   - snakemake>=7,<8
   - scikit-learn=1.2.1  # Must match with ENCODE-rE2G version
