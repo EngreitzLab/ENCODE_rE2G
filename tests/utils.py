@@ -1,18 +1,8 @@
-import gzip
 import logging
 import subprocess
-from typing import Callable, List, Dict
+from typing import List, Dict
 
 import pandas as pd
-
-
-def read_file(file_name: str) -> str:
-    open_fn: Callable = open
-    if file_name.endswith(".gz"):
-        open_fn = gzip.open
-
-    with open_fn(file_name, "r") as f:
-        return "".join(sorted(f.readlines()))
 
 
 def get_filtered_dataframe(file: str, cols_to_compare: Dict[str, type]) -> pd.DataFrame:

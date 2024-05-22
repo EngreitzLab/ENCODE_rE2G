@@ -34,7 +34,7 @@ jobs:
           name: Run tests
           no_output_timeout: 30m
           command: |
-            conda run -n encode_re2g pytest -n 4 tests/
+            conda run -n encode_re2g pytest -s -n 4 tests/
 
 workflows:
   my-workflow:
