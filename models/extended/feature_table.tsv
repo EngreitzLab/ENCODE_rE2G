@@ -43,4 +43,4 @@ normalizedEP300_enh	normalizedEP300_enh	NA	mean	0	EP300 signal at E
 normalizedDNase_enh	normalized_dhs_enh	NA	mean	0	DNase signal at E
 normalizedDNase_prom	normalized_dhs_prom	NA	mean	0	DNase signal at P
 normalizedH3K27ac_enh	normalized_h3k27ac_enh	NA	mean	0	H3K27ac signal at E
-normalizedH3K27ac_prom	normalized_h3k27ac_prom	NA	mean	0	H3K2ac signal at P
+normalizedH3K27ac_prom	normalized_h3k27ac_prom	NA	mean	0	H3K27ac signal at P
