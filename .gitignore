@@ -3,3 +3,5 @@ results/
 .snakemake/
 __pycache__/
 tests/test_output
+config/config_biosamples.tsv
+config/config_models.tsv

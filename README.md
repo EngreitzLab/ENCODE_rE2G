@@ -20,6 +20,7 @@ We use `ABC` as a submodule, so this command will initialize it and set up your 
 You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have H3K27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall of a [CRISPR-validated E-G links](https://github.com/EngreitzLab/CRISPR_comparison/tree/main). 
 
 Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC config. Read more about ABC config [here](https://abc-enhancer-gene-prediction.readthedocs.io/en/latest/usage/getting_started.html#configuring-abc).
+- We have not trained powerlaw models. If you don't have cell specific hic, opt to use megamap hic instead: https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic. Megamap is a culmination of hic across many different tissues. 
 - [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file.
 
 Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. 
@@ -29,6 +30,7 @@ mamba env create -f workflow/envs/encode_re2g.yml
 conda activate encode_re2g
 snakemake -j1 --use-conda
 ```
+Based on your biosample config, we will find the right model to use for you. If we haven't trained that model before, an exception will get raised. 
 
 Output will show up in the `results/` directory
 - Binarized predictions will be located at `results/{biosample_name}/{model_name}/encode_e2g_predictions_threshold.{threshold}.tsv.gz`
@@ -70,3 +72,6 @@ conda activate encode_re2g
 snakemake -s workflow/Snakefile_training -j1 --use-conda
 ```
 
+### Output
+`results/{biosample_name}/{model_name}/model_name/model_full.pkl`: full model trained on all chromosomes
+`results/{biosample_name}/{model_name}/model/training_predictions.tsv`: rE2G predictions on CRISPR training data, using leave 1 chromosome out models
