@@ -1,3 +1,2 @@
 model	dataset	ABC_directory	feature_table	polynomial	override_params
 DNase_megamap	K562_chr22		resources/feature_tables/final_feature_set_DNase_hic.tsv	False 	
-DNase_megamap_elastic_0.1	DNase_megamap		resources/feature_tables/final_feature_set_DNase_hic.tsv	False 	{'solver': 'saga', 'penalty': 'elasticnet', 'l1_ratio': 0.1}
