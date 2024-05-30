@@ -45,7 +45,7 @@ Each model must have the following:
 
 The way we choose the model depends on the biosamples input. The code for model selection can be found [here](https://github.com/EngreitzLab/ENCODE_rE2G/blob/main/workflow/rules/utils.smk#L42).
  
- To override default model selection and specify a different model (either one you've trained yourself or the extended model), add a column called `model_dir` to your biosample config. Multiple model directories can be specified as a comma-separated list. NOTE: The genome-wide feature tables to reproduce the ENCODE-rE2G_Extended model included in the prediction files on Synapse.org for [K562](https://www.synapse.org/#!Synapse:syn59478344) and [GM12878](https://www.synapse.org/#!Synapse:syn59478343).
+ To override default model selection and specify a different model (either one you've trained yourself or the extended model), add a column called `model_dir` to your biosample config. Multiple model directories can be specified as a comma-separated list. NOTE: The genome-wide feature tables to reproduce the ENCODE-rE2G_Extended model included in the prediction files on Synapse.org for [K562](https://www.synapse.org/#!Synapse:syn59478344) and [GM12878](https://www.synapse.org/#!Synapse:syn59478343). To use these feature tables, download the feature tables and remove the ".Feature" suffix from feature name columns.
 
 ## Train model
 
@@ -54,7 +54,7 @@ The way we choose the model depends on the biosamples input. The code for model 
 
 Modify `config/config_training.yaml` with your model and dataset configs
 - `model_config` has columns:  model, dataset, ABC_directory, feature_table, polynomial (do you want to use polynomial features?), and override_params (are there model training parameters you would like to change from the default logistic regression settings specfied in `config/config_training.yaml`?)
-    - See example `model_config` for how to specify override_params. If there are no override_params, leave the column blank but still include the header.
+    - See [this example](https://pastebin.com/zt1868R3) `model_config` for how to specfiy override parameters. If there are no override_params, leave the column blank but still include the header.
     - Feature tables must be specified for each model (example: `resources/feature_tables`) with columns: feature (name in final table), input_col (name in ABC output), second_input (multiplied by input_col if provided), aggregate_function (how to combine feature values when a CRISPR element overlaps more than one ABC element), fill_value (how to replace NAs), nice_name (used when plotting)
     - Note that trained models generated using polynomial features cannot directly be used in the **Apply model** workflow
 - `dataset_config` is an ABC biosamples config to generate ABC predictions for datasets without an existing ABC directory. 
