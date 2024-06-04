@@ -13,6 +13,7 @@ jobs:
     docker:
       - image: condaforge/mambaforge
     # CircleCI will report the results back to your VCS provider.
+    resource_class: large
     steps:
       - checkout
       - run: git submodule sync
