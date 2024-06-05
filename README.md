@@ -1,4 +1,4 @@
-CircleCI [![CircleCI](https://dl.circleci.com/status-badge/img/gh/EngreitzLab/ENCODE_rE2G/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/EngreitzLab/ENCODE_rE2G/tree/main)
+CircleCI [![CircleCI](https://dl.circleci.com/status-badge/img/gh/EngreitzLab/ENCODE_rE2G.svg?style=svg)](https://app.circleci.com/pipelines/github/EngreitzLab/ENCODE_rE2G?branch=main)
 
 # ENCODE-rE2G
 > :memo: **Note:** This repo is currently undergoing development. To access the version using for the encode_re2g paper, go to this [version](https://github.com/EngreitzLab/ENCODE_rE2G/tree/1906b6dcd97269374778e67592168c9da2dc455a). There are currently no clear instructions for stitching together the outputs from ABC, e2g features, and e2g, so use at your own discretion. We are working on creating 1 clean pipeline for the future
