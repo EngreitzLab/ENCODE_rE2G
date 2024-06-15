@@ -15,9 +15,9 @@ for (i in 1:nrow(models_this)){
 
 # for sc-E2G pipeline
 if (("ARC.E2G.Score" %in% df$feature) | ("Kendall" %in% df$feature)){
-	gene_expr_row = data.frame("meanLogNormRNA", "mean_log_normalized_rna", NA, "mean", "overlap", "Mean log normalized RNA expression"); names(gene_expr_row) = colnames(df)
-	Kendall_row = data.frame("Kendall", "Kendall", NA, "max", "overlap", "Kendall correlation"); names(Kendall_row) = colnames(df)
-	ARC_row = data.frame("ARC.E2G.Score", "ARC.E2G.Score", NA, "mean", "overlap", "ARC-E2G score"); names(ARC_row) = colnames(df)
+	gene_expr_row = data.frame("meanLogNormRNA", "mean_log_normalized_rna", NA, "mean", 0, "Mean log normalized RNA expression"); names(gene_expr_row) = colnames(df)
+	Kendall_row = data.frame("Kendall", "Kendall", NA, "max", 0, "Kendall correlation"); names(Kendall_row) = colnames(df)
+	ARC_row = data.frame("ARC.E2G.Score", "ARC.E2G.Score", NA, "mean", 0, "ARC-E2G score"); names(ARC_row) = colnames(df)
 	df = bind_rows(df, gene_expr_row, Kendall_row, ARC_row)
 }
 
