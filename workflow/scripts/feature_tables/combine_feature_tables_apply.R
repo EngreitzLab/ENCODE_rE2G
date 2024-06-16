@@ -12,10 +12,15 @@ for (i in 1:length(model_dirs)){
 
 # for sc-E2G pipeline
 if (("ARC.E2G.Score" %in% df$feature) | ("Kendall" %in% df$feature)){
-	gene_expr_row = data.frame("meanLogNormRNA", "mean_log_normalized_rna", NA, "mean", 0, "Mean log normalized RNA expression"); names(gene_expr_row) = colnames(df)
-	Kendall_row = data.frame("Kendall", "Kendall", NA, "max", 0, "Kendall correlation"); names(Kendall_row) = colnames(df)
-	ARC_row = data.frame("ARC.E2G.Score", "ARC.E2G.Score", NA, "mean", 0, "ARC-E2G score"); names(ARC_row) = colnames(df)
-	df = bind_rows(df, gene_expr_row, Kendall_row, ARC_row)
+	ARC_rows = data.frame(c("RNA_meanLogNorm", "RNA_pseudobulkTPM", "RNA_percentCellsDetected", "Kendall", "ARC.E2G.Score"),
+		c("mean_log_normalized_rna", "RnaPseudobulkTPM", "RnaDetectedPercent", "Kendall", "ARC.E2G.Score"),
+		c(NA, NA, NA, NA, NA),
+		c("mean", "mean", "mean", "max", "mean"),
+		c(0, 0, 0, 0, 0),
+		c("Mean log normalized RNA expression", "RNA pseudobulk TPM", "RNA percent cells detected", "Kendall correlation", "ARC-E2G Score"));
+	names(ARC_rows) = colnames(df)
+	
+	df = rbind(df, ARC_rows)
 }
 
 df = dplyr::distinct(df)
