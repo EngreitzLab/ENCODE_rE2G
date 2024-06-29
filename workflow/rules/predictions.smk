@@ -75,3 +75,28 @@ rule filter_e2g_predictions:
 			--include_self_promoter {params.include_self_promoter} \
 			--output_file {output.thresholded}
 		"""
+rule combine_filter_e2g_predictions:
+	input:
+		thresholded=expand(os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{{threshold}}.tsv.gz"), biosample=BIOSAMPLE_DF["biosample"].to_list())
+	output:
+		combined_thresholded=os.path.join(RESULTS_DIR, "combined_Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+	resources:
+		mem_mb=8*1000
+	conda:
+		"../envs/encode_re2g.yml"
+	threads: 8
+	shell:
+		"""
+		i=0
+        for sample in {input.thresholded}
+        do 
+            if [ $i -eq 0 ]
+            then
+                zcat $sample |pigz -p{threads} > {output.combined_thresholded}
+            else
+                zcat $sample |sed 1d | pigz -p{threads} >> {output.combined_thresholded}
+            fi
+            ((i=i+1))
+        done
+		"""
+

@@ -58,6 +58,7 @@ BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
 include: "rules/genomewide_features.smk"
 include: "rules/predictions.smk"
 include: "rules/qc.smk"
+include: "rules/process_e2g_output.smk"
 
 rule all:
 	input: 
@@ -68,4 +69,6 @@ rule all:
 			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
+		expand(os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
+				                        model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]),
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
