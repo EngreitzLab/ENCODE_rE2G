@@ -1,6 +1,7 @@
 def get_accessibility_files(wildcards):
 	# Inputs have been validated so only DHS or ATAC is provided
 	biosample = BIOSAMPLE_DF[BIOSAMPLE_DF["biosample"] == wildcards.biosample].iloc[0]
+	biosample=biosample.fillna(value="")
 	files = biosample["DHS"] or biosample["ATAC"]
 	return files.split(",")
 

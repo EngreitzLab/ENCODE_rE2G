@@ -52,6 +52,7 @@ ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosam
 include: "rules/genomewide_features.smk"
 include: "rules/predictions.smk"
 include: "rules/qc.smk"
+include: "rules/process_e2g_output.smk"
 
 rule all:
 	input: 
@@ -59,4 +60,5 @@ rule all:
 			os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions.tsv.gz"), biosample=BIOSAMPLES
 		),
 		[os.path.join(RESULTS_DIR, f"{biosample}", "Metrics", f"encode_e2g_predictions_threshold{get_threshold(biosample)}_stats.tsv") for biosample in BIOSAMPLES],
+		[os.path.join(RESULTS_DIR, f"{biosample}", "Predictions", f"encode_e2g_predictions_threshold{get_threshold(biosample)}.bedpe") for biosample in BIOSAMPLES],
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
