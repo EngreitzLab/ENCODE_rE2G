@@ -22,7 +22,9 @@ def threshold_predictions(all_putative, threshold, score_column, include_self_pr
 @click.option("--score_column", type=float, required=True)
 @click.option("--include_self_promoter", type=bool, default=True)
 @click.option("--output_file", required=True)
-def main(all_predictions_file, threshold, score_column, include_self_promoter, output_file):
+def main(
+    all_predictions_file, threshold, score_column, include_self_promoter, output_file
+):
     all_predictions = pd.read_csv(all_predictions_file, sep="\t")
     filtered_predictions = threshold_predictions(
         all_predictions, threshold, score_column, include_self_promoter
