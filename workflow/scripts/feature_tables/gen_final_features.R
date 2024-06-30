@@ -45,7 +45,7 @@ df <- replace_na(df, replace = fill_values)
 core_cols <- c(
   "chr", "start", "end", "name", "class", "TargetGene", "TargetGeneTSS",
   "TargetGeneIsExpressed", "TargetGeneEnsembl_ID", "isSelfPromoter",
-  "CellType", "distance"
+  "CellType", "distance", "ABC.Score"
 )
 core_cols <- core_cols[!core_cols %in% input_features] # remove core_cols that were renamed
 output <- select(df, all_of(core_cols), all_of(config$feature))
