@@ -22,7 +22,11 @@ if (polynomial=="FALSE" || polynomial == "False"){
   ft_names = dplyr::select(feature_table, feature, nice_name)
   ft_names %>% add_row(feature='None', nice_name='None')
   df = left_join(df, ft_names, by=c("feature_permuted"="feature"))
-  df$feature_permuted = ifelse(!(is.na(df$nice_name) || df$nice_name==""), df$nice_name, df$feature)
+	for (i in 1:nrow(df)){
+		if (!is.na(df$nice_name[i]) || df$nice_name[i]!=""){
+			df$feature_permuted[i] = df$nice_name[i]
+		}
+	}
 }
 
 # define y-label using n_repeats
