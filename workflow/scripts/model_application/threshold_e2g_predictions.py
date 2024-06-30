@@ -19,7 +19,7 @@ def threshold_predictions(all_putative, threshold, score_column, include_self_pr
 @click.command()
 @click.option("--all_predictions_file", required=True)
 @click.option("--threshold", type=float, required=True)
-@click.option("--score_column", type=float, required=True)
+@click.option("--score_column", required=True)
 @click.option("--include_self_promoter", type=bool, default=True)
 @click.option("--output_file", required=True)
 def main(
