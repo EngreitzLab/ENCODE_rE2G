@@ -24,3 +24,4 @@ ABC_DIR_PATH: "ABC"
 # Only relevant when using e2g as a submodule
 E2G_DIR_PATH: ""
 model_dir: "models"
+final_score_col: "ENCODE-rE2G.Score"

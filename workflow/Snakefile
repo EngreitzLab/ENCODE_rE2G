@@ -18,6 +18,11 @@ config = make_paths_absolute(config, E2G_DIR_PATH)
 # If results_dir is already an absolute path, this is a no-op
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
 MODEL_DIR = config["model_dir"]
+# set direcotry to write bedpe files for viewing in IGV
+if "IGV_dir" in config:
+	IGV_DIR = os.path.abspath(config["IGV_dir"])
+else:
+	IGV_DIR = config["results_dir"]
 
 config["ABC_BIOSAMPLES_MODELS"] = os.path.join(config["results_dir"], "config_biosamples_models.tsv")
 if not os.path.exists(config["results_dir"]):
@@ -66,6 +71,10 @@ rule all:
 		),
 		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
+			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+		),
+		expand(
+			os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
