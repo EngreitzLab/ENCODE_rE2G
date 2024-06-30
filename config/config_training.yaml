@@ -35,3 +35,4 @@ ABC_DIR_PATH: "ABC"
 # e2g path to prepend to reference and script files
 # Only relevant when using e2g as a submodule
 E2G_DIR_PATH: "."
+final_score_col: "ENCODE-rE2G.Score"
