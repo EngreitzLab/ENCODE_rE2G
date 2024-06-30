@@ -47,6 +47,11 @@ rule activity_only_features:
 		"../scripts/feature_tables/activity_only_features.R"
 
 # add external features
+if config["final_score_col"] == "ENCODE-rE2G.Score.qnorm": # if sc-E2G
+	min_mem = 32
+else:
+	min_mem = 8
+
 rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
@@ -57,7 +62,7 @@ rule add_external_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb  # May need to increase if utilizing many external features (e.g extended model)
+		mem_mb=partial(determine_mem_mb, min_gb=min_mem)  
 	script:
 		"../scripts/feature_tables/merge_external_features.R"
 
