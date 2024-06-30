@@ -18,6 +18,7 @@ if (("ARC.E2G.Score" %in% df$feature) | ("Kendall" %in% df$feature)){
 		c("mean", "mean", "mean", "max", "mean"),
 		c(0, 0, 0, 0, 0),
 		c("Mean log normalized RNA expression", "RNA pseudobulk TPM", "RNA percent cells detected", "Kendall correlation", "ARC-E2G score"));
+
 	colnames(ARC_rows) = colnames(df)
 	
 	df = rbind(df, ARC_rows)
