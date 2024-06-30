@@ -60,6 +60,7 @@ rule filter_e2g_predictions:
 	params:
 		threshold = lambda wildcards: get_model_threshold(wildcards.biosample, wildcards.model_name),
 		include_self_promoter = config["include_self_promoter"],
+		score_col = config["final_score_col"],
 		scripts_dir = SCRIPTS_DIR
 	conda:
 		"../envs/encode_re2g.yml"
@@ -72,6 +73,28 @@ rule filter_e2g_predictions:
 		python {params.scripts_dir}/model_application/threshold_e2g_predictions.py \
 			--all_predictions_file {input.prediction_file} \
 			--threshold {params.threshold} \
+			--score_column {params.score_col} \
 			--include_self_promoter {params.include_self_promoter} \
 			--output_file {output.thresholded}
 		"""
+
+rule write_predictions_bedpe:
+	input:
+		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+	params:
+		score_col = config["final_score_col"],
+		scripts_dir = SCRIPTS_DIR
+	output:
+		bedpe = os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe")
+	conda:
+		"../envs/encode_re2g.yml"
+	resources:
+		mem_mb=determine_mem_mb
+	shell:
+		"""
+		python {params.scripts_dir}/model_application/process_model_output.py \
+			--predictions_file {input.thresholded} \
+			--score_column {params.score_col} \
+			--bedpe_output {output.bedpe}
+		"""
+	
