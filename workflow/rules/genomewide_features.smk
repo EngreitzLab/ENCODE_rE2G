@@ -136,7 +136,7 @@ rule generate_num_sum_enhancers:
 			--distance_threshold_kb {wildcards.kb} \
 			--chr_sizes {params.chr_sizes} \
 			--enh_midpoint {output.enhMidpoint} \
-			--enh_expanded (output.enhExpanded) \
+			--enh_expanded {output.enhExpanded} \
 			--pred_slim {output.predSlim} \
 			--enh_pred_int {output.enhPredInt} \
 			--out_num {output.NumEnhancersEG} \
