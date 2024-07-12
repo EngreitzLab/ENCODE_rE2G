@@ -107,9 +107,7 @@ def main(
     enh_df = pd.read_csv(
         enhancer_list, sep="\t", usecols=["chr", "start", "end", "name"]
     )
-    distance_threshold = (
-        int(distance_threshold_kb) * 1000
-    )  # convert from kb to bp
+    distance_threshold = int(distance_threshold_kb) * 1000  # convert from kb to bp
 
     generate_num_sum_enhancers(
         abc_predictions,
