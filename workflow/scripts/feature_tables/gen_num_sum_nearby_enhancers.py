@@ -16,7 +16,7 @@ def generate_num_sum_enhancers(
     out_sum,
 ):
     # write enhancer midpoint file
-    enh_df["midpoint"] = int(((enh_df["start"] + enh_df["end"]) / 2))
+    enh_df["midpoint"] = ((enh_df["start"] + enh_df["end"]) / 2).to_numeric()
     enh_df[["chr", "midpoint", "midpoint", "name"]].to_csv(
         enh_midpoint,
         sep="\t",
