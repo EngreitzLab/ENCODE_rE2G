@@ -12,7 +12,10 @@ output_file_prec = (snakemake@output$comp_plot_prec)
 
 df = fread(input_file, sep="\t")
 use_colors = dplyr::n_distinct(df$dataset) <= 10 # only color by dataset if 10 or fewer datasets
-df$dataset = ifelse(use_colors, df$dataset, 'filler')
+if (!use_colors){
+	df$model=paste0(df$dataset,"\n",df$model)
+	df$dataset="filler"
+}
 
 # plot auprc
 auprc = ggplot(df, aes(x = reorder(model, -AUPRC), y = AUPRC, fill = dataset)) +
