@@ -122,8 +122,8 @@ rule generate_num_sum_enhancers:
 	resources:
 		mem_mb=partial(determine_mem_mb, min_gb=16)
 	output: 
-		NumEnhancersEG5 = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumEnhancersEG{kb}kb.txt"),
-		SumEnhancersEG5 = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "SumEnhancersEG{kb}kb.txt"),
+		NumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumEnhancersEG{kb}kb.txt"),
+		SumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "SumEnhancersEG{kb}kb.txt"),
 		enhMidpoint = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_{kb}kb.txt")),
 		enhExpanded = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_exp{kb}kb.txt")),
 		predSlim = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "EnhancerPredictionsAllPutative_{kb}kb.slim.txt")),
