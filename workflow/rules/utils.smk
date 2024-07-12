@@ -28,6 +28,28 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
+def expand_biosample_df(biosample_df):
+	# add new columns
+	if "model_dir" not in biosample_df.columns:
+		biosample_df['model_dir']  = np.nan
+	biosample_df['model_dir_base'] = ''
+	biosample_df['model_threshold'] = float(0)
+
+	new_rows = []
+	for index, row in biosample_df.iterrows():
+		if pd.isna(row['model_dir']):
+			biosample_df.loc[index, "model_dir"] = os.path.normpath(_get_biosample_model_dir_from_row(row)) # infer model directory if not specified
+		
+		for model_dir in biosample_df.loc[index, 'model_dir'].split(','):
+			new_row = row.copy()
+			new_row['model_dir'] = model_dir
+			new_row['model_dir_base'] = os.path.basename(model_dir)
+			new_rows.append(new_row)
+	new_df = pd.DataFrame(new_rows)
+	new_df['model_threshold'] = [float(get_model_threshold(this_biosample, this_model, new_df)) for this_biosample, this_model in zip(new_df['biosample'], new_df['model_dir_base'])]
+
+	return(new_df)
+
 def _validate_model_dir(potential_dir):
 	files = os.listdir(potential_dir)
 	if "model.pkl" not in files:
@@ -39,50 +61,52 @@ def _validate_model_dir(potential_dir):
 	elif sum(s.startswith("threshold_") for s in files) > 1:
 		raise Exception("More than one threshold is provided in the specified model directory")
 
-def _get_biosample_model_dir(biosample):	
-	row = BIOSAMPLE_DF.loc[BIOSAMPLE_DF["biosample"] == biosample].iloc[0]
+def _get_model_dir_from_wildcards(biosample, model_name, biosample_df=None):
+	if biosample_df is None:
+		df = BIOSAMPLE_DF
+	else:
+		df = biosample_df
+	model_dir = df.loc[(df["biosample"]==biosample) & (df["model_dir_base"]==model_name), "model_dir"]
+	return (model_dir.values[0])
+
+def _get_biosample_model_dir_from_row(row):
 	# if user has explicitly defined model_dir, use by default
 	if "model_dir" in BIOSAMPLE_DF.columns:
 		if pd.notna(row["model_dir"]):
 			_validate_model_dir(row["model_dir"])
 			return row["model_dir"]
 
-	# infer model choice from biosample config
 	access_type = row["default_accessibility_feature"].lower()
+	input_params = [access_type]
+	if not pd.isna(row["H3K27ac"]):
+		input_params.append("h3k27ac")
+
 	hic_file = row["HiC_file"]
 	if pd.isna(hic_file):
-		raise Exception("No model found for powerlaw")
-		# return os.path.join(MODEL_DIR, f"{access_type}_powerlaw")
+		input_params.append("powerlaw")
+	elif row["HiC_type"] == "avg":
+		input_params.append("avg_hic")
+	elif os.path.basename(hic_file) == os.path.basename(config["MEGAMAP_HIC_FILE"]):
+		input_params.append("megamap")
+	elif row["HiC_type"] == "hic":
+		input_params.append("intact_hic")
 	
-	if pd.notna(row["H3K27ac"]):
-		raise Exception("H3K27ac model not supported")
-	
-	if row["HiC_type"] == "avg":
-		raise Exception("No model found for avg hic")
-		# return os.path.join(MODEL_DIR, f"{access_type}_avg_hic")
-	
-	if hic_file == config["MEGAMAP_HIC_FILE"]:
-		if access_type=="atac":
-			return os.path.join(MODEL_DIR, "multiome_megamap_test")
-		else: # dnase 
-			return os.path.join(MODEL_DIR, f"{access_type}_megamap")
+	model_folder = os.path.join(MODEL_DIR, "_".join(input_params))
+	if not os.path.exists(model_folder):
+		raise Exception(f"{model_folder} not found. Model with input params not supported")
+	return model_folder
 
-	else:
-		# assume intact hi-c
-		if access_type=="atac":
-			return os.path.join(MODEL_DIR, "multiome_intact_hic_test") # enable testing of sc-E2G pipeline
-		return os.path.join(MODEL_DIR, f"{access_type}_intact_hic")
-
-def get_feature_table_file(biosample):
-	model_dir = _get_biosample_model_dir(biosample)
+def get_feature_table_file(biosample, model_name): 
+	model_dir = _get_model_dir_from_wildcards(biosample, model_name)
 	return os.path.join(model_dir, "feature_table.tsv")
 
-def get_trained_model(biosample):
-	model_dir = _get_biosample_model_dir(biosample)
+def get_trained_model(biosample, model_name):
+	model_dir = _get_model_dir_from_wildcards(biosample, model_name)
 	return os.path.join(model_dir, "model.pkl")
 
-def get_threshold(biosample):
-	model_dir = _get_biosample_model_dir(biosample)
-	threshold_file = glob.glob(os.path.join(model_dir, 'threshold_*'))[0]
-	threshold_file = os.path.basename(threshold_file)
+def get_model_threshold(biosample, model_name, biosample_df=None):
+	model_dir = _get_model_dir_from_wildcards(biosample, model_name, biosample_df)
+	threshold_files = glob.glob(os.path.join(model_dir, 'threshold_*'))
+	assert len(threshold_files) == 1, "Should have exactly 1 threshold file in directory"
+	threshold_file = os.path.basename(threshold_files[0])
 	return threshold_file.split("_")[1]
