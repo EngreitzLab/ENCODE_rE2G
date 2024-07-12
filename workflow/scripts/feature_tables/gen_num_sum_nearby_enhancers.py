@@ -16,7 +16,7 @@ def generate_num_sum_enhancers(
     out_sum,
 ):
     # write enhancer midpoint file
-    enh_df["midpoint"] = ((enh_df["start"] + enh_df["end"]) / 2).astype("int")
+    enh_df["midpoint"] = int(((enh_df["start"] + enh_df["end"]) / 2))
     enh_df[["chr", "midpoint", "midpoint", "name"]].to_csv(
         enh_midpoint,
         sep="\t",
@@ -108,7 +108,7 @@ def main(
         enhancer_list, sep="\t", usecols=["chr", "start", "end", "name"]
     )
     distance_threshold = (
-        distance_threshold_kb.astype(int) * 1000
+        int(distance_threshold_kb) * 1000
     )  # convert from kb to bp
 
     generate_num_sum_enhancers(
