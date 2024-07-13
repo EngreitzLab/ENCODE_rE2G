@@ -41,7 +41,7 @@ def generate_num_sum_enhancers(
 
     # intersect with expanded enhancer regions and count n enhancers
     os.system(
-        "bedtools intersect -a {} -b {} -wa -wb > {} | sort -u ".format(
+        "bedtools intersect -a {} -b {} -wa -wb > | sort -u > {}".format(
             enh_expanded,
             pred_slim,
             enh_pred_int,
