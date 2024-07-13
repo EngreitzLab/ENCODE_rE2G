@@ -1,6 +1,7 @@
 import os
 import click
 import pandas as pd
+import numpy as np
 
 
 def generate_num_sum_enhancers(
@@ -15,9 +16,10 @@ def generate_num_sum_enhancers(
     out_num,
     out_sum,
 ):
+
     # write enhancer midpoint file
     enh_df["midpoint"] = (enh_df["start"] + enh_df["end"]) / 2
-    enh_df["midpoint"] = pd.to_numeric(enh_df["midpoint"])
+    enh_df["midpoint"] = enh_df["midpoint"].apply(np.int64)
     enh_df[["chr", "midpoint", "midpoint", "name"]].to_csv(
         enh_midpoint,
         sep="\t",
@@ -41,7 +43,7 @@ def generate_num_sum_enhancers(
 
     # intersect with expanded enhancer regions and count n enhancers
     os.system(
-        "bedtools intersect -a {} -b {} -wa -wb > | sort -u > {}".format(
+        "bedtools intersect -a {} -b {} -wa -wb | sort -u > {}".format(
             enh_expanded,
             pred_slim,
             enh_pred_int,
@@ -108,6 +110,7 @@ def main(
     enh_df = pd.read_csv(
         enhancer_list, sep="\t", usecols=["chr", "start", "end", "name"]
     )
+
     distance_threshold = int(distance_threshold_kb) * 1000  # convert from kb to bp
 
     generate_num_sum_enhancers(
