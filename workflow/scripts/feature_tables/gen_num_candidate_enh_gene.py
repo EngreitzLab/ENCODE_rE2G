@@ -45,7 +45,6 @@ def determine_num_candidate_enh_gene(pred_df, out_file):
 @click.option("--out_file")
 def main(abc_predictions, out_file):
     pred_df = pd.read_csv(abc_predictions, sep="\t")
-    pred_df = pred_df[pred_df["class"] != "promoter"]  # filter out promoters
     if len(pred_df) == 0:
         raise Exception("Did not find any enhancers in the Predictions file")
 
