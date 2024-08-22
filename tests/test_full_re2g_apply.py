@@ -23,7 +23,7 @@ COLUMNS_TO_COMPARE: Dict[str, type] = {
     "class": str,
     "TargetGene": str,
     "ABC.Score": np.float64,
-    "ENCODE-rE2G.Score": np.float64,
+    "E2G.Score": np.float64,
 }
 TEST_OUTPUT_DIR = CONFIG["results_dir"]
 EXPECTED_OUTPUT_DIR = f"tests/expected_output/{CONFIG['TEST_CONFIG_NAME']}"
