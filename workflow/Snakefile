@@ -44,7 +44,7 @@ use rule * from ABC exclude all as abc_*
 RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 BIOSAMPLE_DF = pd.read_csv(config["ABC_BIOSAMPLES"], sep="\t")
-BIOSAMPLE_ACTIVITES = {
+BIOSAMPLE_ACTIVITIES = {
 	biosample: activity for _, (biosample, activity) in 
 	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
 }
@@ -57,7 +57,7 @@ ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosam
 BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
 
 # extract info for accessibility bw files
-ACCESSIBILITY_DF = make_accessibility_file_df(BIOSAMPLE_DF)
+ACCESSIBILITY_DF = make_accessibility_file_df(BIOSAMPLE_DF, BIOSAMPLE_ACTIVITIES)
 
 # These rules requires the variables above to be defined
 include: "rules/genomewide_features.smk"

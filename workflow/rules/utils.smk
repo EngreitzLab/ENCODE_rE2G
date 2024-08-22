@@ -28,8 +28,8 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
-def make_accessibility_file_df(biosample_df):
-	df = biosample_df[["biosample", "ATAC", "DHS"]],set_index("biosample")
+def make_accessibility_file_df(biosample_df, biosample_activities):
+	df = biosample_df[["biosample", "ATAC", "DHS"]].copy()
 	df["single_access_file"] = ""
 	df["access_base"] = ""
 	df["access_simple_id"] = ""
@@ -37,8 +37,9 @@ def make_accessibility_file_df(biosample_df):
 	new_rows = []
 	for index, row in df.iterrows():
 		counter = 1
-		default_accessibility = BIOSAMPLE_ACTIVITIES[index] # get access feature for this biosample
-		for this_file in df.loc[index, default_accessibility].split(","):
+		this_biosample = row["biosample"]
+		default_accessibility = biosample_activities[this_biosample] # get access feature for this biosample
+		for this_file in row[default_accessibility].split(","):
 			new_row = row.copy()
 			new_row["single_access_file"] = this_file
 			new_row["access_base"] = os.path.splitext(os.path.basename(this_file))[0]
@@ -53,7 +54,7 @@ def make_accessibility_file_df(biosample_df):
 	return(new_df)
 
 def get_input_for_bw(this_biosample, this_simple_id):
-	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF.loc["access_simple_id"]==this_simple_id)]
+	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF["access_simple_id"]==this_simple_id)]
 	return df_sub["single_access_file"][0]
 
 def expand_biosample_df(biosample_df):

@@ -26,16 +26,20 @@ METRICS = [
 
 def load_and_save_stat_files(stat_files, output_table) -> List[pd.DataFrame]:
     results = {}
+    results_no_ind = {}
     for stat_file in stat_files:
         cell_cluster = Path(stat_file).parts[-3]
         results[cell_cluster] = (
             pd.read_csv(stat_file, sep="\t")
             .set_index("Metric")
+		)
+        results_no_ind[cell_cluster] = (
+            pd.read_csv(stat_file, sep="\t")
             .assign(cell_cluster=cell_cluster)
-        )
+		)
 
     # save merged dataframe
-    pd.concat(results).to_csv(output_table, sep="\t", index_label="metric")
+    pd.concat(results_no_ind, ignore_index=True).to_csv(output_table, sep="\t", index=False)
 
     return results
 
@@ -238,7 +242,7 @@ def split_stats(stats, metadata_df):
 def main(output_file, output_table, stat_files, y2ave_metadata, encode_metadata):
     if y2ave_metadata:
         metadata_df = pd.read_csv(y2ave_metadata, sep="\t")
-    stats = load_stat_files(stat_files)
+    stats = load_and_save_stat_files(stat_files, output_table)
     if encode_metadata:
         metadata_df = pd.read_csv(encode_metadata, sep="\t")
         cell_stats, tissue_stats = split_stats(stats, metadata_df)
