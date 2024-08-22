@@ -50,6 +50,24 @@ def expand_biosample_df(biosample_df):
 
 	return(new_df)
 
+def process_abc_directory_column(model_config):
+	# Confirm each dataset corresponds to a unique ABC_directory
+	is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() == 1
+	if ~is_corresponding.all():
+		raise Exception(f"Please ensure each dataset corresponds to a unique ABC directory.")
+	# Make a dictionary of dataset:ABC_dir pairs
+	ABC_BIOSAMPLES_DIR = {}
+	for row in model_config.itertuples(index=False):
+		if row.dataset not in ABC_BIOSAMPLES_DIR: 
+			if row.ABC_directory=="None": # ABC directory is not provided
+				if row.dataset not in dataset_config['biosample']: # is there info to run ABC?
+					raise Exception(f"Dataset {row.dataset} not specified in dataset_config.")
+				ABC_BIOSAMPLES_DIR[row.dataset] = os.path.join(RESULTS_DIR, row.dataset)
+			else: # ABC directory is provided
+				ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
+	
+	return ABC_BIOSAMPLES_DIR
+
 def _validate_model_dir(potential_dir):
 	files = os.listdir(potential_dir)
 	if "model.pkl" not in files:

@@ -12,10 +12,7 @@ conda: "mamba"
 include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
-config = make_paths_absolute(config, E2G_DIR_PATH)
-# Need to manually make results_dir an absolute path since above may
-# not work if results_dir folder isn't created
-# If results_dir is already an absolute path, this is a no-op
+config = make_paths_absolute(config, E2G_DIR_PATH) # in case results dir hasn't been created
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
 MODEL_DIR = config["model_dir"]
 # set direcotry to write bedpe files for viewing in IGV
@@ -71,6 +68,10 @@ rule all:
 		),
 		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
+			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+		),
+		expand(
+			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
 		expand(
