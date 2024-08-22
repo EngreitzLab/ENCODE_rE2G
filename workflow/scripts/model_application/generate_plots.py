@@ -28,11 +28,15 @@ def load_and_save_stat_files(stat_files, output_table) -> List[pd.DataFrame]:
     results = {}
     for stat_file in stat_files:
         cell_cluster = Path(stat_file).parts[-3]
-        results[cell_cluster] = pd.read_csv(stat_file, sep="\t").set_index("Metric").assign(cell_cluster=cell_cluster)
+        results[cell_cluster] = (
+            pd.read_csv(stat_file, sep="\t")
+            .set_index("Metric")
+            .assign(cell_cluster=cell_cluster)
+        )
 
-	# save merged dataframe
+    # save merged dataframe
     pd.concat(results).to_csv(output_table, sep="\t", index_label="metric")
-	
+
     return results
 
 

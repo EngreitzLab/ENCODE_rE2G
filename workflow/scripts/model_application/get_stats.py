@@ -17,6 +17,7 @@ def count_bam_total(bam_file: str) -> int:
     no_alt_chrom_df = df[df["chr"].isin(NORMAL_CHROMOSOMES)]
     return no_alt_chrom_df["mapped_reads"].sum()
 
+
 def count_unique_fragments(fragment_file: str) -> int:
     df = pd.read_csv(fragment_file, sep="\t", header=None)
     if df.shape[1] != 5:
@@ -25,7 +26,8 @@ def count_unique_fragments(fragment_file: str) -> int:
     else:
         df.columns = ["chr", "start", "end", "cell_barcode", "read_count"]
         no_alt_chr = df.loc[df["chr"].isin(NORMAL_CHROMOSOMES)]
-        return no_alt_chr.shape[0] # number of unique fragments
+        return no_alt_chr.shape[0]  # number of unique fragments
+
 
 def get_num_reads(accessibility_files):
     total_counts = 0
