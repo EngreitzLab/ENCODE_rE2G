@@ -301,7 +301,7 @@ def SBFS_significance(
 def main(
     crispr_features_file, feature_table_file, out_dir, polynomial, params_file, epsilon
 ):
-    model_name = "ENCODE-rE2G"
+    model_name = "E2G"
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
     with open(params_file, "rb") as handle:

@@ -4,7 +4,7 @@ import click
 import numpy as np
 import pandas as pd
 
-MODEL = "ENCODE-rE2G"
+SCORE_COLUMN = "E2G.Score"
 
 
 def make_e2g_predictions(df_enhancers, feature_list, trained_model, epsilon):
@@ -15,7 +15,7 @@ def make_e2g_predictions(df_enhancers, feature_list, trained_model, epsilon):
     with open(trained_model, "rb") as f:
         model = pickle.load(f)
     probs = model.predict_proba(X)
-    df_enhancers[MODEL + ".Score"] = probs[:, 1]
+    df_enhancers[SCORE_COLUMN] = probs[:, 1]
     return df_enhancers
 
 

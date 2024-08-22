@@ -56,6 +56,9 @@ ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosam
 # add model directory path to biosamples df
 BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
 
+# extract info for accessibility bw files
+ACCESSIBILITY_DF = make_accessibility_file_df(BIOSAMPLE_DF)
+
 # These rules requires the variables above to be defined
 include: "rules/genomewide_features.smk"
 include: "rules/predictions.smk"
@@ -77,5 +80,9 @@ rule all:
 		expand(
 			os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+		),
+		expand(
+			os.path.join(IGV_DIR, "{biosample}", "{access_simple_id}.bw"), zip, biosample=ACCESSIBILITY_DF["biosample"],
+			access_simple_id=ACCESSIBILITY_DF["access_simple_id"]
 		),
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")

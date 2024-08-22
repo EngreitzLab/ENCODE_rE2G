@@ -28,6 +28,34 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
+def make_accessibility_file_df(biosample_df):
+	df = biosample_df[["biosample", "ATAC", "DHS"]],set_index("biosample")
+	df["single_access_file"] = ""
+	df["access_base"] = ""
+	df["access_simple_id"] = ""
+
+	new_rows = []
+	for index, row in df.iterrows():
+		counter = 1
+		default_accessibility = BIOSAMPLE_ACTIVITIES[index] # get access feature for this biosample
+		for this_file in df.loc[index, default_accessibility].split(","):
+			new_row = row.copy()
+			new_row["single_access_file"] = this_file
+			new_row["access_base"] = os.path.splitext(os.path.basename(this_file))[0]
+			new_row["access_simple_id"] = default_accessibility + f"_id{counter}"
+
+			if (os.path.splitext(os.path.basename(this_file))[1]==".bam") or ("tagAlign.gz" in os.path.basename(this_file)): # valid file extensions
+				new_rows.append(new_row)
+				counter += 1
+
+	new_df = pd.DataFrame(new_rows)
+
+	return(new_df)
+
+def get_input_for_bw(this_biosample, this_simple_id):
+	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF.loc["access_simple_id"]==this_simple_id)]
+	return df_sub["single_access_file"][0]
+
 def expand_biosample_df(biosample_df):
 	# add new columns
 	if "model_dir" not in biosample_df.columns:

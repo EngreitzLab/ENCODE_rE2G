@@ -279,7 +279,7 @@ def SFFS_significance(
 def main(
     crispr_features_file, feature_table_file, out_dir, polynomial, epsilon, params_file
 ):
-    model_name = "ENCODE-rE2G"
+    model_name = "E2G"
     df_dataset = pd.read_csv(crispr_features_file, sep="\t")
     feature_table = pd.read_csv(feature_table_file, sep="\t")
 

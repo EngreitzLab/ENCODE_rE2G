@@ -90,7 +90,7 @@ config <- fread(snakemake@input$feature_table_file)
 config <- filter(config, feature %in% colnames(features))
 
 # load tss annotations
-tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "score", "strand"))
+tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "score", "strand", "Ensembl_ID", "gene_type"))
 
 # create vector with aggregation functions for each feature
 agg_funs <- deframe(distinct(select(config, feature, aggregate_function)))

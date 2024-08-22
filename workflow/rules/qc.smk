@@ -34,10 +34,12 @@ rule generate_plots:
 	resources:
 		mem_mb=determine_mem_mb
 	output:
-		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
+		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf"),
+		stats_table = os.path.join(RESULTS_DIR, "all_qc_stats.tsv")
 	shell:
 		"""
 		python {params.scripts_dir}/model_application/generate_plots.py \
 			--output_file {output.plots} \
+			--output_table {output.stats_table} \
 			{input.stat_files}
 		"""

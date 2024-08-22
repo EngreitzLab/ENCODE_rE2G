@@ -93,7 +93,7 @@ rule generate_num_tss_enh_gene:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(determine_mem_mb, min_gb=16)
+		mem_mb=partial(determine_mem_mb, min_gb=32)
 	output:
 		numTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumTSSEnhGene.tsv"),
 		extendedEnhancerRegions = temp(os.path.join(RESULTS_DIR, "{biosample}",  "new_features", "extendedEnhancerRegions.txt")),
@@ -114,7 +114,6 @@ rule generate_num_sum_enhancers:
 		abc_predictions = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		enhancer_list = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Neighborhoods", "EnhancerList.txt"),
 	params:
-		gene_TSS500 = config['gene_TSS500'],
 		chr_sizes = config['chr_sizes'],
 		scripts_dir = SCRIPTS_DIR
 	conda:
@@ -124,10 +123,10 @@ rule generate_num_sum_enhancers:
 	output: 
 		NumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumEnhancersEG{kb}kb.txt"),
 		SumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "SumEnhancersEG{kb}kb.txt"),
-		enhMidpoint = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_{kb}kb.txt")),
-		enhExpanded = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_exp{kb}kb.txt")),
-		predSlim = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "EnhancerPredictionsAllPutative_{kb}kb.slim.txt")),
-		enhPredInt = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features",  "enhancerExp{kb}kb_intPred.txt")),
+		enhMidpoint = (os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_{kb}kb.txt")),
+		enhExpanded = (os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_exp{kb}kb.txt")),
+		predSlim = (os.path.join(RESULTS_DIR, "{biosample}", "new_features", "EnhancerPredictionsAllPutative_{kb}kb.slim.txt")),
+		enhPredInt = (os.path.join(RESULTS_DIR, "{biosample}", "new_features",  "enhancerExp{kb}kb_intPred.txt")),
 	shell: 
 		""" 
 		python {params.scripts_dir}/feature_tables/gen_num_sum_nearby_enhancers.py \
@@ -164,7 +163,7 @@ rule activity_only_features:
 		"../scripts/feature_tables/activity_only_features.R"
 
 # add external features
-if config["final_score_col"] == "ENCODE-rE2G.Score.qnorm": # if sc-E2G
+if config["final_score_col"] == "E2G.Score.qnorm": # if sc-E2G
 	min_mem = 32
 else:
 	min_mem = 8

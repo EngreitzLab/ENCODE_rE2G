@@ -9,6 +9,7 @@ dependencies:
   - bedtools=2.29.2
   - mamba
   - click
+  - ucsc-bedgraphtobigwig
   - csvtk
   - gzip
   - numpy

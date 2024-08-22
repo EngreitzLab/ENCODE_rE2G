@@ -9,7 +9,6 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 
-STATS_SUFFIX = "_stats.tsv"
 VALUE_KEY = "Value"
 SEQ_DEPTH_METRIC = "num_sequencing_reads"
 METRICS = [
@@ -25,11 +24,15 @@ METRICS = [
 ]
 
 
-def load_stat_files(stat_files) -> List[pd.DataFrame]:
+def load_and_save_stat_files(stat_files, output_table) -> List[pd.DataFrame]:
     results = {}
     for stat_file in stat_files:
         cell_cluster = Path(stat_file).parts[-3]
-        results[cell_cluster] = pd.read_csv(stat_file, sep="\t").set_index("Metric")
+        results[cell_cluster] = pd.read_csv(stat_file, sep="\t").set_index("Metric").assign(cell_cluster=cell_cluster)
+
+	# save merged dataframe
+    pd.concat(results).to_csv(output_table, sep="\t", index_label="metric")
+	
     return results
 
 
@@ -224,10 +227,11 @@ def split_stats(stats, metadata_df):
 
 @click.command()
 @click.option("--output_file", type=str, default="qc_plots.pdf")
+@click.option("--output_table", type=str, default="all_qc_stats.tsv")
 @click.argument("stat_files", nargs=-1, type=click.Path(exists=True))
 @click.option("--y2ave_metadata", type=str)
 @click.option("--encode_metadata", type=str)
-def main(output_file, stat_files, y2ave_metadata, encode_metadata):
+def main(output_file, output_table, stat_files, y2ave_metadata, encode_metadata):
     if y2ave_metadata:
         metadata_df = pd.read_csv(y2ave_metadata, sep="\t")
     stats = load_stat_files(stat_files)

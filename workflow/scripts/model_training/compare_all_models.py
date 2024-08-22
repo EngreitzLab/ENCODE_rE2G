@@ -105,7 +105,7 @@ def performance_summary(
 @click.option("--crispr_data", required=True)
 @click.option("--out_dir", required=True)
 def main(model_config_file, output_file, crispr_data, out_dir):
-    model_name = "ENCODE-rE2G"
+    model_name = "E2G"
     model_config = (
         pd.read_table(model_config_file, na_values="")
         .fillna("None")
