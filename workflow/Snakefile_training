@@ -13,11 +13,13 @@ include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
 config = make_paths_absolute(config, E2G_DIR_PATH)
-    
+
 # Need to manually make results_dir an absolute path since above may
 # not work if results_dir folder isn't created
 # If results_dir is already an absolute path, this is a no-op
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
+
+model_config = process_model_config(model_config)
 
 def get_abc_config(config):
 	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
@@ -50,7 +52,7 @@ ABC_BIOSAMPLES_DIR = process_abc_directory_column(model_config)
 
 # specify target files
 output_files = []
-output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), dataset=model_config["dataset"].unique()))
+output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), zip, dataset=model_config["dataset"], model=model_config["model"]))
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
 
 output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
