@@ -123,10 +123,10 @@ rule generate_num_sum_enhancers:
 	output: 
 		NumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumEnhancersEG{kb}kb.txt"),
 		SumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "SumEnhancersEG{kb}kb.txt"),
-		enhMidpoint = (os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_{kb}kb.txt")),
-		enhExpanded = (os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_exp{kb}kb.txt")),
-		predSlim = (os.path.join(RESULTS_DIR, "{biosample}", "new_features", "EnhancerPredictionsAllPutative_{kb}kb.slim.txt")),
-		enhPredInt = (os.path.join(RESULTS_DIR, "{biosample}", "new_features",  "enhancerExp{kb}kb_intPred.txt")),
+		enhMidpoint = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_{kb}kb.txt")),
+		enhExpanded = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "enhancerMidpoint_exp{kb}kb.txt")),
+		predSlim = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "EnhancerPredictionsAllPutative_{kb}kb.slim.txt")),
+		enhPredInt = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features",  "enhancerExp{kb}kb_intPred.txt")),
 	shell: 
 		""" 
 		python {params.scripts_dir}/feature_tables/gen_num_sum_nearby_enhancers.py \

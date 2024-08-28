@@ -37,6 +37,7 @@ rule generate_e2g_predictions:
 		epsilon = config["epsilon"],
 		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample, wildcards.model_name),
 		trained_model = lambda wildcards: get_trained_model(wildcards.biosample, wildcards.model_name),
+		tpm_threshold = lambda wildcards: get_tpm_threshold(wildcards.biosample, wildcards.model_name),
 		scripts_dir = SCRIPTS_DIR
 	conda:
 		"../envs/encode_re2g.yml"
@@ -51,6 +52,7 @@ rule generate_e2g_predictions:
 			--feature_table_file {params.feature_table_file} \
 			--epsilon {params.epsilon} \
 			--trained_model {params.trained_model} \
+			--tpm_threshold {params.tpm_threshold} \
 			--output_file {output.prediction_file}
 		"""
 

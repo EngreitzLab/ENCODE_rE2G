@@ -21,7 +21,7 @@ rule generate_model_params:
 # generate trained model and cross-validated predictions on CRISPR data
 rule train_model:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:

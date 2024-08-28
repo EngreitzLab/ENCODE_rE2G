@@ -19,8 +19,8 @@ polynomial = gsub(" ", "", polynomial)
 if (polynomial=="FALSE" || polynomial == "False"){
   ft_names = dplyr::select(feature_table, feature, nice_name)
   df = left_join(df, ft_names, by=c("feature_added"="feature"))
-    for (i in 1:nrow(df)){
-		if (!is.na(df$nice_name[i]) || df$feature_added[i]!="None" || df$nice_name[i]!=""){
+    for (i in 2:nrow(df)){
+		if (!is.na(df$nice_name[i]) || df$nice_name[i]!=""){
 			df$feature_added[i] = df$nice_name[i]
 		}
 	}

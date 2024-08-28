@@ -32,6 +32,7 @@ def performance_summary(
         missing_file = os.path.join(
             out_dir,
             dataset,
+            model_id,
             "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz",
         )
         pred_df = pd.read_csv(pred_file, sep="\t")

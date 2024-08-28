@@ -28,6 +28,21 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
+def process_model_config(model_config):
+	# ABC_directory
+	if "ABC_directory" not in model_config.columns:
+		model_config["ABC_directory"] = "None"
+
+	# override_params
+	if "override_params" not in model_config.columns:
+		model_config["override_params"] = "None"
+
+	# tpm_threshold
+	if "tpm_threshold" not in model_config.columns:
+		model_config["tpm_threshold"] = 0
+
+	return model_config
+
 def make_accessibility_file_df(biosample_df, biosample_activities):
 	df = biosample_df[["biosample", "ATAC", "DHS"]].copy()
 	df["single_access_file"] = ""
@@ -50,7 +65,6 @@ def make_accessibility_file_df(biosample_df, biosample_activities):
 				counter += 1
 
 	new_df = pd.DataFrame(new_rows)
-
 	return(new_df)
 
 def get_input_for_bw(this_biosample, this_simple_id):
@@ -63,6 +77,7 @@ def expand_biosample_df(biosample_df):
 		biosample_df['model_dir']  = np.nan
 	biosample_df['model_dir_base'] = ''
 	biosample_df['model_threshold'] = float(0)
+	biosample_df["tpm_threshold"] = float(0)
 
 	new_rows = []
 	for index, row in biosample_df.iterrows():
@@ -76,12 +91,13 @@ def expand_biosample_df(biosample_df):
 			new_rows.append(new_row)
 	new_df = pd.DataFrame(new_rows)
 	new_df['model_threshold'] = [float(get_model_threshold(this_biosample, this_model, new_df)) for this_biosample, this_model in zip(new_df['biosample'], new_df['model_dir_base'])]
+	new_df['tpm_threshold'] = [float(get_tpm_threshold(this_biosample, this_model, new_df)) for this_biosample, this_model in zip(new_df['biosample'], new_df['model_dir_base'])]
 
 	return(new_df)
 
 def process_abc_directory_column(model_config):
 	# Confirm each dataset corresponds to a unique ABC_directory
-	is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() == 1
+	is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() <= 1
 	if ~is_corresponding.all():
 		raise Exception(f"Please ensure each dataset corresponds to a unique ABC directory.")
 	# Make a dictionary of dataset:ABC_dir pairs
@@ -153,7 +169,17 @@ def get_trained_model(biosample, model_name):
 
 def get_model_threshold(biosample, model_name, biosample_df=None):
 	model_dir = _get_model_dir_from_wildcards(biosample, model_name, biosample_df)
-	threshold_files = glob.glob(os.path.join(model_dir, 'threshold_*'))
+	threshold_files = glob.glob(os.path.join(model_dir, 'score_threshold_*'))
 	assert len(threshold_files) == 1, "Should have exactly 1 threshold file in directory"
 	threshold_file = os.path.basename(threshold_files[0])
-	return threshold_file.split("_")[1]
+	return threshold_file.split("threshold_")[1]
+
+def get_tpm_threshold(biosample, model_name, biosample_df=None):
+	model_dir = _get_model_dir_from_wildcards(biosample, model_name, biosample_df)
+
+	tpm_files = glob.glob(os.path.join(model_dir, 'tpm_threshold_*'))
+	if (len(tpm_files)==0):
+		return 0
+	else:
+		tpm_file = os.path.basename(tpm_files[0])
+	return tpm_file.split("threshold_")[1]
