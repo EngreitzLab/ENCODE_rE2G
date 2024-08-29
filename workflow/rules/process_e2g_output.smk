@@ -1,8 +1,8 @@
 rule e2g_variant_overlap:
 	input:
-		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	params:
-	 	score_column="ENCODE-rE2G.Score",
+	 	score_column="ENCODE-rE2G.Score.qnorm",
 		threshold="{threshold}",
 		chr_sizes=config["chr_sizes"],
 		scripts_dir = SCRIPTS_DIR
@@ -10,12 +10,12 @@ rule e2g_variant_overlap:
 		BEDPE = os.path.join(
 				RESULTS_DIR, 
 				"{biosample}", 
-				"Predictions",
+				"{model_name}",
 				"encode_e2g_predictions_threshold{threshold}.bedpe"),
 		variantOverlap=os.path.join(
 				RESULTS_DIR, 
 				"{biosample}", 
-				"Predictions",
+				"{model_name}",
 				"encode_e2g_predictions_threshold{threshold}.ForVariantOverlap.shrunk150bp.gz"),
 	resources: 
 		mem_mb=8*1000
@@ -37,10 +37,10 @@ rule combine_e2g_variant_overlap:
 		variantOverlap=expand(os.path.join(
 				RESULTS_DIR, 
 				"{biosample}", 
-				"Predictions",
+				"{{model_name}}",
 				"encode_e2g_predictions_threshold{{threshold}}.ForVariantOverlap.shrunk150bp.gz"), biosample=BIOSAMPLE_DF["biosample"].to_list())
 	output:
-		combined_variantOverlap = os.path.join(RESULTS_DIR, "combined_Predictions", "encode_e2g_predictions_threshold{threshold}.ForVariantOverlap.shrunk150bp.gz")
+		combined_variantOverlap = os.path.join(RESULTS_DIR, "combined_Predictions_{model_name}", "encode_e2g_predictions_threshold{threshold}.ForVariantOverlap.shrunk150bp.gz")
 	resources:
 		mem_mb=8*1000
 	conda:

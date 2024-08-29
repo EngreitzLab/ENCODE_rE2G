@@ -1,4 +1,3 @@
-
 rule make_biosample_feature_table:  # make feature table per biosample
 	input:
 		config["ABC_BIOSAMPLES"]
@@ -75,11 +74,13 @@ rule filter_e2g_predictions:
 			--include_self_promoter {params.include_self_promoter} \
 			--output_file {output.thresholded}
 		"""
+
+
 rule combine_filter_e2g_predictions:
 	input:
-		thresholded=expand(os.path.join(RESULTS_DIR, "{biosample}", "Predictions", "encode_e2g_predictions_threshold{{threshold}}.tsv.gz"), biosample=BIOSAMPLE_DF["biosample"].to_list())
+		thresholded=expand(os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{{threshold}}.tsv.gz"), zip,biosample=BIOSAMPLE_DF["biosample"],model_name=BIOSAMPLE_DF["model_dir_base"])
 	output:
-		combined_thresholded=os.path.join(RESULTS_DIR, "combined_Predictions", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
+		combined_thresholded=os.path.join(RESULTS_DIR, "combined_Predictions_{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	resources:
 		mem_mb=8*1000
 	conda:
