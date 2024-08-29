@@ -66,6 +66,8 @@ rule all:
 			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz"), zip, biosample=BIOSAMPLE_DF['biosample'], model_name=BIOSAMPLE_DF['model_dir_base']
 		),
 		expand(
+			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"], model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]),
+		expand(
 			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
