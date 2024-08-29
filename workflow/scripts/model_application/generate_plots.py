@@ -9,7 +9,6 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 
-STATS_SUFFIX = "_stats.tsv"
 VALUE_KEY = "Value"
 SEQ_DEPTH_METRIC = "num_sequencing_reads"
 METRICS = [
@@ -25,11 +24,27 @@ METRICS = [
 ]
 
 
-def load_stat_files(stat_files) -> List[pd.DataFrame]:
+def load_and_save_stat_files(stat_files, output_table) -> List[pd.DataFrame]:
     results = {}
+    results_no_ind = {}
     for stat_file in stat_files:
         cell_cluster = Path(stat_file).parts[-3]
-        results[cell_cluster] = pd.read_csv(stat_file, sep="\t").set_index("Metric")
+        model_name = Path(stat_file).parts[-2]
+        pred_id = f"{cell_cluster}_{model_name}"
+        results[pred_id] = pd.read_csv(stat_file, sep="\t").set_index("Metric").assign(
+            cell_cluster=cell_cluster,
+            model_name=model_name
+        )
+        results_no_ind[pred_id] = pd.read_csv(stat_file, sep="\t").assign(
+            cell_cluster=cell_cluster,
+            model_name=model_name
+        )
+
+    # save merged dataframe
+    pd.concat(results_no_ind, ignore_index=True).to_csv(
+        output_table, sep="\t", index=False
+    )
+
     return results
 
 
@@ -44,7 +59,7 @@ def plot_cdf(stats, metric, biosample_type=None):
     plt.clf()
     points = [df.loc[metric, VALUE_KEY] for df in stats.values()]
     mean, median = np.mean(points) / 1e6, np.median(points) / 1e6
-    ax = sns.kdeplot(points, fill=True, bw_adjust=0.5, color="blue", label="Density")
+    ax = sns.kdeplot(points, fill=True, bw_adjust=0.5, color="#006eae", label="Density")
     title = snake_to_title(metric)
     if biosample_type:
         title = f"{biosample_type}: {title}"
@@ -99,7 +114,7 @@ def plot_metric_vs_seq_depth(stats, metric, biosample_type=None):
     if biosample_type:
         title = f"{biosample_type}: {title}"
     ax.set_title(title)
-    plt.xlabel("Sequencing Depth (Millions of Reads)")
+    plt.xlabel("Sequencing depth (millions of reads or fragments)")
     plt.legend()
     return ax.get_figure()
 
@@ -122,8 +137,8 @@ def plot_scatter(stat_dfs, metadata_df, metric):
     ax = sns.scatterplot(x=X, y=Y, label=f"n={len(X)}")
     ax = sns.scatterplot(x=K562_X, y=K562_Y, color="red", label=f"K562 n={len(K562_X)}")
     plt.xscale("log")
-    plt.axvline(x=2e6, color="red", linestyle="-", label=f"2 million fragments")
-    ax.set_xlabel("Num Fragments")
+    plt.axvline(x=2e6, color="#c5373d", linestyle="-", label=f"2 million fragments")
+    ax.set_xlabel("Number unique fragments")
     ax.set_ylabel(snake_to_title(metric))
     ax.set_title(snake_to_title(metric))
     plt.legend()
@@ -159,11 +174,12 @@ def add_intro_page(pdf_writer):
 
 
 def save_outlier_stats(stat_dfs, metric, pdf_writer):
-    cell_cluster_values = {}
-    for cell_cluster, stat_df in stat_dfs.items():
-        cell_cluster_values[cell_cluster] = stat_df.loc[metric, VALUE_KEY]
+    pred_values = {}
+    for this_df in stat_dfs.values():
+        pred_id = f"{this_df['cell_cluster'][0]}_{this_df['model_name'][0]}"
+        pred_values[pred_id] =  this_df.loc[metric, VALUE_KEY]
 
-    sorted_items = sorted(cell_cluster_values.items(), key=lambda item: item[1])
+    sorted_items = sorted(pred_values.items(), key=lambda item: item[1])
 
     top_5 = [f"{item[0]}: {item[1]}" for item in list(reversed(sorted_items))[:5]]
     bottom_5 = [f"{item[0]}: {item[1]}" for item in sorted_items[:5]]
@@ -224,13 +240,14 @@ def split_stats(stats, metadata_df):
 
 @click.command()
 @click.option("--output_file", type=str, default="qc_plots.pdf")
+@click.option("--output_table", type=str, default="all_qc_stats.tsv")
 @click.argument("stat_files", nargs=-1, type=click.Path(exists=True))
 @click.option("--y2ave_metadata", type=str)
 @click.option("--encode_metadata", type=str)
-def main(output_file, stat_files, y2ave_metadata, encode_metadata):
+def main(output_file, output_table, stat_files, y2ave_metadata, encode_metadata):
     if y2ave_metadata:
         metadata_df = pd.read_csv(y2ave_metadata, sep="\t")
-    stats = load_stat_files(stat_files)
+    stats = load_and_save_stat_files(stat_files, output_table)
     if encode_metadata:
         metadata_df = pd.read_csv(encode_metadata, sep="\t")
         cell_stats, tissue_stats = split_stats(stats, metadata_df)

@@ -1,3 +1,5 @@
+from functools import partial
+
 def get_accessibility_files(wildcards):
 	# Inputs have been validated so only DHS or ATAC is provided
 	biosample = BIOSAMPLE_DF[BIOSAMPLE_DF["biosample"] == wildcards.biosample].iloc[0]
@@ -13,7 +15,7 @@ rule get_stats:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=4*1000
+		mem_mb=partial(determine_mem_mb, min_gb=63),
 	output:
 		stats = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
 	shell:
@@ -33,10 +35,12 @@ rule generate_plots:
 	resources:
 		mem_mb=determine_mem_mb
 	output:
-		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
+		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf"),
+		stats_table = os.path.join(RESULTS_DIR, "all_qc_stats.tsv")
 	shell:
 		"""
 		python {params.scripts_dir}/model_application/generate_plots.py \
 			--output_file {output.plots} \
+			--output_table {output.stats_table} \
 			{input.stat_files}
 		"""

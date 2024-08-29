@@ -8,7 +8,7 @@ run_feature_analysis: False # do you want to run feature analysis?
 results_dir: "results"
 
 # Reference files
-gene_TSS500: "reference/RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.bed" # TSS reference file
+gene_TSS500: "reference/CollapsedGeneBounds.hg38.TSS500bp.bed" # TSS reference file
 chr_sizes: "reference/GRCh38_EBV.no_alt.chrom.sizes.tsv"
 gene_classes: "resources/external_features/gene_promoter_class_RefSeqCurated.170308.bed.CollapsedGeneBounds.hg38.TSS500bp.tsv"
 crispr_dataset: "reference/EPCrisprBenchmark_ensemble_data_GRCh38.tsv.gz" # CRISPR dataset
@@ -35,3 +35,4 @@ ABC_DIR_PATH: "ABC"
 # e2g path to prepend to reference and script files
 # Only relevant when using e2g as a submodule
 E2G_DIR_PATH: "."
+final_score_col: "E2G.Score"

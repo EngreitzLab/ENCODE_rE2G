@@ -13,11 +13,13 @@ include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
 config = make_paths_absolute(config, E2G_DIR_PATH)
-    
+
 # Need to manually make results_dir an absolute path since above may
 # not work if results_dir folder isn't created
 # If results_dir is already an absolute path, this is a no-op
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
+
+model_config = process_model_config(model_config)
 
 def get_abc_config(config):
 	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
@@ -45,29 +47,16 @@ include: "rules/train_model.smk"
 include: "rules/feature_analysis.smk"
 include: "rules/compare_models.smk"
 
-# Validate and fill ABC_directory column: add vaidation steps to rule
-# Confirm each dataset corresponds to a unique ABC_directory
-is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() == 1
-if ~is_corresponding.all():
-	raise Exception(f"Please ensure each dataset corresponds to a unique ABC directory.")
-# Make a dictionary of dataset:ABC_dir pairs
-ABC_BIOSAMPLES_DIR = {}
-for row in model_config.itertuples(index=False):
-	if row.dataset not in ABC_BIOSAMPLES_DIR: 
-		if row.ABC_directory=="None": # ABC directory is not provided
-			if row.dataset not in dataset_config['biosample']: # is there info to run ABC?
-				raise Exception(f"Dataset {row.dataset} not specified in dataset_config.")
-			ABC_BIOSAMPLES_DIR[row.dataset] = os.path.join(RESULTS_DIR, row.dataset)
-		else: # ABC directory is provided
-			ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
+# Validate ABC_directory column and make ABC directory dict
+ABC_BIOSAMPLES_DIR = process_abc_directory_column(model_config)
 
 # specify target files
 output_files = []
-output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), dataset=model_config["dataset"].unique()))
+output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), zip, dataset=model_config["dataset"], model=model_config["model"]))
 output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
 
-# output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
-# output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
+output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
+output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
 
 if config["run_feature_analysis"]:
 	output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))

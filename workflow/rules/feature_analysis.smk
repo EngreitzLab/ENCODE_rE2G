@@ -1,7 +1,7 @@
 # forward sequential feature selection
 rule calculate_forward_feature_selection:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
@@ -45,7 +45,7 @@ rule plot_forward_feature_selection:
 # backward sequential feature selection
 rule calculate_backward_feature_selection:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
@@ -89,7 +89,7 @@ rule plot_backward_feature_selection:
 # compare all features sets
 rule compare_all_feature_sets:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
@@ -101,7 +101,8 @@ rule compare_all_feature_sets:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=determine_mem_mb,
+		runtime='24h'
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/compare_all_feature_sets.py \
@@ -115,7 +116,7 @@ rule compare_all_feature_sets:
 # permuation feature importance
 rule calculate_permutation_feature_importance:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
 	params:
