@@ -3,6 +3,8 @@ import subprocess
 from io import StringIO
 import click
 import pandas as pd
+import csv
+import gzip
 
 NORMAL_CHROMOSOMES = set(["chr" + str(x) for x in range(1, 23)] + ["chrX"] + ["chrY"])
 
@@ -17,25 +19,20 @@ def count_bam_total(bam_file: str) -> int:
     no_alt_chrom_df = df[df["chr"].isin(NORMAL_CHROMOSOMES)]
     return no_alt_chrom_df["mapped_reads"].sum()
 
-def count_tagalign(tagalign_file: str) -> int:
-    df = pd.read_csv(tagalign_file, sep="\t", header=None)
-    if df.shape[1] != 6:
-        print("Valid tagAlign file not provided")
-        return 0
+def count_lines(file_path):
+    count = 0
+    if file_path.endswith(".gz"):
+        with gzip.open(file_path, 'rt') as file:  # 'rt' mode is for reading text
+            reader = csv.reader(file, delimiter='\t')
+            for row in reader:
+                if row[0] in NORMAL_CHROMOSOMES:
+                    count += 1
     else:
-         df.columns = ["chr", "start", "end", "name", "score", "strand"]
-         no_alt_chr = df.loc[df["chr"].isin(NORMAL_CHROMOSOMES)]
-         return no_alt_chr.shape[0]/2
-
-def count_fragments(fragment_file: str) -> int:
-    df = pd.read_csv(fragment_file, sep="\t", header=None)
-    if df.shape[1] != 5:
-        print("Valid fragment file not provided")
-        return 0
-    else:
-        df.columns = ["chr", "start", "end", "barcode", "reads"]
-        no_alt_chr = df.loc[df["chr"].isin(NORMAL_CHROMOSOMES)]
-        return no_alt_chr.shape[0]  # number of unique fragments
+        reader = csv.reader(file_path, delimiter='\t')
+        for row in reader:
+            if row[0] in NORMAL_CHROMOSOMES:
+                count += 1
+    return count
 
 def get_num_reads(accessibility_files):
     total_counts = 0
@@ -43,9 +40,9 @@ def get_num_reads(accessibility_files):
         if access_in.endswith(".bam"):
             total_counts += count_bam_total(access_in)
         elif "tagAlign" in access_in:
-            total_counts += count_tagalign(access_in)
+            total_counts += count_lines(access_in)/2
         else: # hope it's a frag file
-            total_counts += count_fragments(access_in)
+            total_counts += count_lines(access_in)
     return total_counts
 
 
