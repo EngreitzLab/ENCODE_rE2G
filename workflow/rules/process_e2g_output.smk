@@ -2,7 +2,7 @@ rule e2g_variant_overlap:
 	input:
 		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	params:
-	 	score_column="ENCODE-rE2G.Score.qnorm",
+	 	score_column="E2G.Score.qnorm",
 		threshold="{threshold}",
 		chr_sizes=config["chr_sizes"],
 		scripts_dir = SCRIPTS_DIR

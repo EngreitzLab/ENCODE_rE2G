@@ -16,7 +16,7 @@ def test_variant_overlap(all_putative, variant_overlap_output, score_column, thr
     # remove nan predictions
     variant_overlap_pred = variant_overlap.dropna(subset=[score_column])
     variant_overlap = variant_overlap_pred.loc[
-        variant_overlap_pred["distanceToTSS"] <= 2000000
+        variant_overlap_pred["distance"] <= 2000000
     ]
     variant_overlap.to_csv(
         variant_overlap_file + ".tmp",

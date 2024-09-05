@@ -178,7 +178,7 @@ rule add_external_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=20000  # May need to increase if utilizing many external features (e.g extended model)
+		mem_mb=64000  # May need to increase if utilizing many external features (e.g extended model)
 	script:
 		"../scripts/feature_tables/merge_external_features.R"
 
