@@ -92,6 +92,7 @@ def plot_violin(stats, metric, biosample_type=None):
 def plot_swarm_box(stats, metric, biosample_type=None):
     plt.clf()
     points = [df.loc[metric, VALUE_KEY] for df in stats.values()]
+    print(points)
     mean, median = np.mean(points), np.median(points)
     ax = sns.swarmplot(y=points)
     ax = sns.boxplot(y=points)
@@ -176,7 +177,7 @@ def add_intro_page(pdf_writer):
 def save_outlier_stats(stat_dfs, metric, pdf_writer):
     pred_values = {}
     for this_df in stat_dfs.values():
-        pred_id = f"{this_df['cell_cluster'][0]}_{this_df['model_name'][0]}"
+        pred_id = f"{this_df['cell_cluster'].iloc[0]}_{this_df['model_name'].iloc[0]}"
         pred_values[pred_id] =  this_df.loc[metric, VALUE_KEY]
 
     sorted_items = sorted(pred_values.items(), key=lambda item: item[1])
