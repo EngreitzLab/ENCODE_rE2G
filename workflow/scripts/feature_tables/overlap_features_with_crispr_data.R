@@ -133,10 +133,11 @@ if ("distanceToTSS" %in% colnames(output)) {
       is.na(distanceToTSS) ~ abs(enh_center - (startTSS_ref + endTSS_ref) / 2),
       TRUE ~ distanceToTSS
     ))
+  output <- select(output, -c(enh_center))
 }
 
 # remove columns added to compute missing distance to TSS
-output <- select(output, -c(enh_center, startTSS_ref, endTSS_ref))
+output <- select(output, -c(startTSS_ref, endTSS_ref))
 
 # replace NAs with fill values if specified
 if (snakemake@wildcards$nafill == "NAfilled") {
