@@ -20,27 +20,27 @@ config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
 MODEL_DIR = config["model_dir"]
 # set direcotry to write bedpe files for viewing in IGV
 if "IGV_dir" in config:
-	IGV_DIR = os.path.abspath(config["IGV_dir"])
+    IGV_DIR = os.path.abspath(config["IGV_dir"])
 else:
-	IGV_DIR = config["results_dir"]
+    IGV_DIR = config["results_dir"]
 
 config["ABC_BIOSAMPLES_MODELS"] = os.path.join(config["results_dir"], "config_biosamples_models.tsv")
 if not os.path.exists(config["results_dir"]):
     os.makedirs(config["results_dir"])
 
 def get_abc_config(config):
-	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
-	with open(abc_config_file, 'r') as stream:
-		abc_config = yaml.safe_load(stream)
-	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
-	abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
-	abc_config["results_dir"] = config["results_dir"]
-	return abc_config
+    abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
+    with open(abc_config_file, 'r') as stream:
+        abc_config = yaml.safe_load(stream)
+    abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
+    abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
+    abc_config["results_dir"] = config["results_dir"]
+    return abc_config
 
 module ABC:
-	snakefile:
-		f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
-	config: get_abc_config(config)
+    snakefile:
+        f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
+    config: get_abc_config(config)
 
 use rule * from ABC exclude all as abc_*
 
@@ -48,8 +48,8 @@ RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 BIOSAMPLE_DF = pd.read_csv(config["ABC_BIOSAMPLES"], sep="\t")
 BIOSAMPLE_ACTIVITES = {
-	biosample: activity for _, (biosample, activity) in 
-	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
+    biosample: activity for _, (biosample, activity) in 
+    BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
 }
 
 # make directory of ABC output where EnhancersAllPutative and EnhancerList are found
@@ -63,18 +63,26 @@ BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
 include: "rules/genomewide_features.smk"
 include: "rules/predictions.smk"
 include: "rules/qc.smk"
+include: "rules/crispr_features_apply.smk"
+ 
+output_files = []
+pred = expand(
+    os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz"), zip, biosample=BIOSAMPLE_DF['biosample'], model_name=BIOSAMPLE_DF['model_dir_base']
+    )
+bedpe = expand(
+    os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
+    model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+    )
+plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
+model_perf = os.path.join(RESULTS_DIR, "crispr_benchmarking_performance_summary.tsv")
+
+output_files.extend(pred)
+output_files.extend(bedpe)
+output_files.append(plots)
+
+if config["benchmark_performance"]:
+     output_files.append(model_perf)
 
 rule all:
-	input: 
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz"), zip, biosample=BIOSAMPLE_DF['biosample'], model_name=BIOSAMPLE_DF['model_dir_base']
-		),
-		expand(
-			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv"), zip, biosample=BIOSAMPLE_DF["biosample"],
-			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
-		),
-		expand(
-			os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
-			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
-		),
-		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
+    input: 
+        output_files

@@ -37,20 +37,24 @@ rule generate_e2g_predictions:
 		epsilon = config["epsilon"],
 		feature_table_file = lambda wildcards: get_feature_table_file(wildcards.biosample, wildcards.model_name),
 		trained_model = lambda wildcards: get_trained_model(wildcards.biosample, wildcards.model_name),
+		model_dir = lambda wildcards: _get_model_dir_from_wildcards(wildcards.biosample, wildcards.model_name, BIOSAMPLE_DF),
+		crispr_benchmarking = config["benchmark_performance"],
 		scripts_dir = SCRIPTS_DIR
 	conda:
-		"../envs/encode_re2g.yml"
+		"../envs/sc_e2g.yml"
 	resources:
 		mem_mb=determine_mem_mb
 	output: 
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz")
 	shell: 
 		""" 
-		python {params.scripts_dir}/model_application/run_e2g.py \
+		python {params.scripts_dir}/run_e2g_cv.py \
 			--predictions {input.final_features} \
 			--feature_table_file {params.feature_table_file} \
 			--epsilon {params.epsilon} \
 			--trained_model {params.trained_model} \
+			--model_dir {params.model_dir} \
+			--crispr_benchmarking {params.crispr_benchmarking} \
 			--output_file {output.prediction_file}
 		"""
 
