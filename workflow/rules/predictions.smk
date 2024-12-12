@@ -41,14 +41,14 @@ rule generate_e2g_predictions:
 		crispr_benchmarking = config["benchmark_performance"],
 		scripts_dir = SCRIPTS_DIR
 	conda:
-		"../envs/sc_e2g.yml"
+		"../envs/encode_re2g.yml"
 	resources:
 		mem_mb=determine_mem_mb
 	output: 
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz")
 	shell: 
 		""" 
-		python {params.scripts_dir}/run_e2g_cv.py \
+		python {params.scripts_dir}/model_application/run_e2g.py \
 			--predictions {input.final_features} \
 			--feature_table_file {params.feature_table_file} \
 			--epsilon {params.epsilon} \

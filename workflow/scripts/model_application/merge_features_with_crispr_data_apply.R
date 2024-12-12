@@ -5,7 +5,7 @@ suppressPackageStartupMessages({
   library(data.table)
   library(tidyverse)
   library(GenomicRanges)
-  source(file.path(snakemake@scriptdir, "feature_tables", "get_fill_values.R"))
+  source(file.path(snakemake@params$scripts_dir, "feature_tables", "get_fill_values.R"))
 })
 
 ## Define functions --------------------------------------------------------------------------------
@@ -87,14 +87,14 @@ crispr <- select(crispr, -c(pair_uid, merged_uid, merged_start, merged_end))
 
 # load feature config file and only retain entries for features in input data
 config <- fread(snakemake@input$feature_table_file) %>% select(feature, aggregate_function, fill_value)
-score_rows = data.frame(feature=c("ENCODE-rE2G.Score"))
+score_rows = data.frame(feature=c("ENCODE-rE2G.Score", "ENCODE-rE2G.Score.cv"))
 score_rows$aggregate_function = "max"
 score_rows$fill_value = 0
 config = rbind(config, score_rows)
 config <- filter(config, feature %in% colnames(pred))
 
 # load tss annotations
-tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "score", "strand", "Ensembl_ID", "gene_type"))
+tss <- fread(snakemake@input$tss, header = FALSE, col.names = c("chr", "start", "end", "name", "score", "strand"))
 
 # create vector with aggregation functions for each feature
 agg_funs <- deframe(distinct(select(config, feature, aggregate_function)))
