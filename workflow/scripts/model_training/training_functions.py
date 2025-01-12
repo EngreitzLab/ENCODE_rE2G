@@ -132,6 +132,7 @@ def threshold_70_pct_recall(y_true, y_pred_full):
         thresh = None
     return thresh
 
+
 def threshold_at_target_recall(y_true, y_pred_full, recall_target):
     precision_full, recall_full, thresholds_full = precision_recall_curve_modified(
         y_true, y_pred_full
@@ -146,6 +147,7 @@ def threshold_at_target_recall(y_true, y_pred_full, recall_target):
     else:
         thresh = None
     return thresh
+
 
 # note: precision at constant threshold chosen for 70% recall (vs precision at 70% recall)
 def statistic_precision_at_threshold(y_true, y_pred_full, threshold):
@@ -164,6 +166,7 @@ def statistic_precision_at_threshold(y_true, y_pred_full, threshold):
 
     return precision_at_threshold
 
+
 def statistic_recall_at_threshold(y_true, y_pred_full, threshold):
     precision_full, recall_full, thresholds_full = precision_recall_curve_modified(
         y_true, y_pred_full
@@ -176,6 +179,7 @@ def statistic_recall_at_threshold(y_true, y_pred_full, threshold):
     else:
         recall_at_threshold = 0
     return recall_at_threshold
+
 
 # bootstrap p-values for delta (aupr/precision)
 def bootstrap_pvalue(delta, res_delta):

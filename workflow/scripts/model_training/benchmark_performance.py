@@ -27,8 +27,12 @@ def performance_summary(
         ][0]
         crispr_features["score_column_to_use"] = -crispr_features[dist_col]
     else:
-        n_zero_pos = crispr_pos.loc[crispr_features["ENCODE-rE2G.Score.cv"] == 0].shape[0]
-        n_zero_neg = crispr_neg.loc[crispr_features["ENCODE-rE2G.Score.cv"] == 0].shape[0]
+        n_zero_pos = crispr_pos.loc[crispr_features["ENCODE-rE2G.Score.cv"] == 0].shape[
+            0
+        ]
+        n_zero_neg = crispr_neg.loc[crispr_features["ENCODE-rE2G.Score.cv"] == 0].shape[
+            0
+        ]
         crispr_features["score_column_to_use"] = crispr_features["ENCODE-rE2G.Score.cv"]
 
     pct_missing_pos = n_zero_pos / crispr_pos.shape[0]
@@ -174,7 +178,7 @@ def main(crispr_features, output_file, model_names, model_thresholds):
             model_names.split(" "), model_thresholds.split(" ")
         )
     }
-    preds["model_threshold"] = [model_dict[name] for name in preds["model_name"]] 
+    preds["model_threshold"] = [model_dict[name] for name in preds["model_name"]]
 
     # initiate final df
     df = pd.DataFrame(

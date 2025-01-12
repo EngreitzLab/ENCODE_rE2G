@@ -19,6 +19,7 @@ def make_e2g_predictions(df_enhancers, feature_list, trained_model, epsilon):
     df_enhancers[MODEL + ".Score"] = probs[:, 1]
     return df_enhancers
 
+
 def make_e2g_predictions_cv(df_enhancers, feature_list, cv_models, epsilon):
     score_col = MODEL + ".Score.cv"
 
@@ -38,7 +39,6 @@ def make_e2g_predictions_cv(df_enhancers, feature_list, cv_models, epsilon):
             df_enhancers.loc[idx_test, score_col] = probs[:, 1]
 
     return df_enhancers
-
 
 
 @click.command()
@@ -68,13 +68,13 @@ def main(
     df_enhancers = make_e2g_predictions(
         df_enhancers, feature_list, trained_model, epsilon
     )
-    
+
     if str(crispr_benchmarking) == "True":
-       cv_models = os.path.join(model_dir, "cv_models")
-       df_enhancers = make_e2g_predictions_cv(
-           df_enhancers, feature_list, cv_models, epsilon
-       )  # add "ENCODE-rE2G.Score.cv"
-    
+        cv_models = os.path.join(model_dir, "cv_models")
+        df_enhancers = make_e2g_predictions_cv(
+            df_enhancers, feature_list, cv_models, epsilon
+        )  # add "ENCODE-rE2G.Score.cv"
+
     df_enhancers.to_csv(output_file, compression="gzip", sep="\t", index=False)
 
 
