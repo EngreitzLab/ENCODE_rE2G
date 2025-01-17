@@ -20,6 +20,11 @@ if (("ARC.E2G.Score" %in% df$feature) | ("Kendall" %in% df$feature)){
 		c("Mean log normalized RNA expression", "RNA pseudobulk TPM", "RNA percent cells detected", "Kendall correlation", "ARC-E2G score", "ABC score"));
 
 	colnames(ARC_rows) = colnames(df)
+
+	# handle ABC.Score & powerlaw.Score redundancy
+	if ("ABC.Score" %in% df$feature) {
+		ARC_rows <- dplyr::filter(ARC_rows, feature != "ABC.Score")
+	}
 	
 	df = rbind(df, ARC_rows)
 }
