@@ -172,7 +172,7 @@ rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
 		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
-		ancient(external_features_config = os.path.join(RESULTS_DIR, "{biosample}", "external_features_config.tsv")),
+		external_features_config = ancient(os.path.join(RESULTS_DIR, "{biosample}", "external_features_config.tsv"))
 	output:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}",  "ActivityOnly_plus_external_features.tsv.gz")
 	conda:
