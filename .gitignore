@@ -3,5 +3,6 @@ results/
 .snakemake/
 __pycache__/
 tests/test_output
+tests/replace_expected_output.sh
 config/config_biosamples.tsv
 config/config_models.tsv
