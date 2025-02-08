@@ -25,15 +25,6 @@ config["ABC_BIOSAMPLES_MODELS"] = os.path.join(config["results_dir"], "config_bi
 if not os.path.exists(config["results_dir"]):
     os.makedirs(config["results_dir"])
 
-def get_abc_config(config):
-	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
-	with open(abc_config_file, 'r') as stream:
-		abc_config = yaml.safe_load(stream)
-	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
-	abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
-	abc_config["results_dir"] = config["results_dir"]
-	return abc_config
-
 module ABC:
 	snakefile:
 		f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
@@ -87,5 +78,5 @@ rule all:
 			os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
-		#bw_files, 
+		bw_files, 
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")
