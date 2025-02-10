@@ -34,7 +34,10 @@ use rule * from ABC exclude all as abc_*
 
 RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
-BIOSAMPLE_DF = pd.read_csv(config["ABC_BIOSAMPLES"], sep="\t")
+BIOSAMPLE_DF = ABC.enable_retry(
+	pd.read_csv, 
+	func_args={'filepath_or_buffer': config["ABC_BIOSAMPLES"], 'sep': '\t'}
+)
 BIOSAMPLE_ACTIVITIES = {
 	biosample: activity for _, (biosample, activity) in 
 	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
