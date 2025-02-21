@@ -43,6 +43,24 @@ def process_model_config(model_config):
 
 	return model_config
 
+def get_abc_config(config):
+	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
+	with open(abc_config_file, 'r') as stream:
+		abc_config = yaml.safe_load(stream)
+	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
+	abc_config["results_dir"] = config["results_dir"]
+	
+	if "dataset_config" in config:
+		abc_config["biosamplesTable"] = config["dataset_config"]
+	else:
+		abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
+
+	if "gene_TSS500" in config:
+		abc_config["ref"]["genome_tss"] = config["gene_TSS500"]
+	if "genes" in config:
+		abc_config["ref"]["genes"] = config["genes"]
+	return abc_config
+
 def make_accessibility_file_df(biosample_df, biosample_activities):
 	df = biosample_df[["biosample", "ATAC", "DHS"]].copy()
 	df["single_access_file"] = ""
