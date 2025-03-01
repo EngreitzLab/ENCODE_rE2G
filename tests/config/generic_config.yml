@@ -5,7 +5,7 @@ TEST_CONFIG_NAME: "generic"
 ABC_BIOSAMPLES: "tests/config/test_biosamples.tsv"
 
 # Results directory
-results_dir: "tests/test_output_revamp/generic/"
+results_dir: "tests/test_output/generic/"
 
 # Reference files
 gene_TSS500: "reference/CollapsedGeneBounds.hg38.TSS500bp.bed"
