@@ -59,6 +59,12 @@ def get_abc_config(config):
 		abc_config["ref"]["genome_tss"] = config["gene_TSS500"]
 	if "genes" in config:
 		abc_config["ref"]["genes"] = config["genes"]
+	if "chr_sizes" in config:
+		abc_config["ref"]["chrom_sizes"] = config["chr_sizes"]
+	if "regions_blocklist" in config:
+		abc_config["ref"]["regions_blocklist"] = config["regions_blocklist"]
+	if "macs2_genomesize" in config:
+		abc_config["params_macs"]["genome_size"] = config["macs2_genomesize"]
 	return abc_config
 
 def make_accessibility_file_df(biosample_df, biosample_activities):
