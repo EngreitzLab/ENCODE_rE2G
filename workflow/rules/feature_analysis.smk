@@ -102,7 +102,7 @@ rule compare_all_feature_sets:
 		"../envs/encode_re2g.yml" 
 	resources:
 		mem_mb=determine_mem_mb,
-		runtime='24h'
+		runtime_hr='24'
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/compare_all_feature_sets.py \
