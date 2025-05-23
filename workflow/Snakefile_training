@@ -9,6 +9,7 @@ configfile: "config/config_training.yaml"
 model_config = pd.read_table(config["model_config"], na_values="").fillna("None").set_index("model", drop=False)
 dataset_config = pd.read_table(config["dataset_config"], na_values="").set_index("biosample", drop=False)
 conda: "mamba"
+MAX_MEM_MB = config["max_memory_allocation_mb"]
 include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])

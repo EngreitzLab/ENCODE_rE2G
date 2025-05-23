@@ -19,14 +19,6 @@ def make_paths_absolute(obj, base_path):
 			return new_file
 	return obj
 
-def determine_mem_mb(wildcards, input, attempt, min_gb=8):
-	# Memory resource calculator for snakemake rules
-	input_size_mb = input.size_mb
-	if ".gz" in str(input):
-		input_size_mb *= 8  # assume gz compressesed the file <= 8x
-	attempt_multiplier = 2 ** (attempt - 1)  # Double memory for each retry
-	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
-	return min(mem_to_use_mb, MAX_MEM_MB)
 
 def process_model_config(model_config):
 	# ABC_directory
@@ -49,6 +41,7 @@ def get_abc_config(config):
 		abc_config = yaml.safe_load(stream)
 	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
 	abc_config["results_dir"] = config["results_dir"]
+	abc_config["max_memory_allocation_mb"] = config["max_memory_allocation_mb"]
 	
 	if "dataset_config" in config:
 		abc_config["biosamplesTable"] = config["dataset_config"]

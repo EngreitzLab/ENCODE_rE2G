@@ -15,7 +15,7 @@ rule get_stats:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(determine_mem_mb, min_gb=63),
+		mem_mb=partial(ABC.determine_mem_mb, min_gb=63),
 	output:
 		stats = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}_stats.tsv")
 	shell:
@@ -34,7 +34,7 @@ rule generate_plots:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	output:
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf"),
 		stats_table = os.path.join(RESULTS_DIR, "all_qc_stats.tsv")

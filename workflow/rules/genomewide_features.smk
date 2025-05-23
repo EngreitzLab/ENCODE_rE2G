@@ -73,7 +73,7 @@ rule generate_num_candidate_enh_gene:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(determine_mem_mb, min_gb=16)
+		mem_mb=partial(ABC.determine_mem_mb, min_gb=16)
 	output:
 		NumCandidateEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumCandidateEnhGene.tsv")
 	shell: 
@@ -93,7 +93,7 @@ rule generate_num_tss_enh_gene:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(determine_mem_mb, min_gb=32)
+		mem_mb=partial(ABC.determine_mem_mb, min_gb=32)
 	output:
 		numTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumTSSEnhGene.tsv"),
 		extendedEnhancerRegions = temp(os.path.join(RESULTS_DIR, "{biosample}",  "new_features", "extendedEnhancerRegions.txt")),
@@ -119,7 +119,7 @@ rule generate_num_sum_enhancers:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(determine_mem_mb, min_gb=16)
+		mem_mb=partial(ABC.determine_mem_mb, min_gb=16)
 	output: 
 		NumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumEnhancersEG{kb}kb.txt"),
 		SumEnhancersEG = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "SumEnhancersEG{kb}kb.txt"),
@@ -158,7 +158,7 @@ rule activity_only_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	script:
 		"../scripts/feature_tables/activity_only_features.R"
 
@@ -178,7 +178,7 @@ rule add_external_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(determine_mem_mb, min_gb=min_mem)  
+		mem_mb=partial(ABC.determine_mem_mb, min_gb=min_mem)  
 	script:
 		"../scripts/feature_tables/merge_external_features.R"
 
@@ -192,6 +192,6 @@ rule gen_final_features:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	script:
 		"../scripts/feature_tables/gen_final_features.R"

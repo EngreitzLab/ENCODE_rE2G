@@ -42,7 +42,7 @@ rule generate_e2g_predictions:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	output: 
 		prediction_file = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions.tsv.gz")
 	shell: 
@@ -67,7 +67,7 @@ rule filter_e2g_predictions:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	output:
 		thresholded = os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz")
 	shell:
@@ -91,7 +91,7 @@ rule write_predictions_bedpe:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	shell:
 		"""
 		python {params.scripts_dir}/model_application/process_model_output.py \
@@ -111,6 +111,8 @@ rule write_accessibility_bw_fie:
 		out_bg = temp(os.path.join(IGV_DIR, "{biosample}", "{access_simple_id}.bg"))
 	conda:
 		"../envs/encode_re2g.yml"
+	resources:
+		mem_mb=ABC.determine_mem_mb
 	threads: 16
 	shell:
 		"""
