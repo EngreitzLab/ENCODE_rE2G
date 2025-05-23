@@ -11,7 +11,7 @@ suppressPackageStartupMessages({
 # load inputs
 df <- fread(snakemake@input$crispr_features)
 genes <- fread(snakemake@params$genes)
-colnames(genes) <- c('chr', 'start', 'end', 'gene', 'score', 'strand')
+colnames(genes) <- c('chr', 'start', 'end', 'gene', 'score', 'strand', 'Ensembl_ID', 'gene_type')
 
 # rename some column names for later utility
 df = dplyr::rename(df, 'chr'='chrom', 'start'='chromStart', 'end'='chromEnd', 'TargetGene'='measuredGeneSymbol')

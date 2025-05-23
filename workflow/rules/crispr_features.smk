@@ -35,9 +35,11 @@ rule overlap_features_crispr:
 		crispr = config['crispr_dataset'],
 		feature_table_file = os.path.join(RESULTS_DIR, "{dataset}", "feature_table.tsv"),
 		tss = config['gene_TSS500']
+	params:
+		tpm_threshold = lambda wildcards: model_config.loc[wildcards.model, 'tpm_threshold']
 	output: 
-		features = os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz"),
-		missing = os.path.join(RESULTS_DIR, "{dataset}",  "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
+		features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz"),
+		missing = os.path.join(RESULTS_DIR, "{dataset}",  "{model}", "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -49,11 +51,11 @@ rule overlap_features_crispr:
 # note: we use the NAfilled CRISPR feature data here!
 rule process_crispr_data:
 	input:
-		crispr_features = os.path.join(RESULTS_DIR, "{dataset}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
+		crispr_features = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
 	params:
 		genes = config["gene_TSS500"]
 	output:
-		processed = os.path.join(RESULTS_DIR, "{dataset}",  "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
+		processed = os.path.join(RESULTS_DIR, "{dataset}",  "{model}",  "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_{nafill}.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:

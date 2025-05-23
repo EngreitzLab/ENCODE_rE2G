@@ -12,10 +12,7 @@ conda: "mamba"
 include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
-config = make_paths_absolute(config, E2G_DIR_PATH)
-# Need to manually make results_dir an absolute path since above may
-# not work if results_dir folder isn't created
-# If results_dir is already an absolute path, this is a no-op
+config = make_paths_absolute(config, E2G_DIR_PATH) # in case results dir hasn't been created
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
 MODEL_DIR = config["model_dir"]
 # set direcotry to write bedpe files for viewing in IGV
@@ -28,15 +25,6 @@ config["ABC_BIOSAMPLES_MODELS"] = os.path.join(config["results_dir"], "config_bi
 if not os.path.exists(config["results_dir"]):
     os.makedirs(config["results_dir"])
 
-def get_abc_config(config):
-	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
-	with open(abc_config_file, 'r') as stream:
-		abc_config = yaml.safe_load(stream)
-	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
-	abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
-	abc_config["results_dir"] = config["results_dir"]
-	return abc_config
-
 module ABC:
 	snakefile:
 		f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
@@ -46,8 +34,11 @@ use rule * from ABC exclude all as abc_*
 
 RESULTS_DIR = config["results_dir"]
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
-BIOSAMPLE_DF = pd.read_csv(config["ABC_BIOSAMPLES"], sep="\t")
-BIOSAMPLE_ACTIVITES = {
+BIOSAMPLE_DF = ABC.enable_retry(
+	pd.read_csv, 
+	func_args={'filepath_or_buffer': config["ABC_BIOSAMPLES"], 'sep': '\t'}
+)
+BIOSAMPLE_ACTIVITIES = {
 	biosample: activity for _, (biosample, activity) in 
 	BIOSAMPLE_DF[["biosample", "default_accessibility_feature"]].iterrows()
 }
@@ -58,6 +49,15 @@ ABC_BIOSAMPLES_DIR = {biosample: os.path.join(RESULTS_DIR, biosample) for biosam
 
 # add model directory path to biosamples df
 BIOSAMPLE_DF = expand_biosample_df(BIOSAMPLE_DF)
+
+# extract info for accessibility bw files
+ACCESSIBILITY_DF = make_accessibility_file_df(BIOSAMPLE_DF, BIOSAMPLE_ACTIVITIES)
+bw_files = []
+if len(ACCESSIBILITY_DF)>0:
+	bw_files = expand(
+			os.path.join(IGV_DIR, "{biosample}", "{access_simple_id}.bw"), zip, biosample=ACCESSIBILITY_DF["biosample"],
+			access_simple_id=ACCESSIBILITY_DF["access_simple_id"]
+		)
 
 # These rules requires the variables above to be defined
 include: "rules/genomewide_features.smk"
@@ -74,7 +74,12 @@ rule all:
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
 		expand(
+			os.path.join(RESULTS_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.tsv.gz"), zip, biosample=BIOSAMPLE_DF["biosample"],
+			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
+		),
+		expand(
 			os.path.join(IGV_DIR, "{biosample}", "{model_name}", "encode_e2g_predictions_threshold{threshold}.bedpe"), zip, biosample=BIOSAMPLE_DF["biosample"],
 			model_name=BIOSAMPLE_DF['model_dir_base'], threshold=BIOSAMPLE_DF["model_threshold"]
 		),
+		#bw_files, 
 		plots = os.path.join(RESULTS_DIR, "qc_plots.pdf")

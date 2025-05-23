@@ -107,7 +107,7 @@ ext_ft = fread(snakemake@input$external_features_config, header=TRUE)
 # filter to relevant data....
 input_features = c(features$input_col, features$second_input)
 input_features = unique(na.omit(input_features)) # remove NAs, keep unique
-needed = setdiff(input_features, row.names(abc))
+needed = setdiff(input_features, colnames(abc))
 ext_ft = dplyr::filter(ext_ft, input_col %in% needed)
 unique_sources = na.omit(unique(ext_ft$source_file))
 

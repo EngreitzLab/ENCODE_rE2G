@@ -28,12 +28,80 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 	mem_to_use_mb = attempt_multiplier *  max(4 * input_size_mb, min_gb * 1000)
 	return min(mem_to_use_mb, MAX_MEM_MB)
 
+def process_model_config(model_config):
+	# ABC_directory
+	if "ABC_directory" not in model_config.columns:
+		model_config["ABC_directory"] = "None"
+
+	# override_params
+	if "override_params" not in model_config.columns:
+		model_config["override_params"] = "None"
+
+	# tpm_threshold
+	if "tpm_threshold" not in model_config.columns:
+		model_config["tpm_threshold"] = 0
+
+	return model_config
+
+def get_abc_config(config):
+	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
+	with open(abc_config_file, 'r') as stream:
+		abc_config = yaml.safe_load(stream)
+	abc_config["ABC_DIR_PATH"] = config["ABC_DIR_PATH"]
+	abc_config["results_dir"] = config["results_dir"]
+	
+	if "dataset_config" in config:
+		abc_config["biosamplesTable"] = config["dataset_config"]
+	else:
+		abc_config["biosamplesTable"] = config["ABC_BIOSAMPLES"]
+
+	if "gene_TSS500" in config:
+		abc_config["ref"]["genome_tss"] = config["gene_TSS500"]
+	if "genes" in config:
+		abc_config["ref"]["genes"] = config["genes"]
+	if "chr_sizes" in config:
+		abc_config["ref"]["chrom_sizes"] = config["chr_sizes"]
+	if "regions_blocklist" in config:
+		abc_config["ref"]["regions_blocklist"] = config["regions_blocklist"]
+	if "macs2_genomesize" in config:
+		abc_config["params_macs"]["genome_size"] = config["macs2_genomesize"]
+	return abc_config
+
+def make_accessibility_file_df(biosample_df, biosample_activities):
+	df = biosample_df[["biosample", "ATAC", "DHS"]].copy()
+	df["single_access_file"] = ""
+	df["access_base"] = ""
+	df["access_simple_id"] = ""
+
+	new_rows = []
+	for index, row in df.iterrows():
+		counter = 1
+		this_biosample = row["biosample"]
+		default_accessibility = biosample_activities[this_biosample] # get access feature for this biosample
+		for this_file in row[default_accessibility].split(","):
+			new_row = row.copy()
+			new_row["single_access_file"] = this_file
+			new_row["access_base"] = os.path.splitext(os.path.basename(this_file))[0]
+			new_row["access_simple_id"] = default_accessibility + f"_id{counter}"
+
+			if (os.path.splitext(os.path.basename(this_file))[1]==".bam") or ("tagAlign.gz" in os.path.basename(this_file)): # valid file extensions
+				new_rows.append(new_row)
+				counter += 1
+
+	new_df = pd.DataFrame(new_rows)
+	return(new_df)
+
+def get_input_for_bw(this_biosample, this_simple_id):
+	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF["access_simple_id"]==this_simple_id)]
+	return df_sub["single_access_file"][0]
+
 def expand_biosample_df(biosample_df):
 	# add new columns
 	if "model_dir" not in biosample_df.columns:
 		biosample_df['model_dir']  = np.nan
 	biosample_df['model_dir_base'] = ''
 	biosample_df['model_threshold'] = float(0)
+	biosample_df["tpm_threshold"] = float(0)
 
 	new_rows = []
 	for index, row in biosample_df.iterrows():
@@ -47,8 +115,27 @@ def expand_biosample_df(biosample_df):
 			new_rows.append(new_row)
 	new_df = pd.DataFrame(new_rows)
 	new_df['model_threshold'] = [float(get_model_threshold(this_biosample, this_model, new_df)) for this_biosample, this_model in zip(new_df['biosample'], new_df['model_dir_base'])]
+	new_df['tpm_threshold'] = [float(get_tpm_threshold(this_biosample, this_model, new_df)) for this_biosample, this_model in zip(new_df['biosample'], new_df['model_dir_base'])]
 
 	return(new_df)
+
+def process_abc_directory_column(model_config):
+	# Confirm each dataset corresponds to a unique ABC_directory
+	is_corresponding = model_config.groupby('dataset')['ABC_directory'].nunique() <= 1
+	if ~is_corresponding.all():
+		raise Exception(f"Please ensure each dataset corresponds to a unique ABC directory.")
+	# Make a dictionary of dataset:ABC_dir pairs
+	ABC_BIOSAMPLES_DIR = {}
+	for row in model_config.itertuples(index=False):
+		if row.dataset not in ABC_BIOSAMPLES_DIR: 
+			if row.ABC_directory=="None": # ABC directory is not provided
+				if row.dataset not in dataset_config['biosample']: # is there info to run ABC?
+					raise Exception(f"Dataset {row.dataset} not specified in dataset_config.")
+				ABC_BIOSAMPLES_DIR[row.dataset] = os.path.join(RESULTS_DIR, row.dataset)
+			else: # ABC directory is provided
+				ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
+	
+	return ABC_BIOSAMPLES_DIR
 
 def _validate_model_dir(potential_dir):
 	files = os.listdir(potential_dir)
@@ -106,7 +193,17 @@ def get_trained_model(biosample, model_name):
 
 def get_model_threshold(biosample, model_name, biosample_df=None):
 	model_dir = _get_model_dir_from_wildcards(biosample, model_name, biosample_df)
-	threshold_files = glob.glob(os.path.join(model_dir, 'threshold_*'))
+	threshold_files = glob.glob(os.path.join(model_dir, 'score_threshold_*'))
 	assert len(threshold_files) == 1, "Should have exactly 1 threshold file in directory"
 	threshold_file = os.path.basename(threshold_files[0])
-	return threshold_file.split("_")[1]
+	return threshold_file.split("threshold_")[1]
+
+def get_tpm_threshold(biosample, model_name, biosample_df=None):
+	model_dir = _get_model_dir_from_wildcards(biosample, model_name, biosample_df)
+
+	tpm_files = glob.glob(os.path.join(model_dir, 'tpm_threshold_*'))
+	if (len(tpm_files)==0):
+		return 0
+	else:
+		tpm_file = os.path.basename(tpm_files[0])
+	return tpm_file.split("threshold_")[1]

@@ -32,6 +32,7 @@ def performance_summary(
         missing_file = os.path.join(
             out_dir,
             dataset,
+            model_id,
             "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz",
         )
         pred_df = pd.read_csv(pred_file, sep="\t")
@@ -105,7 +106,7 @@ def performance_summary(
 @click.option("--crispr_data", required=True)
 @click.option("--out_dir", required=True)
 def main(model_config_file, output_file, crispr_data, out_dir):
-    model_name = "ENCODE-rE2G"
+    model_name = "E2G"
     model_config = (
         pd.read_table(model_config_file, na_values="")
         .fillna("None")

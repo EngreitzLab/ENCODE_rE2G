@@ -1,2 +1,2 @@
 biosample	DHS	ATAC	H3K27ac	default_accessibility_feature	HiC_file	HiC_type	HiC_resolution	alt_TSS	alt_genes
-K562_chr22	ABC/example_chr/chr22/ENCFF860XAE.chr22.sorted.se.bam			DHS	https://encode-public.s3.amazonaws.com/2022/05/15/0571c671-3645-4f92-beae-51dfd3f42c36/ENCFF621AIY.hic	hic	5000	ABC/example_chr/chr22/RefSeqCurated.170308.bed.CollapsedGeneBounds.chr22.hg38.TSS500bp.bed	ABC/example_chr/chr22/RefSeqCurated.170308.bed.CollapsedGeneBounds.chr22.hg38.bed
+K562_chr22_ATAC_H3K27ac_pl		ABC/example_chr/chr22/chr22.sorted.tagAlign.gz	ABC/example_chr/chr22/ENCFF790GFL.chr22.sorted.se.bam	ATAC				ABC/example_chr/chr22/RefSeqCurated.170308.bed.CollapsedGeneBounds.chr22.hg38.TSS500bp.bed	ABC/example_chr/chr22/RefSeqCurated.170308.bed.CollapsedGeneBounds.chr22.hg38.bed

@@ -90,7 +90,7 @@ config <- fread(snakemake@input$feature_table_file)
 config <- filter(config, feature %in% colnames(features))
 
 # load tss annotations
-tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "score", "strand"))
+tss <- fread(snakemake@input$tss, col.names = c("chr", "start", "end", "name", "score", "strand", "Ensembl_ID", "gene_type"))
 
 # create vector with aggregation functions for each feature
 agg_funs <- deframe(distinct(select(config, feature, aggregate_function)))
@@ -132,12 +132,9 @@ if ("distanceToTSS" %in% colnames(output)) {
       is.na(distanceToTSS) & is.na(startTSS_ref) ~ abs(enh_center - (startTSS + endTSS) / 2),
       is.na(distanceToTSS) ~ abs(enh_center - (startTSS_ref + endTSS_ref) / 2),
       TRUE ~ distanceToTSS
-    ))
-  output <- select(output, -c(enh_center))
+    )) %>%
+    select(-c(enh_center, startTSS_ref, endTSS_ref))
 }
-
-# remove columns added to compute missing distance to TSS
-output <- select(output, -c(startTSS_ref, endTSS_ref))
 
 # replace NAs with fill values if specified
 if (snakemake@wildcards$nafill == "NAfilled") {

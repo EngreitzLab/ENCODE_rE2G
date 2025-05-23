@@ -1,0 +1,11 @@
+Metric	Value
+num_sequencing_reads	1295019.0
+num_enh	14188.0
+num_genes	362.0
+num_enh_gene_links	56727.0
+num_genes_with_1_enh_min	362.0
+mean_num_genes_per_enh	3.9982379475613192
+mean_num_enh_per_gene	156.70441988950276
+mean_num_enh_per_gene_no_prom	162.3170028818444
+mean_log10_dist_to_tss	5.542905501072947
+mean_enh_region_size	619.1685226952354
