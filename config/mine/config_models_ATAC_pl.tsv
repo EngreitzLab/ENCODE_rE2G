@@ -1,0 +1,8 @@
+model	dataset	ABC_directory	feature_table	polynomial	override_params
+ATAC_powerlaw_all	ATAC_powerlaw		resources/feature_tables/ATAC_pl_all.tsv	False	
+ATAC_H3K27ac_powerlaw_all	ATAC_H3K27ac_powerlaw		resources/feature_tables/ATAC_H3K27ac_pl_all.tsv	False	
+ATAC_powerlaw_all_subset	ATAC_powerlaw		resources/feature_tables/ATAC_pl_subset.tsv	False	
+ATAC_H3K27ac_powerlaw_subset	ATAC_H3K27ac_powerlaw		resources/feature_tables/ATAC_H3K27ac_pl_subset.tsv	False	
+ATAC_powerlaw_final	ATAC_powerlaw		models/atac_powerlaw/feature_table.tsv	False	
+ATAC_H3K27ac_powerlaw_final	ATAC_H3K27ac_powerlaw		models/atac_h3k27ac_powerlaw/feature_table.tsv	False	
+

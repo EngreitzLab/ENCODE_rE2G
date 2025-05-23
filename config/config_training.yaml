@@ -6,6 +6,7 @@ run_feature_analysis: False # do you want to run feature analysis?
 
 # Output directory
 results_dir: "results"
+max_memory_allocation_mb: 250000 # for submiting jobs
 
 # Reference files
 gene_TSS500: "reference/CollapsedGeneBounds.hg38.TSS500bp.bed" # TSS reference file

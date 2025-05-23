@@ -9,7 +9,8 @@ import numpy as np
 
 configfile: "config/config.yaml"
 conda: "mamba"
-include: "rules/utils.smk"
+MAX_MEM_MB = config["max_memory_allocation_mb"]
+include: "rules/utils.smk" 
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
 config = make_paths_absolute(config, E2G_DIR_PATH) # in case results dir hasn't been created

@@ -14,7 +14,7 @@ rule calculate_forward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/forward_sequential_feature_selection.py \
@@ -38,7 +38,7 @@ rule plot_forward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	script:
 		"../scripts/model_training/plot_sffs.R"
 
@@ -58,7 +58,7 @@ rule calculate_backward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/backward_sequential_feature_selection.py \
@@ -82,7 +82,7 @@ rule plot_backward_feature_selection:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	script:
 		"../scripts/model_training/plot_sbfs.R"
 
@@ -101,7 +101,7 @@ rule compare_all_feature_sets:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb,
+		mem_mb=ABC.determine_mem_mb,
 		runtime='24h'
 	shell: 
 		""" 
@@ -130,7 +130,7 @@ rule calculate_permutation_feature_importance:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/permutation_feature_importance.py \
@@ -156,6 +156,6 @@ rule plot_permutation_feature_importance:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	script:
 		"../scripts/model_training/plot_pfi.R"

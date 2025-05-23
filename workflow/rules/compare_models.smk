@@ -32,6 +32,6 @@ rule plot_model_performances:
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
-		mem_mb=determine_mem_mb
+		mem_mb=ABC.determine_mem_mb
 	script:
 		"../scripts/model_training/plot_model_comparison.R"
