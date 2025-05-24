@@ -44,7 +44,7 @@ df <- replace_na(df, replace = fill_values)
 # reorder columns for output
 core_cols <- c(
   "chr", "start", "end", "name", "class", "TargetGene", "TargetGeneTSS",
-  "TargetGeneIsExpressed", "TargetGeneEnsembl_ID", "isSelfPromoter",
+  "TargetGeneEnsembl_ID", "isSelfPromoter", "isSelfGenic",
   "CellType", "distance", "ABC.Score"
 )
 core_cols <- core_cols[!core_cols %in% input_features] # remove core_cols that were renamed
