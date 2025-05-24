@@ -22,7 +22,7 @@ input_features = unique(na.omit(input_features)) # remove NAs, keep unique
 # core columns from ABC for output
 core_cols <- c(
   "chr", "start", "end", "name", "class", "TargetGene", "TargetGeneTSS",
-  "TargetGeneIsExpressed", "TargetGeneEnsembl_ID", "isSelfPromoter",
+  "TargetGeneEnsembl_ID", "isSelfPromoter", "isSelfGenic",
   "CellType", "distance"
 )
 # filter to existing core columns that are present in ABC or that will be added as features later

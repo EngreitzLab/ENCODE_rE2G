@@ -29,7 +29,6 @@ def write_connections_bedpe_format(pred, outfile, score_column):
 @click.option("--bedpe_output", required=True)
 def main(predictions_file, score_column, bedpe_output):
     pred_thresh = pd.read_csv(predictions_file, sep="\t")
-    pred_thresh = pred_thresh.loc[pred_thresh.TargetGeneIsExpressed]
     write_connections_bedpe_format(pred_thresh, bedpe_output, score_column)
 
 
