@@ -150,7 +150,7 @@ def _get_model_dir_from_wildcards(biosample, model_name, biosample_df=None):
 	return (model_dir.values[0])
 
 def _get_biosample_model_dir_from_row(row):
-	# if user has explicitly defined model_dir, use by default
+	# if user or scE2G pipeline has explicitly defined model_dir, use by default
 	if "model_dir" in BIOSAMPLE_DF.columns:
 		if pd.notna(row["model_dir"]):
 			_validate_model_dir(row["model_dir"])
