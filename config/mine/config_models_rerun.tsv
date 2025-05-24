@@ -1,3 +1,0 @@
-model	dataset	ABC_directory	feature_table	polynomial	override_params
-DNase_megamap	DNase_megamap		resources/feature_tables/12features_DNase_hic.tsv	False	
-DNase_intact	DNase_intact		resources/feature_tables/12features_DNase_hic.tsv	False	
