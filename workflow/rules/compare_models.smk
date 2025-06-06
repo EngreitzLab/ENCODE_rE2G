@@ -2,7 +2,8 @@
 # compare cv-performance on training data across all models (note, this is not the true benchmarking performance CRISPR elements not overlapping prediction elements aren't considered)  
 rule gather_model_performances:
 	input:
-		all_predictions = expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_predictions.tsv"), zip, dataset=model_config["dataset"], model=model_config["model"])
+		all_predictions = expand(os.path.join(MODELS_RESULTS_DIR "{model}", "model", "training_predictions.tsv"), model=model_config["model"]),
+		all_missing = expand(os.path.join(MODELS_RESULTS_DIR "{model}", "combined_CRISPR_dataset.missing_from_features.{nafill}.tsv.gz"), model=model_config["model"]),
 	output:
 		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
 	params:
@@ -17,6 +18,8 @@ rule gather_model_performances:
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/compare_all_models.py \
+			--all_pred "{input.all_predictions}" \
+			--all_missing "{input.all_missing}" \
 			--model_config_file {params.model_config_file} \
 			--output_file {output.comp_table}  \
 			--crispr_data {params.crispr_dataset} \

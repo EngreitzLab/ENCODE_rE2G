@@ -35,6 +35,32 @@ def process_model_config(model_config):
 
 	return model_config
 
+# create dictionary of dictionaries to map datasets to crispr cell types: model: {crispr_ct: dataset, ...}
+def make_model_dataset_dict(model_config, dataset_config):
+
+	# dict of dataset: crispr_cell_type
+	dataset_ct_dict = dict(zip(dataset_config['biosample'], dataset_config['crispr_cell_type']))
+
+	model_dicts = []
+	for index, row in model_config.iterrows():
+		model_datasets = [item.strip() for item in row["dataset"].split(",")] # return list of datasets 
+		mapped_cts = [dataset_ct_dict[ds] for ds in model_datasets]
+
+		# make sure 1:1 correspondance with CRISPR cell types
+		if sorted(CRISPR_CELL_TYPES) != sorted(mapped_cts):
+			print(f"Model datasets: {model_datasets} -> cell types: {mapped_cts}")
+			raise Exception(f"Datasets specified for {row["model"]} do not map to all CRISPR cell types.")	
+
+		this_model_dict = dict(zip(model_datasets, mapped_cts))
+		model_dicts.append(this_model_dict)
+
+	# combine into dictionary of dicitonaries
+	model_dataset_dict = dict(zip(model_config["model"]), model_dicts)
+	
+	return model_dataset_dict
+
+
+
 def get_abc_config(config):
 	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
 	with open(abc_config_file, 'r') as stream:

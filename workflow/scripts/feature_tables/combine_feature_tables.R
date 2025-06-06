@@ -6,12 +6,16 @@ library(dplyr)
 model_config = fread(snakemake@input$model_config)
 ds = snakemake@wildcards$dataset
 
-# merge feature tables
-models_this = dplyr::filter(model_config, dataset==ds)
-for (i in 1:nrow(models_this)){
-    ft = fread(models_this$feature_table[i])
-    if (i==1){df = ft} else {df = rbind(df, ft)}
+# merge feature tables for models with this dataset
+ft_files = c()
+for (i in 1:nrow(model_config)){
+	model_datasets = model_config$dataset[i] %>% strsplit(",") %>% trimws()
+	if (ds %in% model_datasets) {
+		ft_files = c(ft_files, model_config$feature_table[i])
+	}
 }
+
+df <- lapply(ft_files, fread) %>% rbindlist() %>% as.data.frame()
 
 # for sc-E2G pipeline
 if (("ARC.E2G.Score" %in% df$feature) | ("Kendall" %in% df$feature)){

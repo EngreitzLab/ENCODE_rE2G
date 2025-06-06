@@ -12,7 +12,7 @@ from training_functions import (
 
 
 def performance_summary(
-    model_id, dataset, model_name, out_dir, crispr_data="", n_boot=1000
+    model_id, dataset, pred_file, missing_file, model_name, out_dir, crispr_data="", n_boot=1000
 ):
     # read in predicitons
     if model_id == "distance":
@@ -26,15 +26,15 @@ def performance_summary(
         Y_pred_all = crispr_data["distance"] * -1
         pct_missing = 0
     else:  # normal models
-        pred_file = os.path.join(
-            out_dir, dataset, model_id, "model", "training_predictions.tsv"
-        )
-        missing_file = os.path.join(
-            out_dir,
-            dataset,
-            model_id,
-            "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz",
-        )
+        # pred_file = os.path.join(
+        #     out_dir, dataset, model_id, "model", "training_predictions.tsv"
+        # )
+        # missing_file = os.path.join(
+        #     out_dir,
+        #     dataset,
+        #     model_id,
+        #     "missing.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz",
+        # )
         pred_df = pd.read_csv(pred_file, sep="\t")
         missing_df = pd.read_csv(missing_file, sep="\t")
 
@@ -101,17 +101,25 @@ def performance_summary(
 
 
 @click.command()
+@click.option("--all_pred", required=True)
+@click.option("--all_missing", required=True)
 @click.option("--model_config_file", required=True)
 @click.option("--output_file", required=True)
 @click.option("--crispr_data", required=True)
 @click.option("--out_dir", required=True)
-def main(model_config_file, output_file, crispr_data, out_dir):
+def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out_dir):
+    all_pred = all_pred.split(" ")
+    all_missing = all_missing.split(" ")
+
     model_name = "E2G"
     model_config = (
         pd.read_table(model_config_file, na_values="")
         .fillna("None")
         .set_index("model", drop=False)
     )
+    model_config["prediction_file"] = all_pred
+    model_config["missing_file"] = all_missing
+    
     # initiate final df
     df = pd.DataFrame(
         columns=[
@@ -130,7 +138,7 @@ def main(model_config_file, output_file, crispr_data, out_dir):
 
     # iterate through rows of model config and add results to final df
     for row in model_config.itertuples(index=False):
-        res_row = performance_summary(row.model, row.dataset, model_name, out_dir)
+        res_row = performance_summary(row.model, row.dataset, row.prediction_file, row.missing_file, model_name, out_dir)
         df = pd.concat([df, res_row])
     # add row for distance
     res_row = performance_summary(

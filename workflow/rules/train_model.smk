@@ -7,7 +7,7 @@ rule generate_model_params:
 		default_params = config["default_params"],
 		scripts_dir = SCRIPTS_DIR
 	output:
-		final_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+		final_params = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_params.pkl")
 	conda:
 		"../envs/encode_re2g.yml" 
 	shell:
@@ -21,19 +21,17 @@ rule generate_model_params:
 # generate trained model and cross-validated predictions on CRISPR data
 rule train_model:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(MODELS_RESULTS_DIR, "{model}", "for_training.combined_CRISPR_dataset.overlapping_features.NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
-		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+		model_params = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial'],
-		out_dir = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model")
+		out_dir = os.path.join(MODELS_RESULTS_DIR, "{model}")
 	output:
-		trained_model = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"),
-		pred = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_predictions.tsv"),
-		#in_order = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_data_in_order.tsv"),
-		#shap = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "shap_scores.tsv")
+		trained_model = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "model_full.pkl"),
+		pred = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_predictions.tsv"),
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
