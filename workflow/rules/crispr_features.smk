@@ -61,7 +61,7 @@ rule process_crispr_data:
 	params:
 		genes = config["gene_TSS500"],
 	output:
-		processed = os.path.join(MODELS_RESULTS_DIR, "{model}",  "for_training.combined_CRISPR_dataset.overlapping_features.{nafill}.tsv.gz")
+		processed = os.path.join(MODELS_RESULTS_DIR, "{model}",  "for_training.combined_CRISPR_dataset.overlapping_features.{nafill}.tsv.gz"),
 		missing = os.path.join(MODELS_RESULTS_DIR, "{model}",  "combined_CRISPR_dataset.missing_from_features.{nafill}.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml" 

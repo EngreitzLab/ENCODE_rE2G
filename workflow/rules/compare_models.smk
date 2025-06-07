@@ -2,10 +2,10 @@
 # compare cv-performance on training data across all models (note, this is not the true benchmarking performance CRISPR elements not overlapping prediction elements aren't considered)  
 rule gather_model_performances:
 	input:
-		all_predictions = expand(os.path.join(MODELS_RESULTS_DIR "{model}", "model", "training_predictions.tsv"), model=model_config["model"]),
-		all_missing = expand(os.path.join(MODELS_RESULTS_DIR "{model}", "combined_CRISPR_dataset.missing_from_features.{nafill}.tsv.gz"), model=model_config["model"]),
+		all_predictions = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_predictions.tsv"), model=model_config["model"]),
+		all_missing = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "combined_CRISPR_dataset.missing_from_features.NAfilled.tsv.gz"), model=model_config["model"]),
 	output:
-		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
+		comp_table = os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")
 	params:
 		scripts_dir = SCRIPTS_DIR,
 		out_dir = RESULTS_DIR,
@@ -28,10 +28,10 @@ rule gather_model_performances:
 
 rule plot_model_performances:
 	input:
-		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
+		comp_table = os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")
 	output:
-		comp_plot_auprc = os.path.join(RESULTS_DIR, "performance_across_models_auprc.pdf"),
-		comp_plot_prec = os.path.join(RESULTS_DIR, "performance_across_models_precision.pdf")
+		comp_plot_auprc = os.path.join(MODELS_RESULTS_DIR, "performance_across_models_auprc.pdf"),
+		comp_plot_prec = os.path.join(MODELS_RESULTS_DIR, "performance_across_models_precision.pdf")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:

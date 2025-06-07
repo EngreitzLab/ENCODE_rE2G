@@ -19,7 +19,7 @@ config = make_paths_absolute(config, E2G_DIR_PATH)
 config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"]) # manually modify results dir since may not exist
 
 # define some global variables 
-RESULTS_DIR = os.path.join(config["results_dir"], "dataset_results") # for datasets
+RESULTS_DIR = config["results_dir"]
 MODELS_RESULTS_DIR = os.path.join(config["results_dir"], "model_results")
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 CRISPR_CELL_TYPES = config["crispr_cell_types"]
@@ -27,6 +27,7 @@ CRISPR_CELL_TYPES = config["crispr_cell_types"]
 # process configs
 model_config = process_model_config(model_config)
 model_dataset_dict = make_model_dataset_dict(model_config, dataset_config) # dictionary of dictionaries: model: {crispr_ct: dataset, ...}
+print(model_dataset_dict)
 
 # import ABC submodule
 module ABC:
@@ -50,14 +51,13 @@ ABC_BIOSAMPLES_DIR = process_abc_directory_column(model_config)
 
 # specify target files
 output_files = []
-output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), model=model_config["model"]))
 output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "model_full.pkl"), model=model_config["model"])) # trained models
 
 # output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), zip, dataset=model_config["dataset"], model=model_config["model"]))
 # output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
 
-output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
-output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
+output_files.append(os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
+output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
 
 if config["run_feature_analysis"]:
     output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), model=model_config["model"]))

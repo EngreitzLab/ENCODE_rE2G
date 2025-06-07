@@ -49,13 +49,13 @@ def make_model_dataset_dict(model_config, dataset_config):
 		# make sure 1:1 correspondance with CRISPR cell types
 		if sorted(CRISPR_CELL_TYPES) != sorted(mapped_cts):
 			print(f"Model datasets: {model_datasets} -> cell types: {mapped_cts}")
-			raise Exception(f"Datasets specified for {row["model"]} do not map to all CRISPR cell types.")	
+			raise Exception(f"Datasets specified for {row['model']} do not map to all CRISPR cell types.")	
 
-		this_model_dict = dict(zip(model_datasets, mapped_cts))
+		this_model_dict = dict(zip(mapped_cts, model_datasets))
 		model_dicts.append(this_model_dict)
 
 	# combine into dictionary of dicitonaries
-	model_dataset_dict = dict(zip(model_config["model"]), model_dicts)
+	model_dataset_dict = dict(zip(model_config["model"], model_dicts))
 	
 	return model_dataset_dict
 
@@ -146,13 +146,15 @@ def process_abc_directory_column(model_config):
 	# Make a dictionary of dataset:ABC_dir pairs
 	ABC_BIOSAMPLES_DIR = {}
 	for row in model_config.itertuples(index=False):
-		if row.dataset not in ABC_BIOSAMPLES_DIR: 
-			if row.ABC_directory=="None": # ABC directory is not provided
-				if row.dataset not in dataset_config['biosample']: # is there info to run ABC?
-					raise Exception(f"Dataset {row.dataset} not specified in dataset_config.")
-				ABC_BIOSAMPLES_DIR[row.dataset] = os.path.join(RESULTS_DIR, row.dataset)
-			else: # ABC directory is provided
-				ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
+		model_datasets = [item.strip() for item in row.dataset.split(",")]
+		for ds in model_datasets:
+			if ds not in ABC_BIOSAMPLES_DIR: 
+				if row.ABC_directory=="None": # ABC directory is not provided
+					if ds not in dataset_config['biosample']: # is there info to run ABC?
+						raise Exception(f"Dataset {ds} not specified in dataset_config.")
+					ABC_BIOSAMPLES_DIR[ds] = os.path.join(RESULTS_DIR, ds)
+				else: # ABC directory is provided
+					ABC_BIOSAMPLES_DIR[ds] = ds
 	
 	return ABC_BIOSAMPLES_DIR
 
