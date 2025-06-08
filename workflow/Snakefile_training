@@ -22,7 +22,6 @@ config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"]) # manu
 RESULTS_DIR = config["results_dir"]
 MODELS_RESULTS_DIR = os.path.join(config["results_dir"], "model_results")
 SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
-CRISPR_CELL_TYPES = config["crispr_cell_types"]
 
 # process configs
 model_config = process_model_config(model_config)
