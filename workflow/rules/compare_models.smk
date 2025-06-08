@@ -3,7 +3,7 @@
 rule gather_model_performances:
 	input:
 		all_predictions = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_predictions.tsv"), model=model_config["model"]),
-		all_missing = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "combined_CRISPR_dataset.missing_from_features.NAfilled.tsv.gz"), model=model_config["model"]),
+		all_missing = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "merged_CRISPR_dataset.missing_from_features.NAfilled.tsv.gz"), model=model_config["model"]),
 	output:
 		comp_table = os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")
 	params:

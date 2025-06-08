@@ -53,7 +53,7 @@ def determine_num_tss_enh_gene(
 @click.option("--enhancer_tss_int")
 @click.option("--out_file")
 def main(abc_predictions, ref_gene_tss, extended_enhancers, enhancer_tss_int, out_file):
-    pred_df = pd.read_csv(abc_predictions, sep="\t")
+    pred_df = pd.read_csv(abc_predictions, sep="\t", compression="gzip")
     if len(pred_df) == 0:
         raise Exception("Did not find any enhancers in the Predictions file")
 

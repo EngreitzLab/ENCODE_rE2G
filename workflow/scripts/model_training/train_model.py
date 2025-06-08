@@ -25,6 +25,7 @@ def train_and_predict(
 		polynomial_names = poly.get_feature_names_out(feature_list_core)
 		X = pd.DataFrame(X, columns=polynomial_names)
 
+
 	Y = df_dataset["Regulated"].values.astype(np.int64)
 
 	# initialize df for feature weights & metrics
@@ -88,32 +89,34 @@ def train_and_predict(
 				n_test_pos = np.sum(Y_test)
 				n_test_neg = len(Y_test) - n_test_pos
 
+				multiple_labels = n_test_pos > 0 and n_test_neg > 0
+
 				ll_train = log_loss(Y_train, model.predict_proba(X_train)[:, 1])
 				ll_test_full = (
 					log_loss(Y_test, probs_full[idx_test, 1])
-					if n_test_pos > 0
+					if multiple_labels
 					else np.NaN
 				)
-				ll_test = log_loss(Y_test, probs[:, 1]) if n_test_pos > 0 else np.NaN
+				ll_test = log_loss(Y_test, probs[:, 1]) if multiple_labels else np.NaN
 				auroc_train = roc_auc_score(Y_train, model.predict_proba(X_train)[:, 1])
 				auroc_test_full = (
 					roc_auc_score(Y_test, probs_full[idx_test, 1])
-					if n_test_pos > 0
+					if multiple_labels
 					else np.NaN
 				)
 				auroc_test = (
-					roc_auc_score(Y_test, probs[:, 1]) if n_test_pos > 0 else np.NaN
+					roc_auc_score(Y_test, probs[:, 1]) if multiple_labels > 0 else np.NaN
 				)
 				auprc_train = statistic_aupr(
 					Y_train, model.predict_proba(X_train)[:, 1]
 				)
 				auprc_test_full = (
 					statistic_aupr(Y_test, probs_full[idx_test, 1])
-					if n_test_pos > 0
+					if multiple_labels
 					else np.NaN
 				)
 				auprc_test = (
-					statistic_aupr(Y_test, probs[:, 1]) if n_test_pos > 0 else np.NaN
+					statistic_aupr(Y_test, probs[:, 1]) if multiple_labels else np.NaN
 				)
 
 				df_temp = pd.DataFrame(

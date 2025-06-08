@@ -47,7 +47,9 @@ def make_model_dataset_dict(model_config, dataset_config):
 		mapped_cts = [dataset_ct_dict[ds] for ds in model_datasets]
 
 		# make sure 1:1 correspondance with CRISPR cell types
-		if sorted(CRISPR_CELL_TYPES) != sorted(mapped_cts):
+		crispr_data_cell_types = config["crispr_cell_types"][row["crispr_dataset"]]
+
+		if sorted(crispr_data_cell_types) != sorted(mapped_cts):
 			print(f"Model datasets: {model_datasets} -> cell types: {mapped_cts}")
 			raise Exception(f"Datasets specified for {row['model']} do not map to all CRISPR cell types.")	
 

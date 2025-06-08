@@ -33,13 +33,13 @@ rule overlap_features_crispr_for_dataset:
 	input:
 		features = os.path.join(RESULTS_DIR, "{dataset}", "genomewide_features.tsv.gz"),
 		feature_table_file = os.path.join(RESULTS_DIR, "{dataset}", "feature_table.tsv"),
-		crispr = config['crispr_dataset'],
+		crispr = lambda wildcards: config['crispr_dataset'][wildcards.crispr_dataset],
 		tss = config['gene_TSS500']
 	params:
 		crispr_cell_type = lambda wildcards: dataset_config.loc[wildcards.dataset, "crispr_cell_type"]
 	output: 
-		features = os.path.join(RESULTS_DIR, "{dataset}", "CRISPR_dataset.overlapping_features.{nafill}.tsv.gz"),
-		missing = os.path.join(RESULTS_DIR, "{dataset}", "CRISPR_dataset.missing_from_features.{nafill}.tsv.gz")
+		features = os.path.join(RESULTS_DIR, "{dataset}", "CRISPR_dataset_{crispr_dataset}.overlapping_features.{nafill}.tsv.gz"),
+		missing = os.path.join(RESULTS_DIR, "{dataset}", "CRISPR_dataset_{crispr_dataset}.missing_from_features.{nafill}.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -51,7 +51,8 @@ rule overlap_features_crispr_for_dataset:
 # note: we use the NAfilled CRISPR feature data here!
 def get_crispr_files_for_model(wildcards, file_type):
 	datasets = model_dataset_dict[wildcards.model].values()
-	files = [os.path.join(RESULTS_DIR, ds, f"CRISPR_dataset.{file_type}.{wildcards.nafill}.tsv.gz") for ds in datasets]
+	crispr_dataset = model_config.loc[wildcards.model, "crispr_dataset"]
+	files = [os.path.join(RESULTS_DIR, ds, f"CRISPR_dataset_{crispr_dataset}.{file_type}.{wildcards.nafill}.tsv.gz") for ds in datasets]
 	return files
 
 rule process_crispr_data:
@@ -61,8 +62,8 @@ rule process_crispr_data:
 	params:
 		genes = config["gene_TSS500"],
 	output:
-		processed = os.path.join(MODELS_RESULTS_DIR, "{model}",  "for_training.combined_CRISPR_dataset.overlapping_features.{nafill}.tsv.gz"),
-		missing = os.path.join(MODELS_RESULTS_DIR, "{model}",  "combined_CRISPR_dataset.missing_from_features.{nafill}.tsv.gz")
+		processed = os.path.join(MODELS_RESULTS_DIR, "{model}",  "for_training.merged_CRISPR_dataset.overlapping_features.{nafill}.tsv.gz"),
+		missing = os.path.join(MODELS_RESULTS_DIR, "{model}",  "merged_CRISPR_dataset.missing_from_features.{nafill}.tsv.gz")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:

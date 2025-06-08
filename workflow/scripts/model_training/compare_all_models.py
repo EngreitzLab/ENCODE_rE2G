@@ -142,7 +142,7 @@ def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out
         df = pd.concat([df, res_row])
     # add row for distance
     res_row = performance_summary(
-        "distance", "baseline", "", out_dir, crispr_data=crispr_data
+        "distance", "baseline", "", "", "", out_dir, crispr_data=crispr_data
     )
     df = pd.concat([df, res_row])
 

@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 })
 
 combine_crispr_features <- function(space_sep_string) {
-  crispr_feature_files <- space_sep_list %>% strsplit(" ") %>% trimws()
+  crispr_feature_files <- space_sep_string %>% strsplit(" ") %>% unlist() %>% trimws()
   crispr_features <- lapply(crispr_feature_files, fread)
 
   # get common columns (e.g. features in all)

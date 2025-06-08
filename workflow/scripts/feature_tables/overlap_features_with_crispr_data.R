@@ -57,7 +57,7 @@ merge_feature_to_crispr <- function(crispr, features, feature_score_cols, agg_fu
   output <- merged
 
   # sort output by cre position
-  output <- output[order(dataset, chrom, chromStart, chromEnd, measuredGeneSymbol), ]
+  output <- output[order(chrom, chromStart, chromEnd, measuredGeneSymbol), ]
   return(list(merged=output, missing=missing))
 }
 
@@ -83,7 +83,7 @@ features <- fread(snakemake@input$features)
 
 # load crispri data and only retain relevant columns and filter to cell type
 crispr <- fread(snakemake@input$crispr)
-crispr <- select(crispr, -c(pair_uid, merged_uid, merged_start, merged_end)) %>% 
+crispr <- select(crispr, -any_of(c("pair_uid", "merged_uid", "merged_start", "merged_end"))) %>% 
   filter(CellType == snakemake@params$crispr_cell_type)
 
 # load feature config file and only retain entries for features in input data

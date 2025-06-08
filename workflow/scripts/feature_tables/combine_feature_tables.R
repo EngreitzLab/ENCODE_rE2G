@@ -4,12 +4,12 @@ library(dplyr)
 
 # inputs from snakemake
 model_config = fread(snakemake@input$model_config)
-ds = snakemake@wildcards$dataset
+ds = snakemake@wildcards$dataset 
 
 # merge feature tables for models with this dataset
 ft_files = c()
 for (i in 1:nrow(model_config)){
-	model_datasets = model_config$dataset[i] %>% strsplit(",") %>% trimws()
+	model_datasets = model_config$dataset[i] %>% strsplit(",") %>% unlist() %>% trimws()
 	if (ds %in% model_datasets) {
 		ft_files = c(ft_files, model_config$feature_table[i])
 	}

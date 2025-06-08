@@ -35,11 +35,13 @@ def generate_num_sum_enhancers(
     )
 
     # select columns from EnhancerPredictionsAllPutative
-    os.system(
-        "zcat {} | csvtk cut -t -f chr,start,end,name,activity_base | sed '1d' > {}".format(
-            pred_file, pred_slim
-        )
-    )
+    df = pd.read_csv(pred_file, sep="\t", usecols=["chr", "start", "end", "name", "activity_base"], compression= "gzip")
+    df.to_csv(pred_slim, sep="\t", index=False, header=False)
+    # os.system(
+    #     "zcat {} | csvtk cut -t -f chr,start,end,name,activity_base | sed '1d' > {}".format(
+    #         pred_file, pred_slim
+    #     )
+    # )
 
     # intersect with expanded enhancer regions and count n enhancers
     os.system(
