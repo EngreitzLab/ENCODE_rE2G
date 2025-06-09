@@ -10,7 +10,8 @@ rule gather_model_performances:
 		scripts_dir = SCRIPTS_DIR,
 		out_dir = RESULTS_DIR,
 		model_config_file = config["model_config"],
-		crispr_dataset = config["crispr_dataset"]
+		crispr_dataset_names = [n for n in model_config["crispr_dataset"].unique()],
+		crispr_dataset = lambda wildcards: [config["crispr_dataset"][cd] for cd in model_config["crispr_dataset"].unique()] 
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -22,7 +23,8 @@ rule gather_model_performances:
 			--all_missing "{input.all_missing}" \
 			--model_config_file {params.model_config_file} \
 			--output_file {output.comp_table}  \
-			--crispr_data {params.crispr_dataset} \
+			--crispr_names "{params.crispr_dataset_names}" \
+			--crispr_data "{params.crispr_dataset}" \
 			--out_dir {params.out_dir}
 		"""
 

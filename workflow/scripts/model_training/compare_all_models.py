@@ -15,7 +15,7 @@ def performance_summary(
     model_id, dataset, pred_file, missing_file, model_name, out_dir, crispr_data="", n_boot=1000
 ):
     # read in predicitons
-    if model_id == "distance":
+    if model_id.startswith("distance"):
         crispr_data = pd.read_csv(crispr_data, sep="\t")
         crispr_data["distance"] = np.abs(
             (crispr_data["chromStart"] + crispr_data["chromEnd"]) / 2
@@ -106,10 +106,12 @@ def performance_summary(
 @click.option("--model_config_file", required=True)
 @click.option("--output_file", required=True)
 @click.option("--crispr_data", required=True)
+@click.option("--crispr_names", required=True)
 @click.option("--out_dir", required=True)
-def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out_dir):
-    all_pred = all_pred.split(" ")
-    all_missing = all_missing.split(" ")
+def main(all_pred, all_missing, model_config_file, output_file, crispr_data, crispr_names, out_dir):
+    all_pred_files = all_pred.split(" ")
+    all_missing_files = all_missing.split(" ")
+    crispr_dict = dict(zip(crispr_names.split(" "), crispr_data.split(" ")))
 
     model_name = "E2G"
     model_config = (
@@ -117,8 +119,8 @@ def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out
         .fillna("None")
         .set_index("model", drop=False)
     )
-    model_config["prediction_file"] = all_pred
-    model_config["missing_file"] = all_missing
+    model_config["prediction_file"] = all_pred_files
+    model_config["missing_file"] = all_missing_files
     
     # initiate final df
     df = pd.DataFrame(
@@ -140,11 +142,13 @@ def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out
     for row in model_config.itertuples(index=False):
         res_row = performance_summary(row.model, row.dataset, row.prediction_file, row.missing_file, model_name, out_dir)
         df = pd.concat([df, res_row])
-    # add row for distance
-    res_row = performance_summary(
-        "distance", "baseline", "", "", "", out_dir, crispr_data=crispr_data
-    )
-    df = pd.concat([df, res_row])
+    
+    for key, file_path in crispr_dict.items():
+    # add row(s) for distance
+        res_row = performance_summary(
+            f"distance_{key}", "baseline", "", "", "", out_dir, crispr_data=file_path
+        )
+        df = pd.concat([df, res_row])
 
     # sort table by AUPRC
     df = df.sort_values(by="AUPRC", ascending=False)
