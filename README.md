@@ -49,16 +49,18 @@ The way we choose the model depends on the biosamples input. The code for model 
 
 ## Train model
 
-**Important: Only train models for biosamples matching the corresponding CRISPR data (in this case, K562)**
+**Important: Only train models for biosamples matching the corresponding CRISPR data**
 - Much of the the model training code was adapted from Alireza Karbalayghareh's [original implementation](https://github.com/karbalayghareh/ENCODE-E2G).
 
 Modify `config/config_training.yaml` with your model and dataset configs
-- `model_config` has columns:  model, dataset, ABC_directory, feature_table, polynomial (do you want to use polynomial features?), and override_params (are there model training parameters you would like to change from the default logistic regression settings specfied in `config/config_training.yaml`?)
+- `model_config` has columns:  model, dataset, crispr_dataset, feature_table, polynomial (do you want to use polynomial features?), and override_params (are there model training parameters you would like to change from the default logistic regression settings specfied in `config/config_training.yaml`?)
     - See [this example](https://pastebin.com/zt1868R3) `model_config` for how to specfiy override parameters. If there are no override_params, leave the column blank but still include the header.
+    - The `dataset` column is a comma-separated list with values corresponding to biosaples in `dataset_config`. Datasets must be provided for each `crispr_cell_type` included in the corresponding `crispr_dataset`.
+    - The `crispr_dataset` column corresponds to a key under `crispr_dataset` in `config_training`.
     - Feature tables must be specified for each model (example: `resources/feature_tables`) with columns: feature (name in final table), input_col (name in ABC output), second_input (multiplied by input_col if provided), aggregate_function (how to combine feature values when a CRISPR element overlaps more than one ABC element), fill_value (how to replace NAs), nice_name (used when plotting)
     - Note that trained models generated using polynomial features cannot directly be used in the **Apply model** workflow
 - `dataset_config` is an ABC biosamples config to generate ABC predictions for datasets without an existing ABC directory. 
-- Each dataset must correspond to a unique ABC_directory, with "biosample" in `dataset_config` equals "dataset" in `model_config`. If no ABC_directory is indicated in `model_config`, it must have an entry in `dataset_config`.
+    Each dataset must correspond to a "biosample" in `dataset_config` equals "dataset" in `model_config`. The column `crispr_cell_type` indicates the which cell type in the CRISPR data corresponds to this biosample.
 - If you are including features in addition to those generated within the pipeline (e.g. a value in input_col or second_input of a feature table is not included in `reference_features` in `config/config_training/yaml`), you must also define how to add these values with an external_features_config, which you include in `dataset_config` in the optional column external_features_config:
     - An `external_features_config` has columns feature (corresponding to the missing input_col or second_input value), source_col (column name in the source file), aggregate_function (how to combine values when merging different element definitions), join_by, and source_file
     - join_by must be either "TargetGene" (feature is defined per gene) or "overlap" (feature is defined per element-gene pair)
