@@ -35,25 +35,25 @@ def process_model_config(model_config):
 
 	return model_config
 
-# create dictionary of dictionaries to map datasets to crispr cell types: model: {crispr_ct: dataset, ...}
+# create dictionary of dictionaries to map datasets to crispr cell types: {model: {crispr_ct: dataset, ...}}
 def make_model_dataset_dict(model_config, dataset_config):
 
 	# dict of dataset: crispr_cell_type
-	dataset_ct_dict = dict(zip(dataset_config['biosample'], dataset_config['crispr_cell_type']))
+	dataset_celltype_dict = dict(zip(dataset_config['biosample'], dataset_config['crispr_cell_type']))
 
 	model_dicts = []
 	for index, row in model_config.iterrows():
 		model_datasets = [item.strip() for item in row["dataset"].split(",")] # return list of datasets 
-		mapped_cts = [dataset_ct_dict[ds] for ds in model_datasets]
+		mapped_celltypes = [dataset_celltype_dict[dataset] for dataset in model_datasets]
 
 		# make sure 1:1 correspondance with CRISPR cell types
 		crispr_data_cell_types = config["crispr_cell_types"][row["crispr_dataset"]]
 
-		if sorted(crispr_data_cell_types) != sorted(mapped_cts):
-			print(f"Model datasets: {model_datasets} -> cell types: {mapped_cts}")
+		if sorted(crispr_data_cell_types) != sorted(mapped_celltypes):
+			print(f"Model datasets: {model_datasets} -> cell types: {mapped_celltypes}")
 			raise Exception(f"Datasets specified for {row['model']} do not map to all CRISPR cell types.")	
 
-		this_model_dict = dict(zip(mapped_cts, model_datasets))
+		this_model_dict = dict(zip(mapped_celltypes, model_datasets))
 		model_dicts.append(this_model_dict)
 
 	# combine into dictionary of dicitonaries
@@ -114,7 +114,7 @@ def make_accessibility_file_df(biosample_df, biosample_activities):
 
 def get_input_for_bw(this_biosample, this_simple_id):
 	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF["access_simple_id"]==this_simple_id)]
-	return df_sub["single_access_file"][0]
+	return df_sub["single_access_file"].item()
 
 def expand_biosample_df(biosample_df):
 	# add new columns
