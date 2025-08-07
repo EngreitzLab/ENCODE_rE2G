@@ -55,7 +55,7 @@ The way we choose the model depends on the biosamples input. The code for model 
 Modify `config/config_training.yaml` with your model and dataset configs
 - `model_config` has columns:  model, dataset, crispr_dataset, feature_table, polynomial (do you want to use polynomial features?), and override_params (are there model training parameters you would like to change from the default logistic regression settings specfied in `config/config_training.yaml`?)
     - See [this example](https://pastebin.com/zt1868R3) `model_config` for how to specfiy override parameters. If there are no override_params, leave the column blank but still include the header.
-    - The `dataset` column is a comma-separated list with values corresponding to biosaples in `dataset_config`. Datasets must be provided for each `crispr_cell_type` included in the corresponding `crispr_dataset`.
+    - The `dataset` column is a comma-separated list with values corresponding to biosamples in `dataset_config`. Datasets must be provided for each `crispr_cell_type` included in the corresponding `crispr_dataset`.
     - The `crispr_dataset` column corresponds to a key under `crispr_dataset` in `config_training`.
     - Feature tables must be specified for each model (example: `resources/feature_tables`) with columns: feature (name in final table), input_col (name in ABC output), second_input (multiplied by input_col if provided), aggregate_function (how to combine feature values when a CRISPR element overlaps more than one ABC element), fill_value (how to replace NAs), nice_name (used when plotting)
     - Note that trained models generated using polynomial features cannot directly be used in the **Apply model** workflow
