@@ -35,6 +35,34 @@ def process_model_config(model_config):
 
 	return model_config
 
+# create dictionary of dictionaries to map datasets to crispr cell types: {model: {crispr_ct: dataset, ...}}
+def make_model_dataset_dict(model_config, dataset_config):
+
+	# dict of dataset: crispr_cell_type
+	dataset_celltype_dict = dict(zip(dataset_config['biosample'], dataset_config['crispr_cell_type']))
+
+	model_dicts = []
+	for index, row in model_config.iterrows():
+		model_datasets = [item.strip() for item in row["dataset"].split(",")] # return list of datasets 
+		mapped_celltypes = [dataset_celltype_dict[dataset] for dataset in model_datasets]
+
+		# make sure 1:1 correspondance with CRISPR cell types
+		crispr_data_cell_types = config["crispr_cell_types"][row["crispr_dataset"]]
+
+		if sorted(crispr_data_cell_types) != sorted(mapped_celltypes):
+			print(f"Model datasets: {model_datasets} -> cell types: {mapped_celltypes}")
+			raise Exception(f"Datasets specified for {row['model']} do not map to all CRISPR cell types.")	
+
+		this_model_dict = dict(zip(mapped_celltypes, model_datasets))
+		model_dicts.append(this_model_dict)
+
+	# combine into dictionary of dicitonaries
+	model_dataset_dict = dict(zip(model_config["model"], model_dicts))
+	
+	return model_dataset_dict
+
+
+
 def get_abc_config(config):
 	abc_config_file = os.path.join(config["ABC_DIR_PATH"], "config/config.yaml")
 	with open(abc_config_file, 'r') as stream:
@@ -86,7 +114,7 @@ def make_accessibility_file_df(biosample_df, biosample_activities):
 
 def get_input_for_bw(this_biosample, this_simple_id):
 	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF["access_simple_id"]==this_simple_id)]
-	return df_sub["single_access_file"][0]
+	return df_sub["single_access_file"].item()
 
 def expand_biosample_df(biosample_df):
 	# add new columns
@@ -120,13 +148,15 @@ def process_abc_directory_column(model_config):
 	# Make a dictionary of dataset:ABC_dir pairs
 	ABC_BIOSAMPLES_DIR = {}
 	for row in model_config.itertuples(index=False):
-		if row.dataset not in ABC_BIOSAMPLES_DIR: 
-			if row.ABC_directory=="None": # ABC directory is not provided
-				if row.dataset not in dataset_config['biosample']: # is there info to run ABC?
-					raise Exception(f"Dataset {row.dataset} not specified in dataset_config.")
-				ABC_BIOSAMPLES_DIR[row.dataset] = os.path.join(RESULTS_DIR, row.dataset)
-			else: # ABC directory is provided
-				ABC_BIOSAMPLES_DIR[row.dataset] = row.ABC_directory
+		model_datasets = [item.strip() for item in row.dataset.split(",")]
+		for ds in model_datasets:
+			if ds not in ABC_BIOSAMPLES_DIR: 
+				if row.ABC_directory=="None": # ABC directory is not provided
+					if ds not in dataset_config['biosample']: # is there info to run ABC?
+						raise Exception(f"Dataset {ds} not specified in dataset_config.")
+					ABC_BIOSAMPLES_DIR[ds] = os.path.join(RESULTS_DIR, ds)
+				else: # ABC directory is provided
+					ABC_BIOSAMPLES_DIR[ds] = ds
 	
 	return ABC_BIOSAMPLES_DIR
 

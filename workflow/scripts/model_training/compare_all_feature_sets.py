@@ -5,11 +5,9 @@ import pandas as pd
 import scipy
 from training_functions import (
     statistic_aupr,
-    statistic_precision,
+    statistic_precision_at_threshold,
     train_and_predict_once,
-    bootstrap_pvalue,
-    statistic_delta_aupr,
-    statistic_delta_precision,
+    threshold_70_pct_recall
 )
 
 
@@ -32,10 +30,13 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, params, n_boot):
         df.loc[len(df)] = fill_zeros
 
     df["features"] = df.apply(lambda row: list(df.columns[row == 1]), axis=1)
-    df["n_features"] = 0
-    df["AUPRC"] = 0
-    df["AUPRC_95CI_low"] = 0
-    df["AUPRC_95CI_high"] = 0
+    df["n_features"] = 0.0
+    df["AUPRC"] = 0.0
+    df["AUPRC_95CI_low"] = 0.0
+    df["AUPRC_95CI_high"] = 0.0
+    df["precision_70pct_recall"] = 0.0
+    df["precision_95CI_low"] = 0.0
+    df["precision_95CI_high"] = 0.0
 
     for i in range(len(df)):  # iterate through sets
         model_name = "row_" + str(i)
@@ -48,9 +49,8 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, params, n_boot):
         )
         Y_pred = df_dataset[model_name + ".Score"]
 
-        data = (Y_true, Y_pred)
         res_aupr = scipy.stats.bootstrap(
-            data,
+            (Y_true, Y_pred),
             statistic_aupr,
             n_resamples=n_boot,
             paired=True,
@@ -60,6 +60,20 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, params, n_boot):
         df.loc[i, "AUPRC"] = np.mean(res_aupr.bootstrap_distribution)
         df.loc[i, "AUPRC_95CI_low"] = res_aupr.confidence_interval[0]
         df.loc[i, "AUPRC_95CI_high"] = res_aupr.confidence_interval[1]
+
+        thresh = threshold_70_pct_recall(Y_true, Y_pred)
+
+        res_prec = scipy.stats.bootstrap(
+            (Y_true, Y_pred),
+            lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh),
+            n_resamples=n_boot,
+            paired=True,
+            confidence_level=0.95,
+            method="BCa",
+        )
+        df.loc[i, "precision_70pct_recall"] = np.mean(res_prec.bootstrap_distribution)
+        df.loc[i, "precision_95CI_low"] = res_prec.confidence_interval[0]
+        df.loc[i, "precision_95CI_high"] = res_prec.confidence_interval[1]
 
     # sort table by AUPRC
     df = df.sort_values(by="AUPRC", ascending=False)
