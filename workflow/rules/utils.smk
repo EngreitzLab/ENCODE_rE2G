@@ -39,28 +39,27 @@ def process_model_config(model_config):
 def make_model_dataset_dict(model_config, dataset_config):
 
 	# dict of dataset: crispr_cell_type
-	dataset_ct_dict = dict(zip(dataset_config['biosample'], dataset_config['crispr_cell_type']))
+	dataset_cell_type_dict = dict(zip(dataset_config['biosample'], dataset_config['crispr_cell_type']))
 
 	model_dicts = []
 	for index, row in model_config.iterrows():
 		model_datasets = [item.strip() for item in row["dataset"].split(",")] # return list of datasets 
-		mapped_cts = [dataset_ct_dict[ds] for ds in model_datasets]
+		mapped_cell_types = [dataset_cell_type_dict[dataset] for dataset in model_datasets]
 
 		# make sure 1:1 correspondance with CRISPR cell types
 		crispr_data_cell_types = config["crispr_cell_types"][row["crispr_dataset"]]
 
-		if sorted(crispr_data_cell_types) != sorted(mapped_cts):
-			print(f"Model datasets: {model_datasets} -> cell types: {mapped_cts}")
+		if sorted(crispr_data_cell_types) != sorted(mapped_cell_types):
+			print(f"Model datasets: {model_datasets} -> cell types: {mapped_cell_types}")
 			raise Exception(f"Datasets specified for {row['model']} do not map to all CRISPR cell types.")	
 
-		this_model_dict = dict(zip(mapped_cts, model_datasets))
+		this_model_dict = dict(zip(mapped_cell_types, model_datasets))
 		model_dicts.append(this_model_dict)
 
 	# combine into dictionary of dicitonaries
 	model_dataset_dict = dict(zip(model_config["model"], model_dicts))
 	
 	return model_dataset_dict
-
 
 
 def get_abc_config(config):
@@ -149,14 +148,14 @@ def process_abc_directory_column(model_config):
 	ABC_BIOSAMPLES_DIR = {}
 	for row in model_config.itertuples(index=False):
 		model_datasets = [item.strip() for item in row.dataset.split(",")]
-		for ds in model_datasets:
-			if ds not in ABC_BIOSAMPLES_DIR: 
+		for dataset in model_datasets:
+			if dataset not in ABC_BIOSAMPLES_DIR: 
 				if row.ABC_directory=="None": # ABC directory is not provided
-					if ds not in dataset_config['biosample']: # is there info to run ABC?
-						raise Exception(f"Dataset {ds} not specified in dataset_config.")
-					ABC_BIOSAMPLES_DIR[ds] = os.path.join(RESULTS_DIR, ds)
+					if dataset not in dataset_config['biosample']: # is there info to run ABC?
+						raise Exception(f"Dataset {dataset} not specified in dataset_config.")
+					ABC_BIOSAMPLES_DIR[dataset] = os.path.join(RESULTS_DIR, dataset)
 				else: # ABC directory is provided
-					ABC_BIOSAMPLES_DIR[ds] = ds
+					ABC_BIOSAMPLES_DIR[dataset] = dataset
 	
 	return ABC_BIOSAMPLES_DIR
 
