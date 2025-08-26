@@ -33,7 +33,7 @@ jobs:
             mamba env create -f workflow/envs/encode_re2g.yml
       - run:
           name: Run tests
-          no_output_timeout: 30m
+          no_output_timeout: 40m
           command: |
             conda run -n encode_re2g pytest -s -n 4 tests/
 
