@@ -14,7 +14,7 @@ Clone the repo and set it up for submodule usage
 git clone --recurse-submodules git@github.com:EngreitzLab/ENCODE_rE2G.git
 git config --global submodule.recurse true
 ```
-We use `ABC` as a submodule, so this command will initialize it and set up your git config to automatically keep the submodule up to date.
+We use `ABC` as a submodule, so this command will initialize it and set up your git config to automatically keep the submodule up to date. Depending on download speeds this step can take some time, but should be done within 5-10 minutes.
 
 ## Apply a pretrained model
 You'll need to use a certain model based on your input. (e.g DNase-seq or ATAC-seq? Do you have H3K27ac data?) We've pretrained all the models and determined the right thresholding to get E-G links at 70% recall of a [CRISPR-validated E-G links](https://github.com/EngreitzLab/CRISPR_comparison/tree/main). 
@@ -23,13 +23,14 @@ Modify the `ABC_BIOSAMPLES` field in `config/config.yaml` to point to your ABC c
 - We have not trained powerlaw models. If you don't have cell specific hic, opt to use megamap hic instead: https://s3.us-central-1.wasabisys.com/aiden-encode-hic-mirror/bifocals_iter2/tissues.hic. Megamap is a culmination of hic across many different tissues. 
 - [Advanced] If applying a model that includes external features, you must define an `external_features_config` in your `biosamples_config.` See "Train model" section for details on this file.
 
-Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. 
+Activate a conda environment that has [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) installed. Note that building conda environments might take some time depending on your system (typically less than 30 minutes).
 
 ```
 mamba env create -f workflow/envs/encode_re2g.yml
 conda activate encode_re2g
 snakemake -j1 --use-conda
 ```
+
 Based on your biosample config, we will find the right model to use for you. If we haven't trained that model before, an exception will get raised. 
 
 Output will show up in the `results/` directory
