@@ -113,6 +113,7 @@ rule write_accessibility_bw_file:
 		"../envs/encode_re2g.yml"
 	resources:
 		mem_mb=ABC.determine_mem_mb,
+		cpus_per_task=16,
 		runtime_hr=6
 	threads: 16 
 	shell:
