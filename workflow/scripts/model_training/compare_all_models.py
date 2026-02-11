@@ -13,32 +13,43 @@ from training_functions import (
 
 
 def performance_summary(
-    model_id, dataset, pred_file, missing_file, model_name, out_dir, crispr_data="", n_boot=1000
+    model_id,
+    dataset,
+    pred_file,
+    missing_file,
+    model_name,
+    out_dir,
+    crispr_data="",
+    n_boot=1000,
 ):
     # read in predicitons
     if model_id == "distance":
         # Determine whether crispr_data is a str or dict
-        if crispr_data.strip().startswith('{') and crispr_data.strip().endswith('}'):
+        if crispr_data.strip().startswith("{") and crispr_data.strip().endswith("}"):
             all_crispr_dfs = []
-            print("INFO: --crispr_data appears to be a dictionary. Parsing and concatenating all files.")
+            print(
+                "INFO: --crispr_data appears to be a dictionary. Parsing and concatenating all files."
+            )
             try:
                 # Safely parse the string into a Python dictionary
                 crispr_data_dict = ast.literal_eval(crispr_data)
                 if not isinstance(crispr_data_dict, dict):
                     raise TypeError("Parsed data is not a dictionary.")
-                
+
                 # Iterate through the file paths in the dictionary's values
                 for key, filepath in crispr_data_dict.items():
                     print(f"  - Loading '{key}': {filepath}")
                     df = pd.read_csv(filepath, sep="\t")
                     all_crispr_dfs.append(df)
-                
+
                 # Concatenate all loaded DataFrames into one
                 crispr_df = pd.concat(all_crispr_dfs, ignore_index=True)
-                
+
             except (ValueError, SyntaxError, TypeError) as e:
                 # If parsing fails, raise an error because the format was ambiguous
-                raise ValueError(f"Failed to parse --crispr_data as a dictionary. Error: {e}. Content: {crispr_data}")
+                raise ValueError(
+                    f"Failed to parse --crispr_data as a dictionary. Error: {e}. Content: {crispr_data}"
+                )
         else:
             # If it's not a dictionary string, treat it as a single file path
             print(f"INFO: --crispr_data is a single file path. Loading: {crispr_data}")
@@ -138,7 +149,7 @@ def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out
     )
     model_config["prediction_file"] = all_pred
     model_config["missing_file"] = all_missing
-    
+
     # initiate final df
     df = pd.DataFrame(
         columns=[
@@ -157,7 +168,14 @@ def main(all_pred, all_missing, model_config_file, output_file, crispr_data, out
 
     # iterate through rows of model config and add results to final df
     for row in model_config.itertuples(index=False):
-        res_row = performance_summary(row.model, row.dataset, row.prediction_file, row.missing_file, model_name, out_dir)
+        res_row = performance_summary(
+            row.model,
+            row.dataset,
+            row.prediction_file,
+            row.missing_file,
+            model_name,
+            out_dir,
+        )
         df = pd.concat([df, res_row])
     # add row for distance
     res_row = performance_summary(
