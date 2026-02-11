@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def determine_num_tss_enh_gene(
-    pred_df, ref_gene_tss, extended_enhancers, out_file  # enhancer_tss_int
+    pred_df, ref_gene_tss, extended_enhancers, out_file
 ):
     #  make the end be midpoint of enhancer + distance (This gives you the end coordinate of distance range)
     pred_df["midpoint"] = ((pred_df["start"] + pred_df["end"]) / 2).astype("int")
