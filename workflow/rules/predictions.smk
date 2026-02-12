@@ -113,9 +113,9 @@ rule write_accessibility_bw_file:
 		"../envs/encode_re2g.yml"
 	resources:
 		mem_mb=ABC.determine_mem_mb,
-		cpus_per_task=16,
+		cpus_per_task = min(16, config.get("cluster_max_cores", 16)),
 		runtime_hr=6
-	threads: 16 
+	threads: min(16, config.get("cluster_max_cores", 16))
 	shell:
 		"""
 		LC_ALL=C
@@ -131,7 +131,7 @@ rule write_accessibility_bw_file:
 				awk '$4 > 0' > {output.out_bg}
 		else # tagAlign
 			# remove alt chromosomes and sort
-			zcat {input.input_file} | \
+			pigz -cd {input.input_file} | \
         		awk 'NR==FNR {{keep[$1]; next}} $1 in keep' {params.chr_sizes} - | \
         		sort -k1,1 -k2,2n --parallel={threads}  -S $BUFFER_SIZE | \
         		bedtools genomecov -bg -split -i - -g {params.chr_sizes} | \
