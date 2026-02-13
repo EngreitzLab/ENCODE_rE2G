@@ -7,7 +7,7 @@ from training_functions import (
     statistic_aupr,
     statistic_precision_at_threshold,
     train_and_predict_once,
-    threshold_70_pct_recall
+    threshold_70_pct_recall,
 )
 
 
@@ -65,7 +65,9 @@ def compare_feature_sets(df_dataset, feature_table, epsilon, params, n_boot):
 
         res_prec = scipy.stats.bootstrap(
             (Y_true, Y_pred),
-            lambda Y_true, Y_pred: statistic_precision_at_threshold(Y_true, Y_pred, thresh),
+            lambda Y_true, Y_pred: statistic_precision_at_threshold(
+                Y_true, Y_pred, thresh
+            ),
             n_resamples=n_boot,
             paired=True,
             confidence_level=0.95,

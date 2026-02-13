@@ -31,13 +31,13 @@ def load_and_save_stat_files(stat_files, output_table) -> List[pd.DataFrame]:
         cell_cluster = Path(stat_file).parts[-3]
         model_name = Path(stat_file).parts[-2]
         pred_id = f"{cell_cluster}_{model_name}"
-        results[pred_id] = pd.read_csv(stat_file, sep="\t").set_index("Metric").assign(
-            cell_cluster=cell_cluster,
-            model_name=model_name
+        results[pred_id] = (
+            pd.read_csv(stat_file, sep="\t")
+            .set_index("Metric")
+            .assign(cell_cluster=cell_cluster, model_name=model_name)
         )
         results_no_ind[pred_id] = pd.read_csv(stat_file, sep="\t").assign(
-            cell_cluster=cell_cluster,
-            model_name=model_name
+            cell_cluster=cell_cluster, model_name=model_name
         )
 
     # save merged dataframe
@@ -178,7 +178,7 @@ def save_outlier_stats(stat_dfs, metric, pdf_writer):
     pred_values = {}
     for this_df in stat_dfs.values():
         pred_id = f"{this_df['cell_cluster'].iloc[0]}_{this_df['model_name'].iloc[0]}"
-        pred_values[pred_id] =  this_df.loc[metric, VALUE_KEY]
+        pred_values[pred_id] = this_df.loc[metric, VALUE_KEY]
 
     sorted_items = sorted(pred_values.items(), key=lambda item: item[1])
 
