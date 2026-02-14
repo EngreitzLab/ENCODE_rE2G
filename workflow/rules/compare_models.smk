@@ -2,14 +2,16 @@
 # compare cv-performance on training data across all models (note, this is not the true benchmarking performance CRISPR elements not overlapping prediction elements aren't considered)  
 rule gather_model_performances:
 	input:
-		all_predictions = expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_predictions.tsv"), zip, dataset=model_config["dataset"], model=model_config["model"])
+		all_predictions = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_predictions.tsv"), model=model_config["model"]),
+		all_missing = expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "merged_CRISPR_dataset.missing_from_features.NAfilled.tsv.gz"), model=model_config["model"]),
 	output:
-		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
+		comp_table = os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")
 	params:
 		scripts_dir = SCRIPTS_DIR,
 		out_dir = RESULTS_DIR,
 		model_config_file = config["model_config"],
-		crispr_dataset = config["crispr_dataset"]
+		crispr_dataset_names = [n for n in model_config["crispr_dataset"].unique()],
+		crispr_dataset = lambda wildcards: [config["crispr_dataset"][cd] for cd in model_config["crispr_dataset"].unique()] 
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -17,18 +19,21 @@ rule gather_model_performances:
 	shell: 
 		""" 
 		python {params.scripts_dir}/model_training/compare_all_models.py \
+			--all_pred "{input.all_predictions}" \
+			--all_missing "{input.all_missing}" \
 			--model_config_file {params.model_config_file} \
 			--output_file {output.comp_table}  \
-			--crispr_data {params.crispr_dataset} \
+			--crispr_names "{params.crispr_dataset_names}" \
+			--crispr_data "{params.crispr_dataset}" \
 			--out_dir {params.out_dir}
 		"""
 
 rule plot_model_performances:
 	input:
-		comp_table = os.path.join(RESULTS_DIR, "performance_across_models.tsv")
+		comp_table = os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")
 	output:
-		comp_plot_auprc = os.path.join(RESULTS_DIR, "performance_across_models_auprc.pdf"),
-		comp_plot_prec = os.path.join(RESULTS_DIR, "performance_across_models_precision.pdf")
+		comp_plot_auprc = os.path.join(MODELS_RESULTS_DIR, "performance_across_models_auprc.pdf"),
+		comp_plot_prec = os.path.join(MODELS_RESULTS_DIR, "performance_across_models_precision.pdf")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:

@@ -93,18 +93,16 @@ rule generate_num_tss_enh_gene:
 	conda:
 		"../envs/encode_re2g.yml"
 	resources:
-		mem_mb=partial(ABC.determine_mem_mb, min_gb=32)
+		mem_mb=partial(ABC.determine_mem_mb)
 	output:
 		numTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumTSSEnhGene.tsv"),
 		extendedEnhancerRegions = temp(os.path.join(RESULTS_DIR, "{biosample}",  "new_features", "extendedEnhancerRegions.txt")),
-		enhancerTSSInt = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "extendedEnhancerRegions_TSS_int.tsv.gz"))
 	shell: 
 		""" 
 		python {params.scripts_dir}/feature_tables/gen_num_tss_enh_gene.py \
 			--abc_predictions {input.abc_predictions} \
 			--ref_gene_tss {params.gene_TSS500} \
 			--extended_enhancers {output.extendedEnhancerRegions} \
-			--enhancer_tss_int {output.enhancerTSSInt} \
 			--out_file {output.numTSSEnhGene}
 		"""
 
@@ -172,7 +170,7 @@ rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
 		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
-		external_features_config = ancient(os.path.join(RESULTS_DIR, "{biosample}", "external_features_config.tsv"))
+		external_features_config = os.path.join(RESULTS_DIR, "{biosample}", "external_features_config.tsv")
 	output:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}",  "ActivityOnly_plus_external_features.tsv.gz")
 	conda:

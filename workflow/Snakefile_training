@@ -1,27 +1,34 @@
 from snakemake.utils import min_version
 min_version("7.0")
+conda: "mamba"
 
 import pandas as pd
 import os
 import yaml
 
-configfile: "config/config_training.yaml"
 model_config = pd.read_table(config["model_config"], na_values="").fillna("None").set_index("model", drop=False)
 dataset_config = pd.read_table(config["dataset_config"], na_values="").set_index("biosample", drop=False)
 conda: "mamba"
+
+# import utils and make config paths absolute
 MAX_MEM_MB = config["max_memory_allocation_mb"]
 include: "rules/utils.smk"
 
 E2G_DIR_PATH = os.path.abspath(config["E2G_DIR_PATH"])
 config = make_paths_absolute(config, E2G_DIR_PATH)
+config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"]) # manually modify results dir since may not exist
 
-# Need to manually make results_dir an absolute path since above may
-# not work if results_dir folder isn't created
-# If results_dir is already an absolute path, this is a no-op
-config["results_dir"] = os.path.join(E2G_DIR_PATH, config["results_dir"])
+# define some global variables 
+RESULTS_DIR = config["results_dir"]
+MODELS_RESULTS_DIR = os.path.join(config["results_dir"], "model_results")
+SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
 
+# process configs
 model_config = process_model_config(model_config)
+model_dataset_dict = make_model_dataset_dict(model_config, dataset_config) # dictionary of dictionaries: model: {crispr_ct: dataset, ...}
+print(model_dataset_dict)
 
+# import ABC submodule
 module ABC:
     snakefile:
         f"{config['ABC_DIR_PATH']}/workflow/Snakefile"
@@ -31,39 +38,39 @@ abc_config = get_abc_config(config)
 
 use rule * from ABC exclude all as abc_*
 
-RESULTS_DIR = config["results_dir"]
-SCRIPTS_DIR = os.path.join(E2G_DIR_PATH, "workflow/scripts")
-
-# These rules requires the variables above to be defined
+# import all rules (require the variables above to be defined)
 include: "rules/genomewide_features.smk"
 include: "rules/crispr_features.smk"
 include: "rules/train_model.smk"
 include: "rules/feature_analysis.smk"
 include: "rules/compare_models.smk"
 
-# Validate ABC_directory column and make ABC directory dict
+# validate ABC_directory column and make ABC directory dict
 ABC_BIOSAMPLES_DIR = process_abc_directory_column(model_config)
 
 # specify target files
 output_files = []
-output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), zip, dataset=model_config["dataset"], model=model_config["model"]))
-output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
+output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "model_full.pkl"), model=model_config["model"])) # trained models
 
-output_files.append(os.path.join(RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
-output_files.extend(expand(os.path.join(RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
+# output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}",  "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+# output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "model_full.pkl"), zip, dataset=model_config["dataset"], model=model_config["model"])) # trained models
+
+output_files.append(os.path.join(MODELS_RESULTS_DIR, "performance_across_models.tsv")) # comparison across models
+output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "performance_across_models_{metric}.pdf"), metric=["auprc", "precision"])) # plot of comparisons
 
 if config["run_feature_analysis"]:
-    output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
-    output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
-    output_files.extend(expand(os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "permutation_feature_importance_auprc.pdf"), zip, dataset=model_config["dataset"], model=model_config["model"]))
+    output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"), model=model_config["model"]))
+    output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"), model=model_config["model"]))
+    output_files.extend(expand(os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "permutation_feature_importance_auprc.pdf"), model=model_config["model"]))
     
     # only test all feature sets if polynomial==False and n_features<14
     for row in model_config.itertuples(index=False):
         if not row.polynomial == 'True':
             features = pd.read_table(row.feature_table)
             n_features = len(features) 
+
             if n_features<14:
-                output_files.append(os.path.join(RESULTS_DIR, row.dataset, row.model, "feature_analysis", "all_feature_sets.tsv"))
+                output_files.append(os.path.join(MODELS_RESULTS_DIR, row.model, "feature_analysis", "all_feature_sets.tsv"))
 
 rule all:
     input: 

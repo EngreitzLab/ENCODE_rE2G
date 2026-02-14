@@ -19,20 +19,22 @@ def count_bam_total(bam_file: str) -> int:
     no_alt_chrom_df = df[df["chr"].isin(NORMAL_CHROMOSOMES)]
     return no_alt_chrom_df["mapped_reads"].sum()
 
+
 def count_lines(file_path):
     count = 0
     if file_path.endswith(".gz"):
-        with gzip.open(file_path, 'rt') as file:  # 'rt' mode is for reading text
-            reader = csv.reader(file, delimiter='\t')
+        with gzip.open(file_path, "rt") as file:  # 'rt' mode is for reading text
+            reader = csv.reader(file, delimiter="\t")
             for row in reader:
                 if row[0] in NORMAL_CHROMOSOMES:
                     count += 1
     else:
-        reader = csv.reader(file_path, delimiter='\t')
+        reader = csv.reader(file_path, delimiter="\t")
         for row in reader:
             if row[0] in NORMAL_CHROMOSOMES:
                 count += 1
     return count
+
 
 def get_num_reads(accessibility_files):
     total_counts = 0
@@ -40,8 +42,8 @@ def get_num_reads(accessibility_files):
         if access_in.endswith(".bam"):
             total_counts += count_bam_total(access_in)
         elif "tagAlign" in access_in:
-            total_counts += count_lines(access_in)/2
-        else: # hope it's a frag file
+            total_counts += count_lines(access_in) / 2
+        else:  # hope it's a frag file
             total_counts += count_lines(access_in)
     return total_counts
 
@@ -81,7 +83,7 @@ def get_mean_num_enh_per_gene_no_prom(df):
 
 def get_mean_log_dist_to_tss(df):
     dist_cols = [x for x in ["distance", "distanceToTSS"] if x in df.columns]
-    if len(dist_cols)>0:
+    if len(dist_cols) > 0:
         log_dist = df[dist_cols[0]].apply(np.log10)
         log_dist = log_dist.replace(-np.inf, 0)
         return log_dist.mean()

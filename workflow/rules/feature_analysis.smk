@@ -1,16 +1,16 @@
 # forward sequential feature selection
 rule calculate_forward_feature_selection:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(MODELS_RESULTS_DIR, "{model}", "for_training.merged_CRISPR_dataset.overlapping_features.NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
-		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+		model_params = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial'],
-		out_dir = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis")
+		out_dir = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis")
 	output:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR,  "{model}", "feature_analysis", "forward_feature_selection.tsv"),
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -28,13 +28,13 @@ rule calculate_forward_feature_selection:
 
 rule plot_forward_feature_selection:
 	input:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "forward_feature_selection.tsv"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
 	params:
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial']
 	output:
-		out_auprc = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"),
-		out_prec = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "forward_feature_selection_precision.pdf")
+		out_auprc = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "forward_feature_selection_auprc.pdf"),
+		out_prec = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "forward_feature_selection_precision.pdf")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -45,16 +45,16 @@ rule plot_forward_feature_selection:
 # backward sequential feature selection
 rule calculate_backward_feature_selection:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(MODELS_RESULTS_DIR, "{model}", "for_training.merged_CRISPR_dataset.overlapping_features.NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
-		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+		model_params = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial'],
-		out_dir = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis")
+		out_dir = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis")
 	output:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "backward_feature_selection.tsv"),
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -72,13 +72,13 @@ rule calculate_backward_feature_selection:
 
 rule plot_backward_feature_selection:
 	input:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "backward_feature_selection.tsv"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table']
 	params:
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial']
 	output:
-		out_auprc = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"),
-		out_prec = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "backward_feature_selection_precision.pdf")
+		out_auprc = os.path.join(MODELS_RESULTS_DIR,  "{model}", "feature_analysis", "backward_feature_selection_auprc.pdf"),
+		out_prec = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "backward_feature_selection_precision.pdf")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -89,15 +89,15 @@ rule plot_backward_feature_selection:
 # compare all features sets
 rule compare_all_feature_sets:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(MODELS_RESULTS_DIR, "{model}", "for_training.merged_CRISPR_dataset.overlapping_features.NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
-		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+		model_params = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		scripts_dir = SCRIPTS_DIR,
-		out_dir = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis")
+		out_dir = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis")
 	output:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "all_feature_sets.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "all_feature_sets.tsv"),
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -116,17 +116,17 @@ rule compare_all_feature_sets:
 # permuation feature importance
 rule calculate_permutation_feature_importance:
 	input:
-		crispr_features_processed = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "for_training.EPCrisprBenchmark_ensemble_data_GRCh38.K562_features_NAfilled.tsv.gz"),
+		crispr_features_processed = os.path.join(MODELS_RESULTS_DIR, "{model}", "for_training.merged_CRISPR_dataset.overlapping_features.NAfilled.tsv.gz"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table'],
-		model_params = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "model", "training_params.pkl")
+		model_params = os.path.join(MODELS_RESULTS_DIR, "{model}", "model", "training_params.pkl")
 	params:
 		epsilon = config["epsilon"],
 		n_repeats = 20,
 		scripts_dir = SCRIPTS_DIR,
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial'],
-		out_dir = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis")
+		out_dir = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis")
 	output:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "permutation_feature_importance.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "permutation_feature_importance.tsv"),
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
@@ -145,14 +145,14 @@ rule calculate_permutation_feature_importance:
 
 rule plot_permutation_feature_importance:
 	input:
-		results = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "permutation_feature_importance.tsv"),
+		results = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "permutation_feature_importance.tsv"),
 		feature_table = lambda wildcards: model_config.loc[wildcards.model, 'feature_table']
 	params:
 		polynomial = lambda wildcards: model_config.loc[wildcards.model, 'polynomial'],
 		n_repeats = 20
 	output:
-		out_auprc = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "permutation_feature_importance_auprc.pdf"),
-		out_prec = os.path.join(RESULTS_DIR, "{dataset}", "{model}", "feature_analysis", "permutation_feature_importance_precision.pdf")
+		out_auprc = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "permutation_feature_importance_auprc.pdf"),
+		out_prec = os.path.join(MODELS_RESULTS_DIR, "{model}", "feature_analysis", "permutation_feature_importance_precision.pdf")
 	conda:
 		"../envs/encode_re2g.yml" 
 	resources:
