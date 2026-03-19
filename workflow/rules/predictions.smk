@@ -118,7 +118,7 @@ rule write_accessibility_bw_file:
 	shell:
 		"""
 		LC_ALL=C
-		export BUFFER_SIZE=$(awk -v mem_mb={resources.mem_mb} -v threads={threads} 'BEGIN {{ result = mem_mb/threads/2; print int(result) }}')
+		export BUFFER_SIZE=$(awk -v mem_mb={resources.mem_mb} -v threads={threads} 'BEGIN {{ result = mem_mb/threads/2; print int(result) "M" }}')
 		
 		# determine if the input file is BAM or TagAlign
 		if [[ {params.extension} == ".bam" ]]; then
