@@ -91,7 +91,7 @@ def get_input_for_bw(this_biosample, this_simple_id):
 def expand_biosample_df(biosample_df):
 	# add new columns
 	if "model_dir" not in biosample_df.columns:
-		biosample_df['model_dir']  = np.nan
+		biosample_df['model_dir']  = pd.array([pd.NA] * len(biosample_df), dtype=object)
 	biosample_df['model_dir_base'] = ''
 	biosample_df['model_threshold'] = float(0)
 	biosample_df["tpm_threshold"] = float(0)
