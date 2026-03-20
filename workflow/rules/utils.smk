@@ -31,7 +31,7 @@ def determine_mem_mb(wildcards, input, attempt, min_gb=8):
 def expand_biosample_df(biosample_df):
 	# add new columns
 	if "model_dir" not in biosample_df.columns:
-		biosample_df['model_dir']  = np.nan
+		biosample_df['model_dir']  = pd.array([pd.NA] * len(biosample_df), dtype=object)
 	biosample_df['model_dir_base'] = ''
 	biosample_df['model_threshold'] = float(0)
 
