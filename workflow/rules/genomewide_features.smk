@@ -96,15 +96,13 @@ rule generate_num_tss_enh_gene:
 		mem_mb=partial(ABC.determine_mem_mb, min_gb=32)
 	output:
 		numTSSEnhGene = os.path.join(RESULTS_DIR, "{biosample}", "new_features", "NumTSSEnhGene.tsv"),
-		extendedEnhancerRegions = temp(os.path.join(RESULTS_DIR, "{biosample}",  "new_features", "extendedEnhancerRegions.txt")),
-		enhancerTSSInt = temp(os.path.join(RESULTS_DIR, "{biosample}", "new_features", "extendedEnhancerRegions_TSS_int.tsv.gz"))
+		extendedEnhancerRegions = temp(os.path.join(RESULTS_DIR, "{biosample}",  "new_features", "extendedEnhancerRegions.txt"))
 	shell: 
 		""" 
 		python {params.scripts_dir}/feature_tables/gen_num_tss_enh_gene.py \
 			--abc_predictions {input.abc_predictions} \
 			--ref_gene_tss {params.gene_TSS500} \
 			--extended_enhancers {output.extendedEnhancerRegions} \
-			--enhancer_tss_int {output.enhancerTSSInt} \
 			--out_file {output.numTSSEnhGene}
 		"""
 
