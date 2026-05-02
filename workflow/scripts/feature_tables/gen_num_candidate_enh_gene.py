@@ -4,8 +4,9 @@ import pandas as pd
 
 
 def determine_num_candidate_enh_gene(pred_df, out_file):
-    df = pred_df.copy()
+    df = pred_df
     df["midpoint"] = ((df["start"] + df["end"]) / 2).astype("int")
+    df["_orig_idx"] = range(len(df))
     df = df.sort_values(by=["TargetGene", "midpoint"], ascending=[True, True])
 
     is_downstream = df["midpoint"] > df["TargetGeneTSS"]
@@ -30,7 +31,7 @@ def determine_num_candidate_enh_gene(pred_df, out_file):
     df = df.fillna(value=0)
     df["NumCandidateEnhGene"] = df["NumCandidateEnhGene"].astype("int")
 
-    df = df.sort_values(by=["chr", "midpoint"], ascending=True).reset_index(drop=True)
+    df = df.sort_values("_orig_idx").reset_index(drop=True)
     df[["name", "TargetGene", "NumCandidateEnhGene"]].to_csv(
         out_file,
         sep="\t",
@@ -42,7 +43,8 @@ def determine_num_candidate_enh_gene(pred_df, out_file):
 @click.option("--abc_predictions")
 @click.option("--out_file")
 def main(abc_predictions, out_file):
-    pred_df = pd.read_csv(abc_predictions, sep="\t", compression="gzip")
+    pred_df = pd.read_csv(abc_predictions, sep="\t", compression="gzip",
+                          usecols=["name", "chr", "start", "end", "TargetGene", "TargetGeneTSS"])
     if len(pred_df) == 0:
         raise Exception("Did not find any enhancers in the Predictions file")
 
