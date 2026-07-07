@@ -12,7 +12,6 @@ dependencies:
   - ucsc-bedgraphtobigwig
   - csvtk
   - gzip
-  - jq
   - numpy
   - pandas
   - pyarrow
