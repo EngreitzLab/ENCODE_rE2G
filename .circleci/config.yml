@@ -31,11 +31,18 @@ jobs:
           no_output_timeout: 15m
           command: |
             mamba install -y -n base -c bioconda -c conda-forge 'snakemake>=7,<10' pytest-xdist pandas pyyaml numpy
+      - restore_cache:
+          keys:
+            - conda-envs-v1-{{ checksum "workflow/envs/encode_re2g.yml" }}-{{ checksum "ABC/workflow/envs/abcenv.yml" }}
       - run:
           name: Run tests
           no_output_timeout: 40m
           command: |
             pytest -s -n 4 tests/
+      - save_cache:
+          key: conda-envs-v1-{{ checksum "workflow/envs/encode_re2g.yml" }}-{{ checksum "ABC/workflow/envs/abcenv.yml" }}
+          paths:
+            - .snakemake/conda
 
 workflows:
   my-workflow:
