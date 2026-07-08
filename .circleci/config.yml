@@ -27,15 +27,15 @@ jobs:
       #       mamba install black
       #       black . --check
       - run:
-          name: Install env
-          no_output_timeout: 30m
+          name: Install test runner (snakemake + pytest)
+          no_output_timeout: 15m
           command: |
-            mamba env create -f workflow/envs/encode_re2g.yml
+            mamba install -y -n base -c bioconda -c conda-forge 'snakemake>=7,<10' pytest-xdist pandas pyyaml numpy
       - run:
           name: Run tests
           no_output_timeout: 40m
           command: |
-            conda run -n encode_re2g pytest -s -n 4 tests/
+            pytest -s -n 4 tests/
 
 workflows:
   my-workflow:
