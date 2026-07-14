@@ -1,7 +1,7 @@
 CircleCI [![CircleCI](https://dl.circleci.com/status-badge/img/gh/EngreitzLab/ENCODE_rE2G.svg?style=svg)](https://app.circleci.com/pipelines/github/EngreitzLab/ENCODE_rE2G?branch=main)
 
 # ENCODE-rE2G
-> :memo: **Note:** This repo is currently undergoing development. To access the version using for the encode_re2g paper, go to this [version](https://github.com/EngreitzLab/ENCODE_rE2G/tree/1906b6dcd97269374778e67592168c9da2dc455a). There are currently no clear instructions for stitching together the outputs from ABC, e2g features, and e2g, so use at your own discretion. We are working on creating 1 clean pipeline for the future
+> :memo: **Note:** This is the most recent version of the ENCODE-rE2G model and pipeline. For the version used in Gschwind _et al.,_ 2026: "An encyclopedia of human enhancer–gene regulatory interactions", refer to the [1.0.0 release](https://github.com/EngreitzLab/ENCODE_rE2G/releases/tag/v1.0.0).
 
 ENCODE-rE2G is a logistic regression pipeline built on top of [ABC](https://github.com/broadinstitute/ABC-Enhancer-Gene-Prediction). Given a chromatin accessibility input file, it will generate a list of enhancer-gene predictions. You can read the preprint paper [here](https://www.biorxiv.org/content/10.1101/2023.11.09.563812v1)
 
