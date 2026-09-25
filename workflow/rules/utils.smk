@@ -86,7 +86,7 @@ def make_accessibility_file_df(biosample_df, biosample_activities):
 
 def get_input_for_bw(this_biosample, this_simple_id):
 	df_sub = ACCESSIBILITY_DF.loc[(ACCESSIBILITY_DF["biosample"]==this_biosample) & (ACCESSIBILITY_DF["access_simple_id"]==this_simple_id)]
-	return df_sub["single_access_file"][0]
+	return df_sub["single_access_file"].iloc[0] #AMANDA LOCAL EDIT
 
 def expand_biosample_df(biosample_df):
 	# add new columns
