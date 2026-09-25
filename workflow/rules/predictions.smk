@@ -125,7 +125,9 @@ rule write_accessibility_bw_file:
 			# sort bam and filter to chromosomes
 			samtools sort {input.input_file} --threads {threads} | \
 				samtools view -bt {params.chr_sizes} --threads {threads} | \
+				##AMANDA filter alt chromosomes from bedgraph before bedGraphToBigWig
 				bedtools genomecov -bg -ibam stdin | \
+				awk 'NR==FNR {{keep[$1]; next}} $1 in keep' {params.chr_sizes} - | \
 				sort -k1,1 -k2,2n --parallel={threads}  -S $BUFFER_SIZE | \
 				awk '$4 > 0' > {output.out_bg}
 		else # tagAlign
