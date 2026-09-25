@@ -1,4 +1,4 @@
-import os
+import subprocess
 import click
 import pandas as pd
 
@@ -26,13 +26,22 @@ def determine_num_tss_enh_gene(
 
     # bedtools intersects extended enhancers with reference TSS and counts overlaps
     header = "name\tgene\tcount\n"
+    # AMANDA EDIT: extended_enhancers still has the pandas-written header row (see to_csv above).
+    # `bedtools intersect -a` was reading that row as data, which errors out ("unable to
+    # determine types for file") since "start"/"new_end" aren't integers. Piping through
+    # `sed '1d'` strips it first, same as the pre-34de2d2 implementation did. Also switched
+    # from os.system to subprocess.run(check=True) because os.system swallowed that error
+    # silently -- bedtools failed on every call, so out_file always ended up with just the
+    # header line and 0 data rows, and downstream activity_only_features.R crashed on the
+    # empty table while Snakemake reported it as a generic (memory-related-looking) failure.
     cmd = f"""
         printf "{header}" > {out_file};
-        bedtools intersect -a {extended_enhancers} -b {ref_gene_tss} -wa -c \
+        sed '1d' {extended_enhancers} \
+        | bedtools intersect -a stdin -b {ref_gene_tss} -wa -c \
         | cut -f4,5,6 \
         >> {out_file}
     """
-    os.system(cmd)
+    subprocess.run(cmd, shell=True, check=True)
 
     print("Saved num TSS between enh and gene")
 
