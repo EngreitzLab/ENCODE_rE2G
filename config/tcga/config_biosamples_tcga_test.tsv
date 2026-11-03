@@ -1,0 +1,2 @@
+biosample	DHS	ATAC	H3K27ac	default_accessibility_feature	HiC_file	HiC_type	HiC_resolution	alt_TSS	alt_genes
+PRAD_TCGA-EJ-7318		/scratch/users/shethm/tcga_atac/bigwigs/PRAD/PRAD_178E3984_9A7E_4683_8F3E_AB3814DD4880_X026_S10_L071_B1_T1_P064.insertions.bw,/scratch/users/shethm/tcga_atac/bigwigs/PRAD/PRAD_178E3984_9A7E_4683_8F3E_AB3814DD4880_X026_S10_L072_B1_T2_P066.insertions.bw		ATAC					
