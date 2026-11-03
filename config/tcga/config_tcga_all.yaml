@@ -1,0 +1,5 @@
+# All TCGA ATAC samples: bigWig accessibility input, MACS2 replaced by each cohort's cancer-type peaks (see $OAK/Users/sheth/tcga_atac_data/README.md)
+ABC_BIOSAMPLES: "config/tcga/config_biosamples_tcga_all.tsv"
+results_dir: "/scratch/users/shethm/tcga_atac/rE2G_all_cancer_type_peaks"
+abc_params_predict:
+  flags: "--scale_hic_using_powerlaw --include_chrY"
