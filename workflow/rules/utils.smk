@@ -58,6 +58,8 @@ def get_abc_config(config):
 		abc_config["ref"]["regions_blocklist"] = config["regions_blocklist"]
 	if "macs2_genomesize" in config:
 		abc_config["params_macs"]["genome_size"] = config["macs2_genomesize"]
+	if "abc_params_predict" in config:
+		abc_config["params_predict"].update(config["abc_params_predict"])
 	return abc_config
 
 def make_accessibility_file_df(biosample_df, biosample_activities):
@@ -81,7 +83,8 @@ def make_accessibility_file_df(biosample_df, biosample_activities):
 				new_rows.append(new_row)
 				counter += 1
 
-	new_df = pd.DataFrame(new_rows)
+	# keep the columns when no file is BAM/tagAlign (e.g. bigWig input), so expand() gets empty lists
+	new_df = pd.DataFrame(new_rows, columns=df.columns)
 	return(new_df)
 
 def get_input_for_bw(this_biosample, this_simple_id):
