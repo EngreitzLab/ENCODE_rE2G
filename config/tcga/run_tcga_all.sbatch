@@ -5,6 +5,7 @@
 #SBATCH --time=4-00:00:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
+#SBATCH --no-requeue
 #SBATCH --output=/scratch/users/shethm/tcga_atac/rE2G_all_cancer_type_peaks/logs/%x_%j.log
 set -euo pipefail
 export PYTHONUNBUFFERED=1
