@@ -1,19 +1,19 @@
 
-rule make_biosample_feature_table:  # make feature table per biosample
-	input:
-		config["ABC_BIOSAMPLES"]
-	output:
-		biosample_features = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
-	params:
-		model_dirs = lambda wildcards: BIOSAMPLE_DF.loc[BIOSAMPLE_DF['biosample'] == wildcards.biosample]['model_dir'].to_list(),
-		#biosample_config = config["ABC_BIOSAMPLES_MODELS"],
-		e2g_path = config["E2G_DIR_PATH"]
-	conda:
-		"../envs/encode_re2g.yml"
-	resources:
-		mem_mb=4*1000
-	script:
-		"../scripts/feature_tables/combine_feature_tables_apply.R"
+# rule make_biosample_feature_table:  # make feature table per biosample
+# 	input:
+# 		config["ABC_BIOSAMPLES"]
+# 	output:
+# 		biosample_features = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
+# 	params:
+# 		model_dirs = lambda wildcards: BIOSAMPLE_DF.loc[BIOSAMPLE_DF['biosample'] == wildcards.biosample]['model_dir'].to_list(),
+# 		#biosample_config = config["ABC_BIOSAMPLES_MODELS"],
+# 		e2g_path = config["E2G_DIR_PATH"]
+# 	conda:
+# 		"../envs/encode_re2g.yml"
+# 	resources:
+# 		mem_mb=4*1000
+# 	script:
+# 		"../scripts/feature_tables/combine_feature_tables_apply.R"
 
 # reformat external features config
 rule format_external_features_config:

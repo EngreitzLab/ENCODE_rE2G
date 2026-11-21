@@ -2,11 +2,11 @@ from functools import partial
 		
 checkpoint basic_features_required: # (vs scE2G feature_required)
 	input:
-		feature_table_file = os.path.join(RESULTS_DIR, "{sample}", "feature_table.tsv")
+		feature_table_file = FEATURE_TABLE
 	output:
-		numCandidateEnhGene = os.path.join(RESULTS_DIR, "{sample}", "new_features", "generate_numCandidateEnhGene.txt"), # file with NumCandidateEnhGene, NumTSSEnhGene, NumEnhancersEGXkb, SumEnhancersEGXkb
-		numTSSEnhGene = os.path.join(RESULTS_DIR, "{sample}", "new_features", "generate_numTSSEnhGene.txt"),
-		nearbyEnhancers = os.path.join(RESULTS_DIR, "{sample}", "new_features", "generate_nearbyEnhancers.txt"),
+		numCandidateEnhGene = os.path.join(RESULTS_DIR, "new_features", "generate_numCandidateEnhGene.txt"), # file with NumCandidateEnhGene, NumTSSEnhGene, NumEnhancersEGXkb, SumEnhancersEGXkb
+		numTSSEnhGene = os.path.join(RESULTS_DIR, "new_features", "generate_numTSSEnhGene.txt"),
+		nearbyEnhancers = os.path.join(RESULTS_DIR, "new_features", "generate_nearbyEnhancers.txt"),
 	run:
 		req_numCandidateEnhGene = "False"
 		req_numTSSEnhGene = "False"
@@ -33,7 +33,7 @@ checkpoint basic_features_required: # (vs scE2G feature_required)
 
 # return file paths for features to generate
 def get_numCandidateEnhGene_file(wildcards):
-	with checkpoints.basic_features_required.get(sample=wildcards.biosample).output.numCandidateEnhGene.open() as f:
+	with checkpoints.basic_features_required.get().output.numCandidateEnhGene.open() as f:
 		val = f.read().strip()
 		if val == "True":
 			return os.path.join(RESULTS_DIR, wildcards.biosample, "new_features", "NumCandidateEnhGene.tsv")
@@ -41,7 +41,7 @@ def get_numCandidateEnhGene_file(wildcards):
 			return RESULTS_DIR
 
 def get_numTSSEnhGene_file(wildcards):
-	with checkpoints.basic_features_required.get(sample=wildcards.biosample).output.numTSSEnhGene.open() as f:
+	with checkpoints.basic_features_required.get().output.numTSSEnhGene.open() as f:
 		val = f.read().strip()
 		if val == "True":
 			return os.path.join(RESULTS_DIR, wildcards.biosample, "new_features", "NumTSSEnhGene.tsv")
@@ -49,7 +49,7 @@ def get_numTSSEnhGene_file(wildcards):
 			return RESULTS_DIR
 
 def get_numNearbyEnhancers_file(wildcards):
-	with checkpoints.basic_features_required.get(sample=wildcards.biosample).output.nearbyEnhancers.open() as f:
+	with checkpoints.basic_features_required.get().output.nearbyEnhancers.open() as f:
 		val = f.read().strip()
 		if val == "True":
 			return os.path.join(RESULTS_DIR, wildcards.biosample, "new_features", "NumEnhancersEG5kb.txt")
@@ -57,7 +57,7 @@ def get_numNearbyEnhancers_file(wildcards):
 			return RESULTS_DIR
 
 def get_sumNearbyEnhancers_file(wildcards):
-	with checkpoints.basic_features_required.get(sample=wildcards.biosample).output.nearbyEnhancers.open() as f:
+	with checkpoints.basic_features_required.get().output.nearbyEnhancers.open() as f:
 		val = f.read().strip()
 		if val == "True":
 			return os.path.join(RESULTS_DIR, wildcards.biosample, "new_features", "SumEnhancersEG5kb.txt")
@@ -146,7 +146,7 @@ rule generate_num_sum_enhancers:
 # create activity-only feature table
 rule activity_only_features:
 	input:
-		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
+		feature_table_file = FEATURE_TABLE,
 		abc = lambda wildcards: os.path.join(ABC_BIOSAMPLES_DIR[wildcards.biosample], "Predictions", "EnhancerPredictionsAllPutative.tsv.gz"),
 		NumCandidateEnhGene = get_numCandidateEnhGene_file,
 		NumTSSEnhGene = get_numTSSEnhGene_file,
@@ -171,7 +171,7 @@ else:
 rule add_external_features:
 	input:
 		predictions_extended = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_features.tsv.gz"),
-		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv"),
+		feature_table_file = FEATURE_TABLE,
 		external_features_config = ancient(os.path.join(RESULTS_DIR, "{biosample}", "external_features_config.tsv"))
 	output:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}",  "ActivityOnly_plus_external_features.tsv.gz")
@@ -186,7 +186,7 @@ rule add_external_features:
 rule gen_final_features:
 	input:
 		plus_external_features = os.path.join(RESULTS_DIR, "{biosample}", "ActivityOnly_plus_external_features.tsv.gz"),
-		feature_table_file = os.path.join(RESULTS_DIR, "{biosample}", "feature_table.tsv")
+		feature_table_file = FEATURE_TABLE
 	output:
 		final_features = os.path.join(RESULTS_DIR, "{biosample}", "genomewide_features.tsv.gz")
 	conda:

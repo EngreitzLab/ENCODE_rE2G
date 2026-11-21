@@ -48,7 +48,7 @@ core_cols <- c(
   "CellType", "distance", "ABC.Score"
 )
 core_cols <- core_cols[!core_cols %in% input_features] # remove core_cols that were renamed
-output <- select(df, all_of(core_cols), all_of(config$feature))
+output <- select(df, any_of(core_cols), all_of(config$feature))
 
 # save output to file
 fwrite(df, file = snakemake@output[[1]], sep = "\t", na = "NA", quote = FALSE)
