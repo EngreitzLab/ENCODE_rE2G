@@ -6,9 +6,12 @@ import os
 import yaml
 import numpy as np
 
-
 configfile: "config/config.yaml"
+#containerized: "e2g.sif"
+if "container" in config.keys():
+	containerized: config["container"]
 conda: "mamba"
+
 MAX_MEM_MB = config["max_memory_allocation_mb"]
 include: "rules/utils.smk" 
 

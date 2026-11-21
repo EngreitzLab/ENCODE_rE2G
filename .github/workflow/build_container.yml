@@ -1,0 +1,28 @@
+# .github/workflows/build-container.yml
+name: Build container
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Singularity
+        uses: eWaterCycle/setup-singularity@v7
+      - name: Build container
+        run: sudo singularity build e2g.sif e2g.def
+      - name: Push to Sylabs
+        run: |
+          echo ${{ secrets.SYLABS_TOKEN }} | singularity remote login
+          singularity push e2g.sif library://yourusername/collection/e2g:${{ github.event.release.tag_name }}
+
+
+### requires upload to SyLabs Cloud Library 
+
+# # Build and push
+# sudo singularity build e2g.sif e2g.def
+# singularity push e2g.sif library://yourusername/collection/e2g:latest
+
+# # In Snakefile
+# containerized: "library://yourusername/collection/e2g:latest"

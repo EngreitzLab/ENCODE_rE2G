@@ -1,0 +1,47 @@
+BootStrap: docker
+From: condaforge/mambaforge:latest
+
+%labels
+    io.github.snakemake.containerized="true"
+    io.github.snakemake.conda_env_hash="8cf45d747a90811052b4e599e38a0510f8219ec1ad9de1bcd7bbb8def3cc5fd8"
+
+%files
+    ABC/workflow/envs/abcenv.yml /conda-envs/9b62b3e6343aea00c1292f933ed60782/environment.yaml
+    workflow/envs/encode_re2g.yml /conda-envs/5f5016fa41329b5634f7ab4a79259171/environment.yaml
+
+%post
+    # Create conda environment directories
+    mkdir -p /conda-envs/9b62b3e6343aea00c1292f933ed60782
+    mkdir -p /conda-envs/5f5016fa41329b5634f7ab4a79259171
+    
+    # Generate conda environments
+    mamba env create --prefix /conda-envs/9b62b3e6343aea00c1292f933ed60782 --file /conda-envs/9b62b3e6343aea00c1292f933ed60782/environment.yaml && \
+    mamba env create --prefix /conda-envs/5f5016fa41329b5634f7ab4a79259171 --file /conda-envs/5f5016fa41329b5634f7ab4a79259171/environment.yaml && \
+    mamba clean --all -y
+
+%help
+    This container includes two conda environments for bioinformatics workflows:
+    
+    1. ABC environment (/conda-envs/9b62b3e6343aea00c1292f933ed60782)
+       - Contains snakemake, bedtools, macs2, pysam, pyranges, and other tools
+       - Includes hic-straw==1.3.1 via pip
+    
+    2. ENCODE-rE2G environment (/conda-envs/5f5016fa41329b5634f7ab4a79259171)  
+       - Contains bedtools, snakemake, scikit-learn, shap, R packages
+       - Optimized for ENCODE-rE2G workflows
+    
+    To activate an environment within the container:
+    source activate /conda-envs/[environment-hash]
+    
+    Or use conda/mamba commands directly with the --prefix flag.
+
+
+%runscript
+    # Default behavior when container is executed
+    echo "Bioinformatics container with ABC and ENCODE-rE2G environments"
+    echo "Available environments:"
+    echo "  ABC: /conda-envs/9b62b3e6343aea00c1292f933ed60782"  
+    echo "  ENCODE-rE2G: /conda-envs/5f5016fa41329b5634f7ab4a79259171"
+    echo ""
+    echo "Usage: singularity exec e2g.sif <command>"
+    echo "       singularity shell e2g.sif"
